@@ -108,7 +108,7 @@ function applyPeakMarker (input: CellInput, rep: Representation): CellInput {
     if (peakColor) out.fill = peakColor;
     out.centerDot = { color: '#ffffff' };
   } else if (pm.primitive === 'letter' || pm.primitive === 'X') {
-    out.letter = 'X';
+    out.letter = pm.letter ?? 'X';
   }
   return out;
 }

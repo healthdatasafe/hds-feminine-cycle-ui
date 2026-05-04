@@ -6,6 +6,7 @@
 import { registry } from './registry.ts';
 import { femmSpec } from './specs/femm.ts';
 import { billingsSpec } from './specs/billings.ts';
+import { creightonSpec } from './specs/creighton.ts';
 
 export type {
   Representation,
@@ -32,5 +33,6 @@ export type { PreviewDay } from './samplePreviewEvents.ts';
 // Built-in registrations.
 registry.register(femmSpec);
 registry.register(billingsSpec);
+registry.register(creightonSpec);
 
-export { femmSpec, billingsSpec };
+export { femmSpec, billingsSpec, creightonSpec };

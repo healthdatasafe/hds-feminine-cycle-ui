@@ -156,7 +156,9 @@ function StampSquare (props: CellProps): React.JSX.Element {
       {input.centerDot && !empty && (
         <circle cx={size / 2} cy={size / 2} r={Math.max(2, size * 0.14)} fill={input.centerDot.color} />
       )}
-      {input.letter && !empty && (
+      {/* Center text: letter wins when alone; code wins when alone; if BOTH,
+          code stays centered and the letter renders as a corner badge. */}
+      {input.letter && !empty && !input.code && (
         <text
           x={size / 2}
           y={size / 2}
@@ -170,7 +172,7 @@ function StampSquare (props: CellProps): React.JSX.Element {
           {input.letter}
         </text>
       )}
-      {input.code && !empty && !input.letter && (
+      {input.code && !empty && (
         <text
           x={size / 2}
           y={size / 2}
@@ -183,6 +185,23 @@ function StampSquare (props: CellProps): React.JSX.Element {
         >
           {input.code}
         </text>
+      )}
+      {input.code && input.letter && !empty && (
+        <g>
+          <circle cx={size - inset - 1} cy={inset + 1} r={size * 0.18} fill='#fff' stroke={overlayFill} strokeWidth={0.5} />
+          <text
+            x={size - inset - 1}
+            y={inset + 1}
+            textAnchor='middle'
+            dominantBaseline='central'
+            fontSize={size * 0.28}
+            fontWeight='700'
+            fill={overlayFill}
+            style={{ userSelect: 'none' }}
+          >
+            {input.letter}
+          </text>
+        </g>
       )}
     </svg>
   );

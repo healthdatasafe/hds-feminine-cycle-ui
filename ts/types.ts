@@ -54,6 +54,11 @@ export interface PeakMarkerSpec {
    * dimensions (e.g. cyclefeminin → Creighton imports).
    */
   candidateOptions?: string[];
+  /**
+   * Letter shown on the peak day when `primitive === 'letter'`. Defaults to
+   * 'X' (Billings convention). Creighton uses 'P'.
+   */
+  letter?: string;
 }
 
 export interface RepresentationSpec {
