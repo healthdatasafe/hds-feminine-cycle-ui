@@ -59,15 +59,17 @@ Adding a new field to `CellInput` is **non-breaking** (older renderers ignore un
 
 | Slice | Status |
 |---|---|
-| Package skeleton (TS, ESM, eslint, tests) | ✅ shipped |
-| `RepresentationCell` (`dot-circle`) | ✅ shipped |
-| `composeCellInput` with N→1 reduction + halfSplit | ✅ shipped (14/14 tests pass) |
-| Registry + FEMM spec | ✅ shipped |
-| `samplePreviewEvents` synthetic fixture | ✅ shipped |
-| `stamp-square` primitive | ⏳ deferred to v0.2 |
-| Billings + Creighton specs | ⏳ deferred to v0.2 |
-| Force-conversion via `EuclidianDistanceEngine.fromVector` | ⏳ deferred (peer-host call) |
+| Package skeleton (TS, ESM, eslint, tests) | ✅ shipped (v0.1) |
+| `RepresentationCell` `dot-circle` | ✅ shipped (v0.1) |
+| `composeCellInput` N→1 reduction + halfSplit | ✅ shipped (v0.1; 14/14 tests pass) |
+| Registry + FEMM spec | ✅ shipped (v0.1) |
+| `samplePreviewEvents` synthetic fixture | ✅ shipped (v0.1; gained vectors in v0.2) |
+| `stamp-square` primitive | ✅ shipped (v0.2) |
+| Billings spec | ✅ shipped (v0.2) |
+| Force-conversion via host-supplied `closestOption` callback | ✅ shipped (v0.2) |
+| Creighton spec (33 codes) | ⏳ next |
 | Peak detection helper (`detectPeakDay`) | ⏳ deferred |
+| `cycleGrid` row container | ⏳ deferred (lives in `hds-react-timeline`) |
 
 ## Adding a new representation
 

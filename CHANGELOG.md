@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 — 2026-05-04
+
+### Added
+- `stamp-square` primitive (rounded squares with light/dark fill awareness).
+- Built-in **Billings (BOM)** spec (`billings`).
+- `composeCellInput` accepts a `closestOption` callback (force-conversion via host's converter engine).
+- `samplePreviewEvents` carries 9-d vectors so previews render under any registered representation.
+
+### Changed
+- Numeric bleeding buckets are now single-valued per range — removes ambiguous mapping where a low value used to map to both `spotting` and `light`.
+
 ## 0.1.0 — 2026-05-04
 
 Initial release.
