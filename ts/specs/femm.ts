@@ -16,10 +16,12 @@ export const femmSpec: RepresentationSpec = {
   referenceUrl: 'https://femmhealth.org/',
   boundMethod: { itemKey: 'cervical-fluid', methodId: 'femm' },
   consumes: [
-    // Note: HDS canonical bleeding stream is `body-vulva-bleeding` (vulva-scoped).
-    // Older naming `body-vagina-bleeding` is also accepted.
+    // Canonical HDS bleeding stream is `body-vulva-bleeding`; legacy name
+    // `body-vagina-bleeding` is also accepted.
     { itemKey: 'body-vulva-bleeding', role: 'bleeding' },
     { itemKey: 'body-vagina-bleeding', role: 'bleeding' },
+    // Brown-dark substate (canonical: `body-vulva-bleeding-browndark`).
+    { itemKey: 'body-vulva-bleeding-browndark', role: 'bleedingSubstate' },
     { itemKey: 'bleeding-brown-dark', role: 'bleedingSubstate' },
     { itemKey: 'body-vulva-mucus-inspect', role: 'mucus' }
   ],
