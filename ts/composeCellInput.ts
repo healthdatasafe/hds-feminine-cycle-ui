@@ -140,7 +140,8 @@ function readOptionCandidates (
     else if (typeof c?.value === 'number') num = c.value;
     if (num != null) {
       if (num <= 0) return [];
-      if (num < 0.3) return ['spotting', 'light'];
+      if (num < 0.15) return ['spotting'];
+      if (num < 0.4) return ['light'];
       if (num < 0.65) return ['medium'];
       return ['heavy'];
     }

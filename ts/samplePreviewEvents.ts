@@ -19,16 +19,39 @@ export interface PreviewDay {
   events: HdsEventLike[];
 }
 
+// Vectors copied from `data-model/.../models/cervical-fluid/femm/v0.json`.
+// Bundled here so previews can be force-converted to any other method
+// (Billings, Creighton, …) via a host-supplied `closestOption` callback.
+const FEMM_VECTORS: Record<1 | 2 | 3 | 4, Record<string, number>> = {
+  1: {},
+  2: { threadiness: 0.35, stretchability: 0.2, lubricative: 0.15, transparency: 0.15, wetness: 0.25, densityFluidity: 0.15, sensation: 0.2, mucusVolume: 0.3 },
+  3: { threadiness: 0.55, stretchability: 0.45, lubricative: 0.45, transparency: 0.4, wetness: 0.55, densityFluidity: 0.4, sensation: 0.5, mucusVolume: 0.5 },
+  4: { threadiness: 0.9, stretchability: 0.85, lubricative: 0.85, transparency: 0.8, wetness: 0.85, densityFluidity: 0.7, color: 0.45, sensation: 0.85, mucusVolume: 0.7 }
+};
+
 const mucus = (femmValue: 1 | 2 | 3 | 4): HdsEventLike => ({
   streamIds: ['body-vulva-mucus-inspect'],
   type: 'vulva-mucus-inspect/9d-vector',
-  content: { source: { key: 'femm', sourceData: { mucus: femmValue } } }
+  content: {
+    source: { key: 'femm', sourceData: { mucus: femmValue } },
+    vectors: FEMM_VECTORS[femmValue]
+  }
 });
 
+// Bleeding events carry a numeric ratio (matching the canonical HDS bleeding
+// stream `body-vulva-bleeding`, type `ratio/proportion`); composeCellInput
+// buckets them into spotting/medium/heavy.
+const BLEEDING_NUM: Record<'heavy' | 'medium' | 'light' | 'spotting', number> = {
+  heavy: 0.75,
+  medium: 0.55,
+  light: 0.25,
+  spotting: 0.08
+};
+
 const bleeding = (intensity: 'heavy' | 'medium' | 'light' | 'spotting'): HdsEventLike => ({
-  streamIds: ['body-vagina-bleeding'],
-  type: 'bleeding/intensity',
-  content: intensity
+  streamIds: ['body-vulva-bleeding'],
+  type: 'ratio/proportion',
+  content: BLEEDING_NUM[intensity]
 });
 
 export const samplePreviewEvents: PreviewDay[] = [
