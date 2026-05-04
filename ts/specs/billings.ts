@@ -22,6 +22,7 @@ export const billingsSpec: RepresentationSpec = {
   consumes: [
     { itemKey: 'body-vulva-bleeding', role: 'bleeding' },
     { itemKey: 'body-vagina-bleeding', role: 'bleeding' },
+    { itemKey: 'body-vulva-bleeding-browndark', role: 'bleeding' },
     { itemKey: 'bleeding-brown-dark', role: 'bleeding' },
     { itemKey: 'body-vulva-mucus-inspect', role: 'mucus' }
   ],
@@ -55,6 +56,7 @@ export const billingsSpec: RepresentationSpec = {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',
     color: 'peak',
-    thresholds: { lubricative: 0.7, stretchability: 0.7 }
+    thresholds: { lubricative: 0.7, stretchability: 0.7 },
+    candidateOptions: ['wetSlippery', 'peak']
   }
 };

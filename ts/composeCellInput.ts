@@ -16,6 +16,16 @@ import type {
  */
 export interface ComposeOptions {
   closestOption?: (methodId: string, vector: any) => string | null | undefined;
+  /**
+   * Per-day context — set by the host after running `detectFertilityWindow`.
+   * Marks the cell as the peak day or a non-peak fertile day; composeCellInput
+   * applies the spec's `peakMarker` config (FEMM: dark-blue fill + center dot;
+   * Billings: white stamp + 'X' letter).
+   */
+  dayContext?: {
+    isPeak?: boolean;
+    isFertile?: boolean;
+  };
 }
 
 /**
@@ -66,7 +76,53 @@ export function composeCellInput (
 
   applyHalfSplit(result, ordered, roleFragments, rep);
 
+  if (opts?.dayContext?.isPeak) {
+    return applyPeakMarker(result, rep);
+  }
+  if (opts?.dayContext?.isFertile) {
+    return applyFertileMarker(result, rep);
+  }
+
   return result;
+}
+
+function applyPeakMarker (input: CellInput, rep: Representation): CellInput {
+  if (input.empty) return input;
+  const pm = rep.spec.peakMarker;
+  if (!pm) return input;
+
+  // Spec-defined peak rule under the mucus role (Billings: white + X). Wins.
+  const peakRule = rep.spec.mappingRules?.mucus?.peak;
+  if (peakRule) {
+    const out: CellInput = { ...input };
+    if (peakRule.fill) out.fill = rep.resolveColor(peakRule.fill);
+    if (peakRule.letter) out.letter = peakRule.letter;
+    if (peakRule.code) out.code = peakRule.code;
+    return out;
+  }
+
+  // Fallback to peakMarker config (FEMM: dark-blue centerDot).
+  const out: CellInput = { ...input };
+  const peakColor = pm.color ? rep.resolveColor(pm.color) : undefined;
+  if (pm.primitive === 'centerDot') {
+    if (peakColor) out.fill = peakColor;
+    out.centerDot = { color: '#ffffff' };
+  } else if (pm.primitive === 'letter' || pm.primitive === 'X') {
+    out.letter = 'X';
+  }
+  return out;
+}
+
+function applyFertileMarker (input: CellInput, rep: Representation): CellInput {
+  if (input.empty) return input;
+  // Only meaningful for primitive='centerDot' representations (FEMM).
+  // For 'letter' representations (Billings X-on-peak), fertile days stay as-is —
+  // Billings doesn't decorate fertile days separately from "white discharge".
+  const pm = rep.spec.peakMarker;
+  if (!pm || pm.primitive !== 'centerDot') return input;
+  // Fertile = same fill, smaller white center dot (no fill darkening).
+  if (input.centerDot) return input;
+  return { ...input, centerDot: { color: '#ffffff' } };
 }
 
 /**

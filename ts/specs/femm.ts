@@ -64,6 +64,8 @@ export const femmSpec: RepresentationSpec = {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'centerDot',
     color: 'peak',
-    thresholds: { lubricative: 0.7, stretchability: 0.7 }
+    thresholds: { lubricative: 0.7, stretchability: 0.7 },
+    // FEMM mucus value 4 = Slippery — the only fertile-class option in FEMM's 4-step scale.
+    candidateOptions: ['4']
   }
 };

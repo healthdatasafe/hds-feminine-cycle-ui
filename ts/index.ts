@@ -23,6 +23,8 @@ export type {
 export { registry } from './registry.ts';
 export { composeCellInput } from './composeCellInput.ts';
 export type { ComposeOptions } from './composeCellInput.ts';
+export { detectFertilityWindow } from './detectFertilityWindow.ts';
+export type { FertilityWindow } from './detectFertilityWindow.ts';
 export { RepresentationCell } from './RepresentationCell.tsx';
 export { samplePreviewEvents } from './samplePreviewEvents.ts';
 export type { PreviewDay } from './samplePreviewEvents.ts';
