@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.0 — 2026-05-04
+
+### Added
+- Built-in **Creighton Model** spec (33 codes auto-generated from `CREIGHTON_OPTIONS`).
+- `PeakMarkerSpec.letter?: string` — peak letter (defaults to `'X'`, Creighton uses `'P'`).
+- `StampSquare`: when a cell has both `code` and `letter`, the letter renders as a small white badge in the top-right corner so the code stays legible.
+
+## 0.3.0 — 2026-05-04
+
+### Added
+- `detectFertilityWindow(events, rep, opts?)` — sliding-window peak/fertile detection from mucus option keys (with optional `closestOption` for force-conversion).
+- `composeCellInput` accepts `dayContext: { isPeak?, isFertile? }`. Applies the spec's `peakMarker` config — FEMM gets a dark-navy fill + white center dot; Billings gets the white discharge stamp + 'X' letter overlay (via `mappingRules.mucus.peak`).
+- `PeakMarkerSpec.candidateOptions: string[]` — high-fertility option keys for peak/fertile classification.
+- Brown-dark canonical stream `body-vulva-bleeding-browndark` added to FEMM/Billings consumes lists alongside the legacy `bleeding-brown-dark` name.
+
 ## 0.2.0 — 2026-05-04
 
 ### Added

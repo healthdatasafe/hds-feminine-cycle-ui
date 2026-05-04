@@ -67,9 +67,13 @@ Adding a new field to `CellInput` is **non-breaking** (older renderers ignore un
 | `stamp-square` primitive | ✅ shipped (v0.2) |
 | Billings spec | ✅ shipped (v0.2) |
 | Force-conversion via host-supplied `closestOption` callback | ✅ shipped (v0.2) |
-| Creighton spec (33 codes) | ⏳ next |
-| Peak detection helper (`detectPeakDay`) | ⏳ deferred |
+| Peak/fertile detection (`detectFertilityWindow`) + dayContext | ✅ shipped (v0.3) |
+| Brown-dark canonical stream wiring | ✅ shipped (v0.3) |
+| Creighton spec (33 codes) | ✅ shipped (v0.4) |
+| Peak letter customisation (`PeakMarkerSpec.letter`) | ✅ shipped (v0.4) |
 | `cycleGrid` row container | ⏳ deferred (lives in `hds-react-timeline`) |
+| Creighton "fertile" day visual differentiation | ⏳ deferred |
+| `StampGridPicker` field for `hds-forms-js` | ⏳ deferred |
 
 ## Adding a new representation
 
