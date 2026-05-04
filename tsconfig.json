@@ -1,0 +1,27 @@
+{
+  "include": ["ts/**/*"],
+  "compilerOptions": {
+    "allowJs": true,
+    "sourceMap": false,
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "jsx": "react-jsx",
+    "strict": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "declarationMap": false,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "noEmitOnError": false,
+    "rewriteRelativeImportExtensions": true,
+    "resolveJsonModule": true,
+    "outDir": "js",
+    "rootDir": "ts"
+  },
+  "exclude": ["node_modules", "dist", "js", "tests", "coverage"]
+}

@@ -1,0 +1,186 @@
+import type {
+  CellInput,
+  HdsEventLike,
+  MappingRuleFragment,
+  Representation
+} from './types.ts';
+
+/**
+ * Optional behaviours for `composeCellInput`.
+ *
+ * `closestOption` is the host-supplied bridge to the data-model converter graph
+ * (`hds-lib-js`'s `EuclidianDistanceEngine.fromVector(methodId, vector)`).
+ * When present, mucus events whose `source.key` doesn't match the representation's
+ * bound method are force-converted to the closest matching option in the bound
+ * method — same engine bridges already use on ingest.
+ */
+export interface ComposeOptions {
+  closestOption?: (methodId: string, vector: any) => string | null | undefined;
+}
+
+/**
+ * Reduce the HDS events on a given date to a single normalized CellInput.
+ * Pure aside from the optional `closestOption` callback (which itself wraps a
+ * pure engine call).
+ */
+export function composeCellInput (
+  events: HdsEventLike[],
+  rep: Representation,
+  opts?: ComposeOptions
+): CellInput {
+  if (events.length === 0) return { empty: true };
+
+  const rolesByItem = new Map<string, string>();
+  for (const c of rep.spec.consumes) rolesByItem.set(c.itemKey, c.role);
+
+  const roleEvents = new Map<string, HdsEventLike[]>();
+  for (const ev of events) {
+    for (const sid of ev.streamIds) {
+      const role = rolesByItem.get(sid);
+      if (!role) continue;
+      if (!roleEvents.has(role)) roleEvents.set(role, []);
+      roleEvents.get(role)!.push(ev);
+    }
+  }
+
+  if (roleEvents.size === 0) return { empty: true };
+
+  const roleFragments = new Map<string, MappingRuleFragment>();
+  for (const [role, list] of roleEvents) {
+    const rules = rep.spec.mappingRules[role];
+    if (!rules) continue;
+    const optionKey = pickOptionKey(role, list, rep, opts);
+    const fragment = optionKey != null ? rules[optionKey] : undefined;
+    if (fragment) roleFragments.set(role, fragment);
+  }
+
+  if (roleFragments.size === 0) return { empty: true };
+
+  const ordered = rep.spec.precedence.filter((r) => roleFragments.has(r));
+  if (ordered.length === 0) return { empty: true };
+
+  const result: CellInput = {};
+  for (const role of ordered) {
+    Object.assign(result, fragmentToInput(roleFragments.get(role)!, rep));
+  }
+
+  applyHalfSplit(result, ordered, roleFragments, rep);
+
+  return result;
+}
+
+/**
+ * Read the option-key for an event under a given role.
+ *
+ * Convention (matches `bridge-cyclefeminin-net/src/converters/mucus.js`):
+ *   - mucus events:   content.source.sourceData.mucus is the option-key.
+ *   - bleeding events: content (string) OR content.value is the intensity label.
+ *   - bleedingSubstate events: identical to bleeding.
+ *
+ * If multiple events of the same role on the same day, pick the highest-precedence
+ * option (last entry in the rules table wins; stable but representation-defined).
+ */
+function pickOptionKey (
+  role: string,
+  list: HdsEventLike[],
+  rep: Representation,
+  opts?: ComposeOptions
+): string | null {
+  const rules = rep.spec.mappingRules[role];
+  if (!rules) return null;
+  const orderedOptions = Object.keys(rules);
+
+  let bestIndex = -1;
+  for (const ev of list) {
+    const candidates = readOptionCandidates(role, ev, rep, opts);
+    for (const candidate of candidates) {
+      const idx = orderedOptions.indexOf(candidate);
+      if (idx > bestIndex) bestIndex = idx;
+    }
+  }
+  if (bestIndex < 0) return null;
+  return orderedOptions[bestIndex];
+}
+
+function readOptionCandidates (
+  role: string,
+  ev: HdsEventLike,
+  rep: Representation,
+  opts?: ComposeOptions
+): string[] {
+  const c = ev.content;
+  if (c == null) return [];
+  if (role === 'mucus') {
+    const sourceKey = c?.source?.key;
+    const native = c?.source?.sourceData?.mucus;
+    const targetMethod = rep.spec.boundMethod.methodId;
+    // Native: event was logged in the bound method.
+    if (sourceKey === targetMethod && (typeof native === 'string' || typeof native === 'number')) {
+      return [String(native)];
+    }
+    // Force-convert via the host-supplied engine bridge.
+    const vectors = c?.vectors;
+    if (vectors && opts?.closestOption) {
+      try {
+        const closest = opts.closestOption(targetMethod, vectors);
+        if (closest) return [String(closest)];
+      } catch (_e) { /* swallow — fall through to empty */ }
+    }
+    // Last-resort: if the event is in the bound method but didn't carry source metadata, accept native.
+    if (typeof native === 'string' || typeof native === 'number') return [String(native)];
+    return [];
+  }
+  if (role === 'bleeding') {
+    // The canonical HDS bleeding event is `ratio/proportion` (0..1).
+    // Bucket numeric values into the categorical labels representations expect.
+    // Thresholds match `bridge-cyclefeminin-net/src/converters/bleeding.js`:
+    //   Traces=0.08 → spotting, Medium=0.55 → medium, Heavy=0.75 → heavy.
+    let num: number | null = null;
+    if (typeof c === 'number') num = c;
+    else if (typeof c?.value === 'number') num = c.value;
+    if (num != null) {
+      if (num <= 0) return [];
+      if (num < 0.3) return ['spotting', 'light'];
+      if (num < 0.65) return ['medium'];
+      return ['heavy'];
+    }
+    if (typeof c === 'string') return [c];
+    if (typeof c?.value === 'string') return [c.value];
+    return [];
+  }
+  if (typeof c === 'string') return [c];
+  if (typeof c === 'number') return [String(c)];
+  if (typeof c?.value === 'string') return [c.value];
+  return [];
+}
+
+function fragmentToInput (frag: MappingRuleFragment, rep: Representation): CellInput {
+  const out: CellInput = {};
+  if (frag.fill) out.fill = rep.resolveColor(frag.fill);
+  if (frag.letter) out.letter = frag.letter;
+  if (frag.code) out.code = frag.code;
+  if (frag.centerDot) out.centerDot = { color: rep.resolveColor(frag.centerDot.color) };
+  if (frag.baby) out.baby = true;
+  return out;
+}
+
+function applyHalfSplit (
+  result: CellInput,
+  ordered: string[],
+  fragments: Map<string, MappingRuleFragment>,
+  rep: Representation
+): void {
+  const halfSplit = rep.spec.halfSplit;
+  if (!halfSplit?.enabled || ordered.length < 2) return;
+
+  const winner = ordered[ordered.length - 1];
+  const loser = ordered[ordered.length - 2];
+  const matches = halfSplit.pairs.some(([a, b]) =>
+    (a === winner && b === loser) || (a === loser && b === winner));
+  if (!matches) return;
+
+  const loserFrag = fragments.get(loser);
+  if (loserFrag?.fill) {
+    result.halfFill = { color: rep.resolveColor(loserFrag.fill) };
+  }
+}
