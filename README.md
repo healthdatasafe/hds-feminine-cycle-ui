@@ -59,7 +59,17 @@ const input = composeCellInput(events, rep, { closestOption });
 | `creighton` | `stamp-square` | v0.4    | [`docs/images/creighton-options.svg`](./docs/images/creighton-options.svg) · 33-code grid: [`docs/images/creighton-codes-grid.svg`](./docs/images/creighton-codes-grid.svg) |
 | `mira`      | `dot-circle`   | v0.5    | [`docs/images/mira-options.svg`](./docs/images/mira-options.svg) |
 
-Plus the standalone `CervixPositionMarker` glyph for `body-vulva-cervix-position` events (v0.7).
+Plus the standalone `CervixPositionMarker` glyph for `body-vulva-cervix-position` events (v0.7) — sample glyphs at [`docs/images/cervix-position-samples.svg`](./docs/images/cervix-position-samples.svg):
+
+<img src="./docs/images/cervix-position-samples.svg" alt="Cervix-position sample glyphs" width="380">
+
+Three signals encoded in one 28-px glyph (SHOW mnemonic):
+
+- **Height** → horizon-bar y position (Low = top of cell · High = bottom of cell).
+- **Firmness** → ring stroke width (Soft = thin · Firm = thick).
+- **Openness** → inner-hole radius (Open = large hole · Closed = solid + center dot).
+
+Mean of the three tints the ring slate (infertile) → teal (fertile).
 
 The `*-options.svg` files are auto-generated from the live spec by `npm run docs:images` (see [`scripts/render-method-images.mjs`](./scripts/render-method-images.mjs) and [`AGENTS.md`](./AGENTS.md#regenerating-docsimagesid-optionssvg)). Each shows the full mucus + bleeding + brown/dark + peak-day vocabulary with English labels (and a half-and-half mixed-day cell where the spec opts in). Run `npm run build && npm run docs:images` after editing a spec.
 

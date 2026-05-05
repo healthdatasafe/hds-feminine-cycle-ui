@@ -241,6 +241,99 @@ function svgCreightonGrid (rep) {
 `;
 }
 
+// ── CervixPositionMarker — re-render sample 3-D vector glyphs.
+// Mirrors ts/CervixPositionMarker.tsx; if you change the glyph there,
+// update this function too.
+
+const CP_FERTILE = '#0d9488';
+const CP_NEUTRAL = '#94a3b8';
+const CP_HORIZON = '#475569';
+
+function lerp (a, b, t) {
+  if (t == null || Number.isNaN(t)) return a;
+  return a + (b - a) * Math.max(0, Math.min(1, t));
+}
+
+function parseHex (hex) {
+  const h = hex.replace('#', '');
+  return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
+}
+
+function interpolateColor (from, to, t) {
+  const a = parseHex(from);
+  const b = parseHex(to);
+  const tt = Math.max(0, Math.min(1, t));
+  return `rgb(${Math.round(a.r + (b.r - a.r) * tt)}, ${Math.round(a.g + (b.g - a.g) * tt)}, ${Math.round(a.b + (b.b - a.b) * tt)})`;
+}
+
+function cervixGlyph (size, height, firmness, openness) {
+  const half = size / 2;
+  const rOuter = size * 0.28;
+  const rHole = lerp(0, size * 0.18, openness);
+  const strokeW = lerp(size * 0.16, size * 0.04, firmness);
+  const horizonTop = size * 0.18;
+  const horizonBottom = size * 0.82;
+  const horizonY = lerp(horizonTop, horizonBottom, height);
+  const horizonX1 = size * 0.12;
+  const horizonX2 = size * 0.88;
+  const known = [height, firmness, openness].filter(v => v != null);
+  const meanFertile = known.length > 0 ? known.reduce((s, v) => s + v, 0) / known.length : 0;
+  const ringColor = known.length === 0 ? CP_NEUTRAL : interpolateColor(CP_NEUTRAL, CP_FERTILE, meanFertile);
+  const parts = [];
+  if (height != null && !Number.isNaN(height)) {
+    const dy = horizonY - half;
+    const ringEdgeOffset = Math.abs(dy) < rOuter ? Math.sqrt(rOuter * rOuter - dy * dy) : 0;
+    const gap = size * 0.05;
+    const innerLeft = half - ringEdgeOffset - gap;
+    const innerRight = half + ringEdgeOffset + gap;
+    const sw = Math.max(1.5, size * 0.06);
+    if (innerLeft > horizonX1) {
+      parts.push(`<line x1="${horizonX1}" y1="${horizonY}" x2="${innerLeft}" y2="${horizonY}" stroke="${CP_HORIZON}" stroke-width="${sw}" stroke-linecap="round"/>`);
+    }
+    if (innerRight < horizonX2) {
+      parts.push(`<line x1="${innerRight}" y1="${horizonY}" x2="${horizonX2}" y2="${horizonY}" stroke="${CP_HORIZON}" stroke-width="${sw}" stroke-linecap="round"/>`);
+    }
+  }
+  parts.push(`<circle cx="${half}" cy="${half}" r="${rOuter}" fill="#ffffff" stroke="${ringColor}" stroke-width="${strokeW}"/>`);
+  if (rHole > 0) {
+    parts.push(`<circle cx="${half}" cy="${half}" r="${rHole}" fill="#ffffff"/>`);
+  }
+  if (rHole < size * 0.04) {
+    parts.push(`<circle cx="${half}" cy="${half}" r="${size * 0.05}" fill="${ringColor}"/>`);
+  }
+  return parts.join('');
+}
+
+function svgCervixSamples () {
+  // A representative 5-cell strip from infertile → fertile. NOT exhaustive
+  // (the value space is continuous 3-D); shows how the glyph reads at a few
+  // canonical SHOW combinations.
+  const samples = [
+    { label: 'Low · Firm · Closed (infertile)', h: 0.0, f: 0.0, o: 0.0 },
+    { label: 'Low · Medium · Closed', h: 0.0, f: 0.5, o: 0.0 },
+    { label: 'Medium · Medium · Medium', h: 0.5, f: 0.5, o: 0.5 },
+    { label: 'High · Medium · Open', h: 1.0, f: 0.5, o: 1.0 },
+    { label: 'High · Soft · Open (peak fertile)', h: 1.0, f: 1.0, o: 1.0 }
+  ];
+  const cellSize = 36;
+  const rowH = cellSize + ROW_GAP;
+  const width = PADDING * 2 + LABEL_W + cellSize;
+  const height = PADDING * 2 + samples.length * rowH - ROW_GAP;
+  const body = samples.map((s, i) => {
+    const cellY = PADDING + i * rowH;
+    const cellX = PADDING + LABEL_W;
+    return `<g transform="translate(${cellX}, ${cellY})">${cervixGlyph(cellSize, s.h, s.f, s.o)}</g>` +
+      `<text x="${PADDING}" y="${cellY + cellSize / 2}" font-size="${LABEL_FONT}" dominant-baseline="central" fill="#1f2937" font-family="system-ui, -apple-system, sans-serif">${escapeXml(s.label)}</text>`;
+  }).join('\n  ');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Cervical position — sample glyphs">
+  <title>Cervical position — sample glyphs (height · firmness · openness)</title>
+  <rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff"/>
+  ${body}
+</svg>
+`;
+}
+
 function main () {
   const reps = registry.list();
   for (const rep of reps) {
@@ -254,6 +347,9 @@ function main () {
       console.log(`wrote ${grid}`);
     }
   }
+  const cervixOut = join(OUT_DIR, 'cervix-position-samples.svg');
+  writeFileSync(cervixOut, svgCervixSamples());
+  console.log(`wrote ${cervixOut}`);
 }
 
 main();
