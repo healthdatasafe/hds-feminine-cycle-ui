@@ -41,7 +41,13 @@ function stampFillFor (code: string): 'dryGreen' | 'bleedingRed' | 'discharge' |
 function buildMucusRules (): Record<string, MappingRuleFragment> {
   const out: Record<string, MappingRuleFragment> = {};
   for (const code of CREIGHTON_OPTIONS) {
-    out[code] = { fill: stampFillFor(code), code };
+    const fill = stampFillFor(code);
+    // Fertile-class stamps (white) get the "baby" badge, matching the
+    // canonical Creighton/Read-Your-Body convention for fertile days.
+    const baby = fill === 'discharge';
+    out[code] = baby
+      ? { fill, code, baby: true }
+      : { fill, code };
   }
   return out;
 }

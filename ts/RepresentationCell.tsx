@@ -203,6 +203,30 @@ function StampSquare (props: CellProps): React.JSX.Element {
           </text>
         </g>
       )}
+      {/* Baby badge: tiny smiley in the top-left corner — flags fertile-class
+          stamps (Creighton 10*, *L). Reference: Read Your Body's Billings
+          stamps. Stroke color matches overlay text so it reads cleanly on
+          both light and dark fills. */}
+      {input.baby && !empty && (() => {
+        const cx = inset + size * 0.18;
+        const cy = inset + size * 0.18;
+        const r = size * 0.14;
+        const eyeR = Math.max(0.6, size * 0.025);
+        return (
+          <g>
+            <circle cx={cx} cy={cy} r={r} fill='#fff' stroke={overlayFill} strokeWidth={0.7} />
+            <circle cx={cx - r * 0.35} cy={cy - r * 0.1} r={eyeR} fill={overlayFill} />
+            <circle cx={cx + r * 0.35} cy={cy - r * 0.1} r={eyeR} fill={overlayFill} />
+            <path
+              d={`M ${cx - r * 0.45} ${cy + r * 0.2} Q ${cx} ${cy + r * 0.6} ${cx + r * 0.45} ${cy + r * 0.2}`}
+              fill='none'
+              stroke={overlayFill}
+              strokeWidth={0.7}
+              strokeLinecap='round'
+            />
+          </g>
+        );
+      })()}
     </svg>
   );
 }
