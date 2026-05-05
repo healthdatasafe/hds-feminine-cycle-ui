@@ -11,6 +11,10 @@ import type { RepresentationSpec } from '../types.ts';
 export const femmSpec: RepresentationSpec = {
   id: 'femm',
   label: { en: 'FEMM', fr: 'FEMM' },
+  description: {
+    en: 'One coloured circle per day. Composite: bleeding, brown spotting, and mucus on a single row, with M/L letters for bleeding intensity.',
+    fr: 'Un cercle coloré par jour. Composite : saignement, spotting brun et glaire sur une seule ligne, avec lettres M/L pour l\'intensité du saignement.'
+  },
   version: 'v0',
   primitive: 'dot-circle',
   referenceUrl: 'https://femmhealth.org/',

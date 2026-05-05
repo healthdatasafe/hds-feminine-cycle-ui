@@ -64,6 +64,8 @@ export interface PeakMarkerSpec {
 export interface RepresentationSpec {
   id: string;
   label: I18nText;
+  /** One-line user-facing description shown alongside the label in pickers. */
+  description?: I18nText;
   version: string;
   primitive: 'dot-circle' | 'stamp-square';
   boundMethod: { itemKey: string; methodId: string };
