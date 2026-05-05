@@ -74,6 +74,7 @@ Adding a new field to `CellInput` is **non-breaking** (older renderers ignore un
 | Mira spec (5 options) | ✅ shipped (v0.5) |
 | Bare-scalar source.sourceData support | ✅ shipped (v0.5) |
 | Spec descriptions (`RepresentationSpec.description`) | ✅ shipped (v0.6) |
+| `CervixPositionMarker` standalone glyph | ✅ shipped (v0.7) |
 | `cycleGrid` row container | ⏳ deferred (lives in `hds-react-timeline`) |
 | Creighton "fertile" day visual differentiation | ⏳ deferred |
 | `StampGridPicker` field for `hds-forms-js` | ⏳ deferred |

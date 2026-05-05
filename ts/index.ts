@@ -28,6 +28,8 @@ export type { ComposeOptions } from './composeCellInput.ts';
 export { detectFertilityWindow } from './detectFertilityWindow.ts';
 export type { FertilityWindow } from './detectFertilityWindow.ts';
 export { RepresentationCell } from './RepresentationCell.tsx';
+export { CervixPositionMarker } from './CervixPositionMarker.tsx';
+export type { CervixPositionMarkerProps } from './CervixPositionMarker.tsx';
 export { samplePreviewEvents } from './samplePreviewEvents.ts';
 export type { PreviewDay } from './samplePreviewEvents.ts';
 

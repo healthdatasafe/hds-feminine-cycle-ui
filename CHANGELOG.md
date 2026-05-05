@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0 — 2026-05-05
+
+### Added
+- `CervixPositionMarker` — standalone React component for `body-vulva-cervix-position` events. Visualises the SHOW mnemonic (height → glyph y-position, firmness → ring stroke width, openness → ring center hole). Hue interpolates slate (infertile) → teal (fertile) by averaging the three signals. Standalone (not part of `RepresentationSpec`/`registry`) since cervical-position is a 3-D vector, not an option-key pick.
+
 ## 0.6.0 — 2026-05-05
 
 ### Added
