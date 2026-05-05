@@ -56,15 +56,21 @@ export function detectFertilityWindow (
 
     let optionKey: string | null = null;
     const sourceKey = c?.source?.key;
-    const native = c?.source?.sourceData?.mucus;
-    if (sourceKey === targetMethod && (typeof native === 'string' || typeof native === 'number')) {
+    const sd = c?.source?.sourceData;
+    const native: string | number | undefined =
+      (typeof sd === 'string' || typeof sd === 'number')
+        ? sd
+        : (typeof sd?.mucus === 'string' || typeof sd?.mucus === 'number')
+            ? sd.mucus
+            : undefined;
+    if (sourceKey === targetMethod && native != null) {
       optionKey = String(native);
     } else if (c?.vectors && opts?.closestOption) {
       try {
         const closest = opts.closestOption(targetMethod, c.vectors);
         if (closest) optionKey = String(closest);
       } catch (_e) { /* skip */ }
-    } else if (typeof native === 'string' || typeof native === 'number') {
+    } else if (native != null) {
       optionKey = String(native);
     }
 

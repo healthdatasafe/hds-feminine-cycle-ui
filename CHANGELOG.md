@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 — 2026-05-05
+
+### Added
+- Built-in **Mira** representation (`dot-circle`, 5 options: Dry/Sticky/Creamy/Watery/Raw Egg White). Watery + Raw Egg White flagged as peak candidates.
+
+### Changed
+- `composeCellInput` and `detectFertilityWindow` now accept two shapes for `event.content.source.sourceData`:
+  - bare scalar (e.g. `"Sticky"`) — bridge-mira / mira-demo convention.
+  - object `{ mucus: "..." }` — bridge-cyclefeminin-net convention.
+- New internal helper `readNativeMucus` centralises the source-data shape detection.
+
 ## 0.4.0 — 2026-05-04
 
 ### Added

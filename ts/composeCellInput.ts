@@ -86,6 +86,21 @@ export function composeCellInput (
   return result;
 }
 
+/**
+ * Read a "native mucus option" from `event.content.source.sourceData`.
+ * The HDS ecosystem has two shapes in the wild:
+ *   1. Object: `{ mucus: "Sticky" }` (e.g. bridge-cyclefeminin-net).
+ *   2. Bare scalar: `"Sticky"` or `4` (e.g. bridge-mira's mira-demo dataset).
+ * Both are accepted.
+ */
+function readNativeMucus (sourceData: any): string | number | undefined {
+  if (sourceData == null) return undefined;
+  if (typeof sourceData === 'string' || typeof sourceData === 'number') return sourceData;
+  const m = sourceData?.mucus;
+  if (typeof m === 'string' || typeof m === 'number') return m;
+  return undefined;
+}
+
 function applyPeakMarker (input: CellInput, rep: Representation): CellInput {
   if (input.empty) return input;
   const pm = rep.spec.peakMarker;
@@ -168,10 +183,10 @@ function readOptionCandidates (
   if (c == null) return [];
   if (role === 'mucus') {
     const sourceKey = c?.source?.key;
-    const native = c?.source?.sourceData?.mucus;
+    const native = readNativeMucus(c?.source?.sourceData);
     const targetMethod = rep.spec.boundMethod.methodId;
     // Native: event was logged in the bound method.
-    if (sourceKey === targetMethod && (typeof native === 'string' || typeof native === 'number')) {
+    if (sourceKey === targetMethod && native != null) {
       return [String(native)];
     }
     // Force-convert via the host-supplied engine bridge.
@@ -182,8 +197,8 @@ function readOptionCandidates (
         if (closest) return [String(closest)];
       } catch (_e) { /* swallow — fall through to empty */ }
     }
-    // Last-resort: if the event is in the bound method but didn't carry source metadata, accept native.
-    if (typeof native === 'string' || typeof native === 'number') return [String(native)];
+    // Last-resort: if the event has a native option but no source.key match, accept it.
+    if (native != null) return [String(native)];
     return [];
   }
   if (role === 'bleeding') {
