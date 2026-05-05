@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 — 2026-05-05
+
+### Added
+- New optional `description: I18nText` field on `RepresentationSpec` for one-line user-facing prose used in pickers (en + fr).
+- FEMM, Billings, Creighton, Mira each carry a description tailored to the visual primitive they ship.
+
 ## 0.5.0 — 2026-05-05
 
 ### Added
