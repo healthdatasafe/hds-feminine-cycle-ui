@@ -19,7 +19,7 @@ const DEFAULT_SIZE = 28;
 
 const COLOR_FERTILE = '#0d9488'; // teal-600 (fertile signal)
 const COLOR_NEUTRAL = '#94a3b8'; // slate-400
-const COLOR_OUTLINE = '#cbd5e1'; // slate-300 (track)
+const COLOR_HORIZON = '#475569'; // slate-600 (horizon bar — darker than neutral)
 
 export interface CervixPositionMarkerProps {
   /** 0.0 = Low, 0.5 = Medium, 1.0 = High */
@@ -88,17 +88,27 @@ export function CervixPositionMarker ({
     >
       {/* Horizon bar — only drawn when height is known. Drawn first so the
           ring sits on top of it when the bar passes through cell center. */}
-      {height != null && !Number.isNaN(height) && (
-        <line
-          x1={horizonX1}
-          y1={horizonY}
-          x2={horizonX2}
-          y2={horizonY}
-          stroke={COLOR_OUTLINE}
-          strokeWidth={Math.max(1, size * 0.06)}
-          strokeLinecap='round'
-        />
-      )}
+      {/* Horizon bar — split into left + right halves that stop at the ring's
+          edge, with a small gap, so the bar never overlaps the cervix glyph
+          even when height is mid-range and the bar passes through cell center. */}
+      {height != null && !Number.isNaN(height) && (() => {
+        const dy = horizonY - half;
+        const ringEdgeOffset = Math.abs(dy) < rOuter
+          ? Math.sqrt(rOuter * rOuter - dy * dy)
+          : 0;
+        const gap = size * 0.05;
+        const innerLeft = half - ringEdgeOffset - gap;
+        const innerRight = half + ringEdgeOffset + gap;
+        const sw = Math.max(1.5, size * 0.06);
+        const segments = [];
+        if (innerLeft > horizonX1) {
+          segments.push(<line key='hl' x1={horizonX1} y1={horizonY} x2={innerLeft} y2={horizonY} stroke={COLOR_HORIZON} strokeWidth={sw} strokeLinecap='round' />);
+        }
+        if (innerRight < horizonX2) {
+          segments.push(<line key='hr' x1={innerRight} y1={horizonY} x2={horizonX2} y2={horizonY} stroke={COLOR_HORIZON} strokeWidth={sw} strokeLinecap='round' />);
+        }
+        return <>{segments}</>;
+      })()}
 
       {/* Cervix ring (always centered) */}
       <circle
