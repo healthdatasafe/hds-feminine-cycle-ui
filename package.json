@@ -10,6 +10,7 @@
     "prepare": "tsc",
     "build": "tsc",
     "test": "node --test tests/*.test.js",
+    "docs:images": "node scripts/render-method-images.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

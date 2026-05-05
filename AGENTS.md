@@ -4,7 +4,9 @@ Operational notes for AI agents working in this repo. Update as development prog
 
 ## What this package is
 
-Custom UI representations for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, or **Creighton** charts. Layout-agnostic: the same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it.
+Custom UI representations for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, or **Mira** charts. Layout-agnostic: the same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it.
+
+Also ships `CervixPositionMarker` — a standalone glyph for `body-vulva-cervix-position` 3-D vector events (height / firmness / openness). Not part of the spec/registry; rendered by hosts directly.
 
 Read-first:
 
@@ -27,11 +29,13 @@ Exports stay narrow on purpose. Today:
 
 ```ts
 import {
-  RepresentationCell,        // React component, layout-agnostic
+  RepresentationCell,        // React component for cycle-fluid cells (dot-circle | stamp-square)
+  CervixPositionMarker,      // React component for cervix-position glyph (3-D vector → SHOW glyph)
   composeCellInput,          // pure function: events → CellInput
+  detectFertilityWindow,     // sliding-window peak/fertile detection over option keys
   registry,                  // built-in + user-extensible registrations
   samplePreviewEvents,       // shared 7-day fixture for previews
-  femmSpec                   // built-in spec
+  femmSpec, billingsSpec, creightonSpec, miraSpec
 } from 'hds-feminine-cycle-ui';
 
 // types
@@ -40,7 +44,10 @@ import type {
   RepresentationSpec,
   CellInput,
   CellProps,
-  HdsEventLike
+  CervixPositionMarkerProps,
+  FertilityWindow,
+  HdsEventLike,
+  I18nText
 } from 'hds-feminine-cycle-ui';
 ```
 
@@ -55,7 +62,7 @@ Adding a new field to `CellInput` is **non-breaking** (older renderers ignore un
 
 ## Status
 
-`v0.1.0` (current) — FEMM `dot-circle` only.
+`v0.7.0` (current) — FEMM + Billings + Creighton + Mira cycle-fluid reps; standalone CervixPositionMarker.
 
 | Slice | Status |
 |---|---|
@@ -77,7 +84,7 @@ Adding a new field to `CellInput` is **non-breaking** (older renderers ignore un
 | `CervixPositionMarker` standalone glyph | ✅ shipped (v0.7) |
 | `cycleGrid` row container | ⏳ deferred (lives in `hds-react-timeline`) |
 | Creighton "fertile" day visual differentiation | ⏳ deferred |
-| `StampGridPicker` field for `hds-forms-js` | ⏳ deferred |
+| `StampGridPicker` (host) field for `hds-forms-js` | ✅ shipped (lives in hds-forms-js, consumes RepresentationCell + registry) |
 
 ## Adding a new representation
 
@@ -85,6 +92,18 @@ Adding a new field to `CellInput` is **non-breaking** (older renderers ignore un
 2. Register it in `ts/index.ts`.
 3. Add a `docs/methods/<id>.md` capturing palette choices, mapping rules, sources, and (when available) reference images in `docs/images/`.
 4. Tests: extend `tests/composeCellInput.test.js` with at least one mucus + one bleeding case.
+5. Regenerate the visual-vocabulary SVG: `npm run docs:images` (see below).
+
+## Regenerating `docs/images/<id>-options.svg`
+
+The per-method labelled SVGs in `docs/images/` are produced by `scripts/render-method-images.mjs`, which reads the *live* registry from the built `js/` and hand-renders the same primitives the React components use (so changes to `mappingRules` / palette / `peakMarker` / `halfSplit` flow through automatically).
+
+```bash
+npm run build         # rebuild js/ if you edited a spec
+npm run docs:images   # writes docs/images/<id>-options.svg + creighton-codes-grid.svg
+```
+
+The script uses no React/JSDOM — it emits SVG markup directly. If you change `RepresentationCell.tsx` (the React renderer), mirror the change in `dotCircle()` / `stampSquare()` inside `scripts/render-method-images.mjs` so the docs stay in sync. README.md and downstream docs (e.g. `dev-site`) embed these SVGs.
 
 ## Updating this file
 
