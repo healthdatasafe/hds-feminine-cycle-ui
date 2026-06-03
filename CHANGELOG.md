@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0 — 2026-06-03
+
+### Added
+- `CervixPositionMarker` — optional fourth prop `tilt?: number` (0.0 = Straight, 0.5 = Medium, 1.0 = Tilted). Renders a small orientation tick anchored at the ring's top, rotated around the ring center (0° at tilt=0, 30° at tilt=1). Tick is hidden entirely when tilt is undefined — old 3d events render identically. Matches HDS data-model 1.9.0 `body-vulva-cervix-position` v1 → v2 (plan 70 phase E).
+
 ## 0.7.0 — 2026-05-05
 
 ### Added
