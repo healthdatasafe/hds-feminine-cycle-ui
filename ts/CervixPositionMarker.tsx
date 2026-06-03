@@ -1,16 +1,21 @@
 /**
  * Cervical-position glyph — visual marker for `body-vulva-cervix-position`
  * events. Renders a fixed centered ring (the cervix) plus a horizontal
- * "horizon" bar that moves vertically to encode reach depth.
+ * "horizon" bar that moves vertically to encode reach depth, plus an
+ * optional orientation tick outside the ring for tilt.
  *
- * All three dimensions follow HDS convention: 0.0 = least fertile, 1.0 = most
- * fertile (SHOW mnemonic — Soft, High, Open, Wet).
+ * The three core dimensions follow HDS convention: 0.0 = least fertile, 1.0
+ * = most fertile (SHOW mnemonic — Soft, High, Open, Wet). Tilt is
+ * position-only — not a fertility signal.
  *
  *   height    → horizon-bar y-position. Low (0.0) = bar at top (cervix shallow,
  *               little to reach past). High (1.0) = bar at bottom (cervix deep,
  *               long reach above).
  *   firmness  → ring stroke width (thin = soft = fertile).
  *   openness  → ring center hole radius (large hole = open = fertile).
+ *   tilt      → orientation tick rotation around ring center. 0 (Straight) =
+ *               tick at 12 o'clock; 1 (Tilted) = tick rotated 30° clockwise.
+ *               Tick is hidden entirely when tilt is undefined (3d render).
  *
  * Designed to read at 18-32px in timelines, calendar grids, and pickers.
  */
@@ -28,6 +33,9 @@ export interface CervixPositionMarkerProps {
   firmness?: number;
   /** 0.0 = Closed, 0.5 = Medium, 1.0 = Open */
   openness?: number;
+  /** 0.0 = Straight, 0.5 = Medium, 1.0 = Tilted. Position-only — not a
+   *  fertility signal. Optional; absence renders as 3d (no tick). */
+  tilt?: number;
   size?: number;
   ariaLabel?: string;
   className?: string;
@@ -43,10 +51,13 @@ function lerp (a: number, b: number, t: number | undefined): number {
   return a + (b - a) * Math.max(0, Math.min(1, t));
 }
 
+const MAX_TILT_DEG = 30; // tilt=1 → 30° rotation of the orientation tick
+
 export function CervixPositionMarker ({
   height,
   firmness,
   openness,
+  tilt,
   size = DEFAULT_SIZE,
   ariaLabel,
   className,
@@ -129,6 +140,27 @@ export function CervixPositionMarker ({
       {rHole < size * 0.04 && (
         <circle cx={half} cy={half} r={size * 0.05} fill={ringColor} />
       )}
+
+      {/* Tilt orientation tick — small line outside the ring, anchored at the
+          ring's top, rotated around the ring center. 0 = vertical (no lean).
+          Hidden when tilt is undefined (3d render). */}
+      {tilt != null && !Number.isNaN(tilt) && (() => {
+        const tickInner = rOuter + strokeW * 0.5 + size * 0.02;
+        const tickOuter = tickInner + size * 0.12;
+        const angleDeg = lerp(0, MAX_TILT_DEG, tilt);
+        return (
+          <line
+            x1={half}
+            y1={half - tickInner}
+            x2={half}
+            y2={half - tickOuter}
+            stroke={COLOR_HORIZON}
+            strokeWidth={Math.max(1.2, size * 0.05)}
+            strokeLinecap='round'
+            transform={`rotate(${angleDeg} ${half} ${half})`}
+          />
+        );
+      })()}
     </svg>
   );
 }
