@@ -180,7 +180,18 @@ function readOptionCandidates (
   opts?: ComposeOptions
 ): string[] {
   const c = ev.content;
-  if (c == null) return [];
+  if (c == null) {
+    // Presence-only events: e.g. brown-dark coloration is an `activity/plain`
+    // event with null content — the event's existence IS the signal. When the
+    // role's mapping table has a single unambiguous option, presence selects
+    // it (FEMM/Mira `bleedingSubstate: { brown: … }`). Mucus and multi-option
+    // roles still require explicit content.
+    if (role === 'mucus') return [];
+    const rules = rep.spec.mappingRules[role];
+    const keys = rules ? Object.keys(rules) : [];
+    if (keys.length === 1) return [keys[0]];
+    return [];
+  }
   if (role === 'mucus') {
     const sourceKey = c?.source?.key;
     const native = readNativeMucus(c?.source?.sourceData);

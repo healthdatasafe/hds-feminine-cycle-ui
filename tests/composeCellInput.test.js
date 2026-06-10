@@ -56,6 +56,28 @@ test('brown spotting wins over both bleeding and mucus', () => {
   assert.equal(out.fill, '#7A4A2B');
 });
 
+test('brown-dark presence event (null content, real-world shape) merges with bleeding', () => {
+  // In the wild (e.g. demo sample-mira), brown-dark coloration is an
+  // `activity/plain` event with NULL content on the canonical
+  // `body-vulva-bleeding-browndark` stream — presence is the signal.
+  // It must compose: brown fill wins, bleeding letter retained.
+  const events = [
+    { streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: 0.15 },
+    { streamIds: ['body-vulva-bleeding-browndark'], type: 'activity/plain', content: null }
+  ];
+  const out = composeCellInput(events, femm);
+  assert.equal(out.fill, '#7A4A2B', 'brown-dark must override the bleeding fill');
+  assert.equal(out.letter, 'L', 'bleeding intensity letter must be retained');
+});
+
+test('brown-dark presence event alone (null content) → brown cell', () => {
+  const events = [
+    { streamIds: ['body-vulva-bleeding-browndark'], type: 'activity/plain', content: null }
+  ];
+  const out = composeCellInput(events, femm);
+  assert.equal(out.fill, '#7A4A2B');
+});
+
 test('events with no mucus option in source.sourceData → empty', () => {
   const events = [
     { streamIds: ['body-vulva-mucus-inspect'], type: 'vulva-mucus-inspect/9d-vector', content: { source: { key: 'billings', sourceData: { mucus: 'cloudyWhite' } } } }

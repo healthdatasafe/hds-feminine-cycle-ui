@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.1 — 2026-06-10
+
+### Fixed
+- `composeCellInput`: presence-only events (null content) now resolve to the role's sole mapping option when unambiguous. Real-world brown-dark coloration events are `activity/plain` with null content on `body-vulva-bleeding-browndark` — they were silently dropped, so FEMM cells never merged brown-dark with bleeding (feedback C2). Two regression tests added mirroring the wild event shape.
+
 ## 0.8.0 — 2026-06-03
 
 ### Added

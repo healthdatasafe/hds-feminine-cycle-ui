@@ -1,6 +1,6 @@
 {
   "name": "hds-feminine-cycle-ui",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Custom UI representations for cervical-fluid / cycle-tracking events (FEMM, Billings, Creighton).",
   "type": "module",
   "engines": {
