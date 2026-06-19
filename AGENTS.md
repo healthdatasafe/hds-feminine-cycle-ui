@@ -53,6 +53,50 @@ import type {
 
 Adding a new field to `CellInput` is **non-breaking** (older renderers ignore unknown fields). Removing or renaming a field requires a version bump.
 
+## Worked example — HDS mucus events → a rendered cell
+
+End-to-end: raw HDS events for one day → `composeCellInput` → `<RepresentationCell>`, including force-conversion of a mucus observation logged in a *different* method.
+
+**Mucus event content shape** (what `composeCellInput` reads under the `mucus` role):
+
+```jsonc
+{
+  "source":  { "key": "vulva-mucus-inspect", "sourceData": 4 },  // method id + native option (scalar or { mucus: "Sticky" })
+  "vectors": { /* n-D observation vector, e.g. the FEMM 9d-vector */ }
+}
+```
+
+If `source.key` matches the representation's bound method, the native `sourceData` option is used directly. If it doesn't, `composeCellInput` force-converts `vectors` to the closest option in the bound method — but **only if you supply the `closestOption` bridge** (this package never imports `hds-lib-js`; the host wires the converter in):
+
+```tsx
+import { registry, composeCellInput, RepresentationCell } from 'hds-feminine-cycle-ui';
+import { getHDSModel } from 'hds-lib';
+
+// 1. The converter pack LAZY-LOADS — ensureEngine (async) must run before any sync use.
+const converters = getHDSModel().converters;
+await converters.ensureEngine('cervical-fluid');
+const engine = converters.getEngine('cervical-fluid');
+
+// 2. closestOption bridges vectors → the bound method's option key.
+//    engine.fromVector(methodId, vector) returns a ConversionResult: { data, matchDistance }.
+const closestOption = (methodId, vector) => engine.fromVector(methodId, vector)?.data;
+
+// 3. Reduce one day's events to a CellInput for a chosen representation.
+const rep = registry.get('femm');            // 'femm' | 'billings' | 'creighton' | 'mira'
+const input = composeCellInput(eventsForDay, rep, {
+  closestOption,
+  dayContext: { isPeak: true }                // optional: from detectFertilityWindow over the cycle
+});
+
+// 4. Render. representationId must match the rep you composed with.
+<RepresentationCell representationId='femm' input={input} size={28} />
+```
+
+Notes:
+- `composeCellInput(events, rep, opts)` is pure aside from the `closestOption` callback; with no `closestOption`, only native (`source.key`-matching) mucus and presence-only events resolve — cross-method events fall through to empty.
+- `registry.get(id)` returns a `Representation` (`{ spec, resolveColor }`); the four built-ins auto-register at import. `RepresentationCell` looks the rep up again by `representationId`, so pass the same id you composed with.
+- Peak/fertile decoration comes from `opts.dayContext`, which the host sets after running `detectFertilityWindow` across the cycle's option keys.
+
 ## Don't
 
 - **Don't import `react-dom`** — this package never renders to the DOM directly. It only emits JSX. Hosts mount it.
