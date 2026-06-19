@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Documentation
+- `AGENTS.md`: added an end-to-end worked example — HDS mucus events
+  (`{ source:{key,sourceData}, vectors }`) → `composeCellInput` (with the
+  `closestOption` bridge from `getHDSModel().converters.ensureEngine('cervical-fluid')`,
+  `fromVector` → `{ data, matchDistance }`) → `RepresentationCell`. Docs only;
+  no code change (2026-06-19).
+
 ## 0.8.1 — 2026-06-10
 
 ### Fixed
