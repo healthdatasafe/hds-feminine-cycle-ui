@@ -14,7 +14,7 @@ import type { RepresentationSpec } from '../types.ts';
  */
 export const billingsSpec: RepresentationSpec = {
   id: 'billings',
-  label: { en: 'Billings (BOM)', fr: 'Billings (MOB)' },
+  label: { en: 'Billings', fr: 'Billings' },
   description: {
     en: 'Square stamps — red, green, white, yellow. Peak day marked with X.',
     fr: 'Tampons carrés en rouge, vert, blanc, jaune. Jour pic marqué d\'un X.'

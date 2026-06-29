@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2] - 2026-06-29
+
+### Changed — trademark naming alignment (method labels)
+- `billingsSpec.label`: `{ en: 'Billings (BOM)', fr: 'Billings (MOB)' }` → `{ en: 'Billings', fr: 'Billings' }`.
+- `creightonSpec.label`: `{ en: 'Creighton Model', fr: 'Modèle Creighton' }` → `{ en: 'Creighton', fr: 'Creighton' }`.
+- Drops the protected marks (BOM/MOB = Billings Ovulation Method®; "Creighton Model") from the bundled, user-visible labels. Method ids unchanged. Matches data-model v1.10.3 + model-cervical-fluid b401488.
+
 ## [Unreleased]
 
 ### Documentation

@@ -57,7 +57,7 @@ const fertileOptions = CREIGHTON_OPTIONS.filter(c => stampFillFor(c) === 'discha
 
 export const creightonSpec: RepresentationSpec = {
   id: 'creighton',
-  label: { en: 'Creighton Model', fr: 'Modèle Creighton' },
+  label: { en: 'Creighton', fr: 'Creighton' },
   description: {
     en: 'Square stamps with letter codes (8CK, 10WL, …). Peak day marked with P. Fertile-class stamps carry a baby icon.',
     fr: 'Tampons carrés avec codes (8CK, 10WL, …). Jour pic marqué d\'un P. Les tampons fertiles portent une icône bébé.'
