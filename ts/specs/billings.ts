@@ -1,9 +1,11 @@
 import type { RepresentationSpec } from '../types.ts';
 
 /**
- * Billings Ovulation Method (BOM).
+ * Billings-style representation.
  *
- * Source: https://www.billings-ovulation-method.org/
+ * HDS is not affiliated with, endorsed by, or licensed by the organizations
+ * teaching this method; the spec renders users' own observations in the
+ * charting style described in the published literature.
  *
  * Visual primitives: square colored stamps; X overlay marks the Peak day.
  * Bleeding always wins over mucus (red overrides). The "baby" icon variants
@@ -21,7 +23,6 @@ export const billingsSpec: RepresentationSpec = {
   },
   version: 'v0',
   primitive: 'stamp-square',
-  referenceUrl: 'https://www.billings-ovulation-method.org/',
   boundMethod: { itemKey: 'cervical-fluid', methodId: 'billings' },
   consumes: [
     { itemKey: 'body-vulva-bleeding', role: 'bleeding' },

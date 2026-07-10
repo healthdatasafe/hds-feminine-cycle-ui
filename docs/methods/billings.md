@@ -1,10 +1,10 @@
-# Billings (BOM)
-
-Source: [billings.life](https://billings.life/) · [WOOMB International](https://woombinternational.org/)
+# Billings
 
 > Status: **planned for v0.2**. This page captures design choices ahead of implementation so reviewers can sanity-check the palette and rules before code lands.
 
-The Billings Ovulation Method charts cycle days on a horizontal grid, one cycle per row. Each day cell carries a stamp (red / green / white / yellow), an optional baby-icon overlay (post-Peak counting days), and an `X` overlay on the Peak day.
+> HDS is not affiliated with, endorsed by, or licensed by the organizations teaching this method. This spec renders users' own observations in the charting style described in the published literature (see Sources).
+
+The Billings method charts cycle days on a horizontal grid, one cycle per row. Each day cell carries a stamp (red / green / white / yellow), an optional baby-icon overlay (post-Peak counting days), and an `X` overlay on the Peak day.
 
 ## Visual primitives
 
@@ -43,15 +43,16 @@ Bleeding **always** wins over mucus (red overrides white/green/yellow). Brown sp
 
 ## Reference images
 
-Planned, not yet committed:
+Planned, not yet committed — all rendered by us from our own specs and sample data (do **not** reproduce third-party chart images or legends):
 
-- `docs/images/billings-chart-row.png` — full multi-cycle row from the WOOMB chart.
-- `docs/images/billings-stamps-legend.png` — the WOOMB stamp legend.
+- `docs/images/billings-chart-row.png` — illustrative multi-cycle row, own rendering.
+- `docs/images/billings-stamps-legend.png` — legend of our stamp vocabulary, own rendering.
 - `docs/images/billings-peak-x.png` — close-up of the `X` peak overlay.
 
 ## Sources
 
-- [Billings — Keeping a Record](https://billings.life/en/how-the-billings-ovulation-method-works9/keeping-a-record.html)
-- [Billings Personal Record Chart (Natural Family Planning Toronto, PDF)](https://www.naturalfamilyplanning.ca/downloads/BillingsChart.pdf)
-- [WOOMB International — Online Charting Resources](https://woombinternational.org/resources/online-charting/)
+Design derived from the method as described in the published literature; HDS is not affiliated with the method's organizations.
+
+- Billings ovulation method — published descriptions and peer-reviewed literature (e.g. [Wikipedia overview](https://en.wikipedia.org/wiki/Billings_ovulation_method) and references therein)
 - HDS canonical mucus model: `data-model/.../models/cervical-fluid/billings/v0.json`
+- HDS method reference notes: `model-cervical-fluid/references/billings.md`

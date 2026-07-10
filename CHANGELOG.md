@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.3] - 2026-07-10
+
+### Changed — third-party method-site link removed from Billings spec
+- `billingsSpec`: removed `referenceUrl` (`www.billings-ovulation-method.org`) so host
+  apps no longer render a "Source" link to the method organization's site from the
+  settings card; avoids any impression of affiliation or endorsement.
+- Spec docstring and `docs/methods/billings.md` reworded: bare "Billings" naming,
+  explicit non-affiliation note, sources now point at published literature; planned
+  reference images must be own renderings (no third-party chart reproductions).
+- `README.md`: "Billings (BOM)" / "Creighton Model" table labels → "Billings" / "Creighton".
+
 ## [0.8.2] - 2026-06-29
 
 ### Changed — trademark naming alignment (method labels)

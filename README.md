@@ -1,6 +1,6 @@
 # hds-feminine-cycle-ui
 
-Custom UI for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings (BOM)**, **Creighton Model**, or **Mira** charts, plus a standalone glyph for cervical-position events.
+Custom UI for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, or **Mira** style charts, plus a standalone glyph for cervical-position events.
 
 Layout-agnostic. The same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it.
 
@@ -76,10 +76,10 @@ The `*-options.svg` files are auto-generated from the live spec by `npm run docs
 <table>
 <tr>
 <td align="center">FEMM<br><img src="./docs/images/femm-options.svg" alt="FEMM options" width="350"></td>
-<td align="center">Billings (BOM)<br><img src="./docs/images/billings-options.svg" alt="Billings options" width="350"></td>
+<td align="center">Billings<br><img src="./docs/images/billings-options.svg" alt="Billings options" width="350"></td>
 </tr>
 <tr>
-<td align="center">Creighton Model<br><img src="./docs/images/creighton-options.svg" alt="Creighton options" width="350"></td>
+<td align="center">Creighton<br><img src="./docs/images/creighton-options.svg" alt="Creighton options" width="350"></td>
 <td align="center">Mira<br><img src="./docs/images/mira-options.svg" alt="Mira options" width="350"></td>
 </tr>
 </table>
