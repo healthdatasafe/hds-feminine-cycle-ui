@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.4] - 2026-07-22
+
+### Fixed — cross-module-graph registry singleton (Vite duplicate-instance / FallbackBox)
+- `registry.ts`: anchor the `RepresentationRegistry` singleton on `globalThis`
+  (keyed `hds-feminine-cycle-ui:RepresentationRegistry:v0`, package + major) instead of a
+  plain module-level `new`. A Vite consumer's dep-optimizer could pre-bundle the package
+  entry (which runs `registry.register(...)`) while externalizing `RepresentationCell.tsx`,
+  giving the cell a *second, empty* registry instance → every stamp (Billings/Creighton/FEMM/Mira)
+  rendered the dashed FallbackBox instead of the colored stamp. The global anchor makes every
+  module copy share one populated registry regardless of how the bundler splits the graph.
+- No API change; `exports.import` stays TS-source (per `verify-live-source`). Fixes B-2026-07-06-2
+  (healthdatasafe/hds-feminine-cycle-ui#2). Consumers pick it up on their next install/redeploy.
+
 ## [0.8.3] - 2026-07-10
 
 ### Changed — third-party method-site link removed from Billings spec
