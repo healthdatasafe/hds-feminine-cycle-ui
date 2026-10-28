@@ -2,9 +2,35 @@
 
 Source: [creightonmodel.com](https://creightonmodel.com/)
 
-> Status: **planned for v0.2**. This page captures design choices ahead of implementation.
+> Status: **shipped in v0.4**, stamp colours corrected in **v0.9** (B-2026-10-26-11).
 
-The Creighton Model (CrMS) uses the same family of square stamps as Billings (red / green / white / yellow + baby), plus a **textual code** overlaid on each day's stamp (e.g. `8CK`, `10WL`). The codes are a compact alphanumeric grammar describing sensation + lubrication + color.
+The Creighton Model (CrMS) uses square stamps (red / green / white + baby), plus a **textual code** overlaid on each day's stamp (e.g. `8CK`, `10WL`). The codes are a compact alphanumeric grammar describing sensation + lubrication + color.
+
+## Stamp colours (v0.9)
+
+Rules from model-cervical-fluid `references/rules/method-rules.json`, `methods.creighton`, source: Creighton book (FR),
+ch. 7 "Instructions de base", pp. 27-33. First matching rule wins:
+
+| Codes | Stamp | Rule (status) |
+|---|---|---|
+| any code with `B` or `R` | red | `codeRules[0]`: blood seen with the mucus, charted as bleeding (literature) |
+| `0`, `2`, `2W`, `4` | green | `codeRules[1]`: "2, 2W, 4 damp, wet, shiny without lubrication (the same meaning as dry)" (hds) |
+| every other code (`6…`, `8…`, `10…`) | white + baby | `codeRules[2]`, `[3]` (hds); `stampNote`: "white with a baby for mucus; yellow stamps only in an instructor-led programme for continuous discharge (not used). Mucus days are fertile: the app never colours them yellow." |
+
+Until v0.8, 2 / 2W / 4 and every 6 / 8 code without `L` were yellow ("non-fertile"), against the book
+(`hdsDisagreements[0]`). No Creighton stamp is yellow any more.
+
+**Peak** (`peak`, hds): the last day of clear (`K`), lubricative (`L`) or very stretchy (`10`, 2.5 cm or more) mucus,
+whatever the quantity (`codeRules[2]`); with a later return of peak-type mucus, only the last peak opens the count.
+Marked **P**, then **1, 2, 3** (`fertileAfterOvulation.afterPeak`, hds). `8` is not peak-type (the book keeps
+peak-type stretch for `10`; `references/creighton.md` disagrees, `hdsDisagreements[1]`).
+
+**To confirm** (experts' worksheet, "Other open points", Creighton; E1–E4):
+- `6CK`, `8CK` (partly clear, C/K) as peak-type (`gaps[1]`): left out of the peak candidates; `10CK` is in through its
+  stretch.
+- The shade of the `B` / `R` stamps (`gaps[2]`, book ch. 6 unread): kept red.
+- The green-baby and yellow-baby stamps (`gaps[0]`, book ch. 6 unread): not used.
+- How the HDS bleeding levels map to Creighton's H, M, L, VL, B (E2): every bleeding level is red.
 
 ## Visual primitives
 
@@ -26,26 +52,8 @@ The code is the most informative element on a Creighton chart — the color stam
 
 ## Mapping strategy
 
-Because Creighton's option set is large, the mappingRules table is verbose. We will generate it from the canonical `creighton/v0.json` rather than hand-write it:
-
-```ts
-import creightonModel from 'data-model/.../models/creighton/v0.json' assert { type: 'json' };
-
-mappingRules.mucus = Object.fromEntries(
-  creightonModel.components[0].options.map((opt) => [
-    opt.value,
-    { fill: pickStampColor(opt), code: opt.value }
-  ])
-);
-```
-
-`pickStampColor(opt)` infers the stamp from `opt.vector`:
-- `lubricative ≥ 0.7 ∨ stretchability ≥ 0.7` → fertile-class → white.
-- `color ≥ 0.7` → bleeding-class → red.
-- `mucusVolume > 0 ∧ ¬fertile-class` → BIP → yellow.
-- `mucusVolume = 0` → dry → green.
-
-Thresholds need a designer pass; ballpark values above.
+The mappingRules table is generated in `ts/specs/creighton.ts` from the option list (`CREIGHTON_OPTIONS`, matching
+`creighton/v0.json`) with the code rules above, not from vectors.
 
 ## Open choices
 

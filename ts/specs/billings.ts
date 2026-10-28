@@ -57,11 +57,15 @@ export const billingsSpec: RepresentationSpec = {
   },
   // Bleeding wins everything: red square overrides mucus on the same day.
   precedence: ['mucus', 'bleeding'],
+  // Official key: red stamps for bleeding (method-rules.json periodDays, literature).
+  periodDisplay: 'stamp',
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',
     color: 'peak',
     thresholds: { lubricative: 0.7, stretchability: 0.7 },
-    candidateOptions: ['wetSlippery', 'peak']
+    candidateOptions: ['wetSlippery', 'peak'],
+    // "X on the peak day; 1, 2, 3 after it" (method-rules.json fertileAfterOvulation.afterPeak, hds).
+    countAfter: 3
   }
 };

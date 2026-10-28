@@ -4,7 +4,7 @@ Operational notes for AI agents working in this repo. Update as development prog
 
 ## What this package is
 
-Custom UI representations for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, or **Mira** charts. Layout-agnostic: the same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it.
+Custom UI representations for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, **Mira**, **Sensiplan**, **sympto-thermal**, **Justisse**, **Chart Neo**, **Marquette** or **Apple Health** charts. Display rules are sourced from model-cervical-fluid `references/rules/method-rules.json`; only sourced rules ship (`docs/methods/README.md`). Layout-agnostic: the same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it.
 
 Also ships `CervixPositionMarker` — a standalone glyph for `body-vulva-cervix-position` 3-D vector events (height / firmness / openness). Not part of the spec/registry; rendered by hosts directly.
 
@@ -32,10 +32,12 @@ import {
   RepresentationCell,        // React component for cycle-fluid cells (dot-circle | stamp-square)
   CervixPositionMarker,      // React component for cervix-position glyph (3-D vector → SHOW glyph)
   composeCellInput,          // pure function: events → CellInput
-  detectFertilityWindow,     // sliding-window peak/fertile detection over option keys
+  peakNotation,              // pure: one cycle's events → peak day, mark (P/X), 1-2-3 count (notation only)
+  detectFertilityWindow,     // sliding-window display heuristic — NOT for patient-facing verdicts
   registry,                  // built-in + user-extensible registrations
   samplePreviewEvents,       // shared 7-day fixture for previews
-  femmSpec, billingsSpec, creightonSpec, miraSpec
+  femmSpec, billingsSpec, creightonSpec, miraSpec,
+  sensiplanSpec, symptoThermalSpec, justisseSpec, chartneoSpec, marquetteSpec, appleHealthSpec
 } from 'hds-feminine-cycle-ui';
 
 // types
@@ -46,6 +48,8 @@ import type {
   CellProps,
   CervixPositionMarkerProps,
   FertilityWindow,
+  PeakNotation,
+  PeriodDisplay,
   HdsEventLike,
   I18nText
 } from 'hds-feminine-cycle-ui';
@@ -95,7 +99,7 @@ const input = composeCellInput(eventsForDay, rep, {
 Notes:
 - `composeCellInput(events, rep, opts)` is pure aside from the `closestOption` callback; with no `closestOption`, only native (`source.key`-matching) mucus and presence-only events resolve — cross-method events fall through to empty.
 - `registry.get(id)` returns a `Representation` (`{ spec, resolveColor }`); the four built-ins auto-register at import. `RepresentationCell` looks the rep up again by `representationId`, so pass the same id you composed with.
-- Peak/fertile decoration comes from `opts.dayContext`, which the host sets after running `detectFertilityWindow` across the cycle's option keys.
+- Peak decoration comes from `opts.dayContext`, which the host sets from `peakNotation` over the cycle (`isPeak`, `peakCount`). `detectFertilityWindow` / `isFertile` remain for compatibility and are not for patient-facing verdicts (HDS charts notation, not fertile days).
 
 ## Don't
 
@@ -103,10 +107,12 @@ Notes:
 - **Don't add layout containers here** — calendar grids, picker grids, timeline rows live in the *host* repos (`hds-react-timeline`, `hds-forms-js`, `hds-webapp`).
 - **Don't import from `hds-lib-js` or `data-model`** at the package top level — once force-conversion is wired, those become *peer*-deps consumed by hosts. The package itself stays free of runtime HDS dependencies so it builds standalone.
 - **Don't commit `js/`** — it's built on install via `prepare`.
+- **Don't ship an unsourced rule** — a colour, category, code or peak candidate goes in a spec only when its rule in model-cervical-fluid `references/rules/method-rules.json` has status `hds`, `literature`, or `decision` with a source. Otherwise leave it out or write neutral notation, and list it as "to confirm" in `docs/methods/<id>.md`.
+- **Don't add fertile / infertile verdicts** — no "fertile days", stripes or counts; the peak and the 1-2-3 count are notation.
 
 ## Status
 
-`v0.7.0` (current) — FEMM + Billings + Creighton + Mira cycle-fluid reps; standalone CervixPositionMarker.
+`v0.9.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
 
 | Slice | Status |
 |---|---|
@@ -126,16 +132,19 @@ Notes:
 | Bare-scalar source.sourceData support | ✅ shipped (v0.5) |
 | Spec descriptions (`RepresentationSpec.description`) | ✅ shipped (v0.6) |
 | `CervixPositionMarker` standalone glyph | ✅ shipped (v0.7) |
+| Creighton stamp colours per the book (B-2026-10-26-11) | ✅ shipped (v0.9) |
+| Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health specs (sourced only) | ✅ shipped (v0.9) |
+| `peakNotation` (peak mark + 1-2-3 count), `periodDisplay`, `peakMarker.countAfter` | ✅ shipped (v0.9) |
+| Marquette Low / High / Peak levels, Chart Neo mucus fields | ⏳ to confirm with the experts |
 | `cycleGrid` row container | ⏳ deferred (lives in `hds-react-timeline`) |
-| Creighton "fertile" day visual differentiation | ⏳ deferred |
 | `StampGridPicker` (host) field for `hds-forms-js` | ✅ shipped (lives in hds-forms-js, consumes RepresentationCell + registry) |
 
 ## Adding a new representation
 
 1. Drop a `RepresentationSpec` under `ts/specs/<id>.ts`.
 2. Register it in `ts/index.ts`.
-3. Add a `docs/methods/<id>.md` capturing palette choices, mapping rules, sources, and (when available) reference images in `docs/images/`.
-4. Tests: extend `tests/composeCellInput.test.js` with at least one mucus + one bleeding case.
+3. Add a `docs/methods/<id>.md` capturing palette choices, mapping rules, sources (method-rules.json paths and statuses), what is left "to confirm", and (when available) reference images in `docs/images/`; add the row to `docs/methods/README.md`.
+4. Tests: add the spec to `METHODS` in `tests/methodSpecs.test.js` (registry, palette, options, period display) and a `peakNotation` case if it has a peak.
 5. Regenerate the visual-vocabulary SVG: `npm run docs:images` (see below).
 
 ## Regenerating `docs/images/<id>-options.svg`

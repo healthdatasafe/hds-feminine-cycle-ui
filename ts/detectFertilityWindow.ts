@@ -1,11 +1,18 @@
 import type { HdsEventLike, Representation } from './types.ts';
 import type { ComposeOptions } from './composeCellInput.ts';
+import { mucusItemKeysOf, mucusOptionOf } from './mucusOption.ts';
 
 const SECONDS_PER_DAY = 86400;
 const FERTILE_LOOKAHEAD_DAYS = 4;
 
 /**
  * Detect peak and fertile days from a flat list of HDS events.
+ *
+ * **Not for patient-facing verdicts.** This is a display heuristic (a 4-day
+ * look-ahead over the spec's `candidateOptions`), not any method's rule: HDS
+ * apps do not decide, show, count or project fertile or infertile days
+ * (model-cervical-fluid `references/rules/method-rules.json`, `hdsPosition`).
+ * To chart a method's peak and the count after it, use `peakNotation`.
  *
  * Resolution per event (mucus role only):
  *   1. If event.content.source.key matches the rep's bound method →
@@ -37,13 +44,8 @@ export function detectFertilityWindow (
   if (!candidates || candidates.length === 0) return { peakDays, fertileDays };
   const candidateSet = new Set(candidates.map(String));
 
-  // Mucus consume entries for this rep.
-  const mucusItemKeys = new Set(
-    rep.spec.consumes.filter(c => c.role === 'mucus').map(c => c.itemKey)
-  );
+  const mucusItemKeys = mucusItemKeysOf(rep);
   if (mucusItemKeys.size === 0) return { peakDays, fertileDays };
-
-  const targetMethod = rep.spec.boundMethod.methodId;
 
   // Day → true if any mucus event on that day resolves to a candidate option.
   const dayHit = new Set<number>();
@@ -51,29 +53,7 @@ export function detectFertilityWindow (
     if (typeof ev.time !== 'number') continue;
     const isMucus = ev.streamIds?.some(s => mucusItemKeys.has(s));
     if (!isMucus) continue;
-    const c: any = ev.content;
-    if (!c) continue;
-
-    let optionKey: string | null = null;
-    const sourceKey = c?.source?.key;
-    const sd = c?.source?.sourceData;
-    const native: string | number | undefined =
-      (typeof sd === 'string' || typeof sd === 'number')
-        ? sd
-        : (typeof sd?.mucus === 'string' || typeof sd?.mucus === 'number')
-            ? sd.mucus
-            : undefined;
-    if (sourceKey === targetMethod && native != null) {
-      optionKey = String(native);
-    } else if (c?.vectors && opts?.closestOption) {
-      try {
-        const closest = opts.closestOption(targetMethod, c.vectors);
-        if (closest) optionKey = String(closest);
-      } catch (_e) { /* skip */ }
-    } else if (native != null) {
-      optionKey = String(native);
-    }
-
+    const optionKey = mucusOptionOf(ev, rep, opts);
     if (optionKey && candidateSet.has(optionKey)) {
       dayHit.add(Math.floor(ev.time / SECONDS_PER_DAY));
     }

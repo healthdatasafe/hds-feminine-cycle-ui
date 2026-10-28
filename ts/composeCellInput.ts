@@ -17,13 +17,16 @@ import type {
 export interface ComposeOptions {
   closestOption?: (methodId: string, vector: any) => string | null | undefined;
   /**
-   * Per-day context — set by the host after running `detectFertilityWindow`.
-   * Marks the cell as the peak day or a non-peak fertile day; composeCellInput
-   * applies the spec's `peakMarker` config (FEMM: dark-blue fill + center dot;
-   * Billings: white stamp + 'X' letter).
+   * Per-day context, set by the host from `peakNotation` (or the older
+   * `detectFertilityWindow`). `isPeak` applies the spec's `peakMarker` config
+   * (FEMM: dark-blue fill + center dot; Billings: 'X'; Creighton: 'P');
+   * `peakCount` writes the count after the peak (1, 2, 3) as the cell's letter.
+   * `isFertile` (a small center dot on FEMM-style cells) is not for
+   * patient-facing views: HDS charts notation, not fertile days.
    */
   dayContext?: {
     isPeak?: boolean;
+    peakCount?: number;
     isFertile?: boolean;
   };
 }
@@ -78,6 +81,9 @@ export function composeCellInput (
 
   if (opts?.dayContext?.isPeak) {
     return applyPeakMarker(result, rep);
+  }
+  if (opts?.dayContext?.peakCount != null) {
+    return { ...result, letter: String(opts.dayContext.peakCount) };
   }
   if (opts?.dayContext?.isFertile) {
     return applyFertileMarker(result, rep);

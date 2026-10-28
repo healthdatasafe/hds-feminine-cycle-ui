@@ -59,7 +59,25 @@ export interface PeakMarkerSpec {
    * 'X' (Billings convention). Creighton uses 'P'.
    */
   letter?: string;
+  /**
+   * How many days the method counts after the peak day (the "1, 2, 3" written
+   * on the chart). Notation only: `peakNotation` writes the numbers, it never
+   * says what they mean for fertility. Omitted when the method has no count.
+   */
+  countAfter?: number;
 }
+
+/**
+ * How the method charts the days of the period:
+ *   - 'stamp': the period days are the method's bleeding stamp (the cell shows
+ *     the bleeding; Creighton, Billings, Chart Neo).
+ *   - 'separate': the method writes the bleeding on its own line and the cell
+ *     shows the fluid as logged (sympto-thermal, Sensiplan, Marquette, Apple
+ *     Health). Such specs do not consume the bleeding items: the host draws
+ *     them in their own row.
+ * Omitted when the method's rule is not known.
+ */
+export type PeriodDisplay = 'stamp' | 'separate';
 
 export interface RepresentationSpec {
   id: string;
@@ -75,6 +93,8 @@ export interface RepresentationSpec {
   precedence: string[]; // role names, lowest precedence first
   halfSplit?: { enabled: boolean; pairs: [string, string][] };
   peakMarker?: PeakMarkerSpec;
+  /** How the method charts the period days (see `PeriodDisplay`). */
+  periodDisplay?: PeriodDisplay;
   referenceUrl?: string;
 }
 
