@@ -37,6 +37,21 @@ const LABELS = {
   },
   mira: {
     mucus: { Dry: 'Dry', Sticky: 'Sticky', Creamy: 'Creamy', Watery: 'Watery', 'Raw Egg White': 'Raw Egg White' }
+  },
+  sensiplan: {
+    mucus: { t: 't — Dry', ø: 'ø — Nothing seen', f: 'f — Mucus seen', S: 'S — Stretchy', 'S+': 'S+ — Peak quality' }
+  },
+  'sympto-thermal': {
+    mucus: { dry: 'Dry (D)', sticky: 'Sticky (S)', creamy: 'Creamy (C)', watery: 'Watery (W)', eggWhite: 'Egg white (EW)' }
+  },
+  justisse: {
+    mucus: { dry: 'Dry (D)', sticky: 'Sticky (S)', tacky: 'Tacky (T)', creamy: 'Creamy (C)', eggWhite: 'Egg white (EW)', watery: 'Watery (W)' }
+  },
+  marquette: {
+    mucus: { 1: '1 — Dry sensation, no mucus', 2: '2 — Not dry, not slippery', 3: '3 — Moist, minimal', 4: '4 — Moist, moderate, sticky', 5: '5 — Moist, cloudy, clearer', 6: '6 — Wet, clearer, more stretch', 7: '7 — Slippery, clear, stretchy', 8: '8 — Wet, slippery' }
+  },
+  appleHealth: {
+    mucus: { dry: 'Dry (D)', sticky: 'Sticky (S)', creamy: 'Creamy (C)', watery: 'Watery (W)', eggWhite: 'Egg white (EW)' }
   }
 };
 
@@ -181,6 +196,18 @@ function buildRows (rep) {
       label: 'Peak day',
       input: { ...inputFromFragment(rep, highFrag), centerDot: { color: peakColor } }
     });
+  } else if (rep.spec.peakMarker?.primitive === 'letter') {
+    // Letter peak (Creighton, Sensiplan, …): the last peak-type option with the letter.
+    const pm = rep.spec.peakMarker;
+    const candidate = pm.candidateOptions?.[pm.candidateOptions.length - 1];
+    const frag = candidate != null ? rep.spec.mappingRules.mucus?.[candidate] : null;
+    const base = frag ? inputFromFragment(rep, frag) : { fill: '#FFFFFF' };
+    rows.push({ label: `Peak day (${pm.letter ?? 'X'})`, input: { ...base, letter: pm.letter ?? 'X' } });
+  }
+  if (rep.spec.peakMarker?.countAfter) {
+    const n = rep.spec.peakMarker.countAfter;
+    const first = mucusKeys.length > 0 ? inputFromFragment(rep, rep.spec.mappingRules.mucus[mucusKeys[0]]) : { fill: '#FFFFFF' };
+    rows.push({ label: `Count after the peak (1 … ${n})`, input: { ...first, letter: '1' } });
   }
 
   // Half-and-half (mucus + bleeding) when the spec opts in

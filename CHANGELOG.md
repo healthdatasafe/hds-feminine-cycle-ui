@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.9.0] - 2026-10-28
+
+Display rules now come from model-cervical-fluid `references/rules/method-rules.json` (1.2.0), and a spec ships a rule
+only when it is sourced (status `hds`, `literature`, or `decision` with a source). Open rules are left out or written
+as neutral notation; each `docs/methods/<id>.md` lists what is still to confirm. See `docs/methods/README.md`.
+
+### Fixed — Creighton stamp colours (B-2026-10-26-11)
+- `0`, `2`, `2W`, `4` are green (dry), and every mucus code (`6…`, `8…`, `10…` without `B`/`R`) is white with a baby.
+  No Creighton stamp is yellow any more. Source: Creighton book (FR) ch. 7 via `methods.creighton.codeRules` and
+  `stampNote` ("Mucus days are fertile: the app never colours them yellow").
+- Peak candidates: clear (`K`), lubricative (`L`) or `10` (adds `6K`, `8K`). `6CK` / `8CK` (partly clear) left out,
+  to confirm. `dischargeBip` removed from the Creighton palette; spec `version` `v1`.
+
+### Added
+- Six specs: `sensiplan`, `sympto-thermal`, `justisse`, `chartneo`, `marquette`, `appleHealth`. Sensiplan writes its
+  letters black on white; sympto-thermal, Justisse, Marquette and Apple Health use neutral notation (the method's word,
+  short, or number, on a white square); Chart Neo has its red bleeding sticker and a recorded peak only. Marquette's
+  Low / High / Peak levels and Chart Neo's mucus fields are not shipped (status app / hds-draft).
+- `peakNotation(events, rep, opts)` — pure: the peak day of one cycle (recorded `fertility-cycles-peak-day` first, else
+  the last peak-type day once the mucus changes), its mark (`P` / `X`) and the count after it (1, 2, 3). Notation only.
+- `RepresentationSpec.periodDisplay` (`'stamp' | 'separate'`), `PeakMarkerSpec.countAfter`, and
+  `ComposeOptions.dayContext.peakCount` (writes the count as the cell's letter). Billings and FEMM gain `countAfter: 3`.
+
+### Changed
+- `detectFertilityWindow` is documented as a display heuristic, not for patient-facing verdicts; behaviour unchanged.
+
 ## [0.8.4] - 2026-07-22
 
 ### Fixed — cross-module-graph registry singleton (Vite duplicate-instance / FallbackBox)

@@ -10,12 +10,20 @@ import type { RepresentationSpec, MappingRuleFragment } from '../types.ts';
  * exact mucus characteristics are visible (the stamp color alone doesn't
  * disambiguate Creighton's 33-code grammar).
  *
- * Stamp color rule (derived once from the option key, see `stampFillFor`):
- *   - "0"                                    → green (dry)
- *   - any code with `B` or `R` modifier      → red   (brown / red bleeding)
- *   - any code starting with `10`            → white (fertile-class)
- *   - any code containing `L` modifier       → white (lubricative)
- *   - everything else                        → yellow (BIP, non-fertile)
+ * Rules from model-cervical-fluid `references/rules/method-rules.json`,
+ * `methods.creighton` (Creighton book (FR), ch. 7 "Instructions de base",
+ * pp. 27-33), first matching rule wins:
+ *   - code with `B` or `R`        → red (blood seen with the mucus; codeRules[0],
+ *                                    literature). The shade is to confirm (gaps[2]).
+ *   - "0", "2", "2W", "4"         → green (codeRules[1], hds: "2, 2W, 4 damp, wet,
+ *                                    shiny without lubrication: the same meaning as dry").
+ *   - every other code (6, 8, 10) → white with a baby (codeRules[2], [3], hds;
+ *                                    stampNote: "white with a baby for mucus …
+ *                                    the app never colours them yellow").
+ *
+ * Peak candidates (codeRules[2], hds): clear (K), lubricative (L) or very
+ * stretchy (10) mucus, whatever the quantity. The partly clear codes 6CK and
+ * 8CK are left out until confirmed (gaps[1]); 10CK is in through its stretch.
  *
  * Mucus options match `data-model/.../models/cervical-fluid/creighton/v0.json`.
  */
@@ -30,22 +38,28 @@ const CREIGHTON_OPTIONS = [
   '10DL', '10SL', '10WL'
 ] as const;
 
-function stampFillFor (code: string): 'dryGreen' | 'bleedingRed' | 'discharge' | 'dischargeBip' {
-  if (code === '0') return 'dryGreen';
+/** Partly clear (C/K): peak-type to confirm (method-rules.json methods.creighton.gaps[1]). */
+const TO_CONFIRM_PEAK = new Set(['6CK', '8CK']);
+
+type CreightonStamp = 'dryGreen' | 'bleedingRed' | 'discharge';
+
+function stampFillFor (code: string): CreightonStamp {
   if (/[BR]/.test(code)) return 'bleedingRed';
-  if (code.startsWith('10')) return 'discharge';
-  if (code.includes('L')) return 'discharge';
-  return 'dischargeBip';
+  if (/^(0|2W?|4)$/.test(code)) return 'dryGreen';
+  return 'discharge';
+}
+
+function isPeakType (code: string): boolean {
+  if (stampFillFor(code) !== 'discharge') return false;
+  if (TO_CONFIRM_PEAK.has(code)) return false;
+  return /K|L|^10/.test(code);
 }
 
 function buildMucusRules (): Record<string, MappingRuleFragment> {
   const out: Record<string, MappingRuleFragment> = {};
   for (const code of CREIGHTON_OPTIONS) {
     const fill = stampFillFor(code);
-    // Fertile-class stamps (white) get the "baby" badge, matching the
-    // canonical Creighton/Read-Your-Body convention for fertile days.
-    const baby = fill === 'discharge';
-    out[code] = baby
+    out[code] = fill === 'discharge'
       ? { fill, code, baby: true }
       : { fill, code };
   }
@@ -53,16 +67,16 @@ function buildMucusRules (): Record<string, MappingRuleFragment> {
 }
 
 const mucusRules = buildMucusRules();
-const fertileOptions = CREIGHTON_OPTIONS.filter(c => stampFillFor(c) === 'discharge');
+const peakTypeOptions = CREIGHTON_OPTIONS.filter(isPeakType);
 
 export const creightonSpec: RepresentationSpec = {
   id: 'creighton',
   label: { en: 'Creighton', fr: 'Creighton' },
   description: {
-    en: 'Square stamps with letter codes (8CK, 10WL, …). Peak day marked with P. Fertile-class stamps carry a baby icon.',
-    fr: 'Tampons carrés avec codes (8CK, 10WL, …). Jour pic marqué d\'un P. Les tampons fertiles portent une icône bébé.'
+    en: 'Square stamps with letter codes (8CK, 10WL, …): red for bleeding, green for dry, white with a baby for mucus. Peak day marked with P, then 1, 2, 3.',
+    fr: 'Tampons carrés avec codes (8CK, 10WL, …) : rouge pour le saignement, vert pour sec, blanc avec un bébé pour la glaire. Jour pic marqué d\'un P, puis 1, 2, 3.'
   },
-  version: 'v0',
+  version: 'v1',
   primitive: 'stamp-square',
   referenceUrl: 'https://creightonmodel.com/',
   boundMethod: { itemKey: 'cervical-fluid', methodId: 'creighton' },
@@ -77,7 +91,6 @@ export const creightonSpec: RepresentationSpec = {
     bleedingRed: '#C8155A',
     dryGreen: '#7FB069',
     discharge: '#FFFFFF',
-    dischargeBip: '#F4C752',
     peak: '#1F3B7A'
   },
   mappingRules: {
@@ -91,12 +104,14 @@ export const creightonSpec: RepresentationSpec = {
     }
   },
   precedence: ['mucus', 'bleeding'],
+  periodDisplay: 'stamp',
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',
     color: 'peak',
     thresholds: { lubricative: 0.7, stretchability: 0.7 },
-    candidateOptions: [...fertileOptions],
-    letter: 'P'
+    candidateOptions: [...peakTypeOptions],
+    letter: 'P',
+    countAfter: 3
   }
 };

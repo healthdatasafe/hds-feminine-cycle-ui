@@ -1,6 +1,8 @@
 # hds-feminine-cycle-ui
 
-Custom UI for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, or **Mira** style charts, plus a standalone glyph for cervical-position events.
+Custom UI for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, **Mira**, **Sensiplan**, **sympto-thermal**, **Justisse**, **Chart Neo**, **Marquette** or **Apple Health** style charts, plus a standalone glyph for cervical-position events.
+
+Every display rule comes from the method specification in model-cervical-fluid (`references/rules/method-rules.json`) and ships only when it is sourced; open rules are left out or written as neutral notation. See [`docs/methods/README.md`](./docs/methods/README.md).
 
 Layout-agnostic. The same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it.
 
@@ -41,11 +43,20 @@ const closestOption = (methodId: string, vectors: any) => {
 const input = composeCellInput(events, rep, { closestOption });
 ```
 
+Peak notation over one cycle (the peak mark and the count after it, as the method writes them):
+
+```tsx
+const { peakDay, mark, count } = peakNotation(cycleEvents, rep, { closestOption });
+// per day: dayContext = { isPeak: day === peakDay, peakCount: count.find(c => c.day === day)?.n }
+const input = composeCellInput(eventsForADay, rep, { closestOption, dayContext });
+```
+
 ## What's in here
 
 - A **registry** of cycle-fluid representations.
 - A **pure function** (`composeCellInput`) that reduces N HDS events on a date to a single normalized cell input — supports half-and-half cells when both mucus and bleeding occur on the same day.
-- A **peak/fertile detector** (`detectFertilityWindow`) — sliding-window over option keys.
+- A **peak notation** function (`peakNotation`) — the method's peak day and the 1, 2, 3 count after it, over one cycle's events. Notation only: no fertile / infertile verdict.
+- A **peak/fertile detector** (`detectFertilityWindow`) — sliding-window display heuristic over option keys. **Not for patient-facing verdicts**: use `peakNotation` to chart the peak.
 - One **React component** (`RepresentationCell`) that draws a cell into a `size × size` SVG box; primitives `dot-circle` (FEMM/Mira) and `stamp-square` (Billings/Creighton) live inside it.
 - A second **React component** (`CervixPositionMarker`) that draws a stylised cervix glyph from a 3-D vector — fixed centred ring, horizontal "horizon" bar moves with `height`, ring stroke width with `firmness`, inner-hole radius with `openness`. Standalone (not part of the spec/registry).
 - A shared 7-day fixture (`samplePreviewEvents`) that any registered representation can render previews from.
@@ -58,6 +69,12 @@ const input = composeCellInput(events, rep, { closestOption });
 | `billings`  | `stamp-square` | v0.2    | [`docs/images/billings-options.svg`](./docs/images/billings-options.svg) |
 | `creighton` | `stamp-square` | v0.4    | [`docs/images/creighton-options.svg`](./docs/images/creighton-options.svg) · 33-code grid: [`docs/images/creighton-codes-grid.svg`](./docs/images/creighton-codes-grid.svg) |
 | `mira`      | `dot-circle`   | v0.5    | [`docs/images/mira-options.svg`](./docs/images/mira-options.svg) |
+| `sensiplan` | `stamp-square` | v0.9    | [`docs/images/sensiplan-options.svg`](./docs/images/sensiplan-options.svg) |
+| `sympto-thermal` | `stamp-square` | v0.9 | [`docs/images/sympto-thermal-options.svg`](./docs/images/sympto-thermal-options.svg) |
+| `justisse`  | `stamp-square` | v0.9    | [`docs/images/justisse-options.svg`](./docs/images/justisse-options.svg) |
+| `chartneo`  | `stamp-square` | v0.9    | [`docs/images/chartneo-options.svg`](./docs/images/chartneo-options.svg) |
+| `marquette` | `stamp-square` | v0.9    | [`docs/images/marquette-options.svg`](./docs/images/marquette-options.svg) |
+| `appleHealth` | `stamp-square` | v0.9  | [`docs/images/appleHealth-options.svg`](./docs/images/appleHealth-options.svg) |
 
 Plus the standalone `CervixPositionMarker` glyph for `body-vulva-cervix-position` events (v0.7) — sample glyphs at [`docs/images/cervix-position-samples.svg`](./docs/images/cervix-position-samples.svg):
 
@@ -87,14 +104,15 @@ The `*-options.svg` files are auto-generated from the live spec by `npm run docs
 ## Documentation
 
 - [`docs/concept.md`](./docs/concept.md) — abstraction model.
-- [`docs/methods/femm.md`](./docs/methods/femm.md), [`billings.md`](./docs/methods/billings.md), [`creighton.md`](./docs/methods/creighton.md) — per-method palettes, mapping rules, sources.
+- [`docs/methods/README.md`](./docs/methods/README.md) — what each spec ships, from which source, and what is still to confirm.
+- [`docs/methods/femm.md`](./docs/methods/femm.md), [`billings.md`](./docs/methods/billings.md), [`creighton.md`](./docs/methods/creighton.md), [`sensiplan.md`](./docs/methods/sensiplan.md), [`sympto-thermal.md`](./docs/methods/sympto-thermal.md), [`justisse.md`](./docs/methods/justisse.md), [`chartneo.md`](./docs/methods/chartneo.md), [`marquette.md`](./docs/methods/marquette.md), [`apple-health.md`](./docs/methods/apple-health.md) — per-method palettes, mapping rules, sources.
 - [`AGENTS.md`](./AGENTS.md) — operational notes for AI agents working on this repo.
 
 Reference images live under `docs/images/`; per-method docs link to them.
 
 ## Status
 
-`v0.7.0`. See [`CHANGELOG.md`](./CHANGELOG.md).
+`v0.9.0`. See [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## License
 
