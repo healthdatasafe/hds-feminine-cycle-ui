@@ -13,6 +13,8 @@ import type { RepresentationSpec } from '../types.ts';
  * counting-day computation isn't shipped yet.
  *
  * Mucus options match `data-model/.../models/cervical-fluid/billings/v0.json`.
+ *
+ * Signs beside the fluid (`shows.signs`, literature): none.
  */
 export const billingsSpec: RepresentationSpec = {
   id: 'billings',
@@ -59,6 +61,7 @@ export const billingsSpec: RepresentationSpec = {
   precedence: ['mucus', 'bleeding'],
   // Official key: red stamps for bleeding (method-rules.json periodDays, literature).
   periodDisplay: 'stamp',
+  chart: { signs: { temperature: 'no', lh: 'no', monitor: 'no', cervix: 'no' } },
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',

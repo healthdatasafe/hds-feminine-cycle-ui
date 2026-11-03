@@ -12,12 +12,14 @@ import type { RepresentationSpec } from '../types.ts';
  *     Chartneo - HDS) and counts P, 1, 2, 3 after it: the peak comes from the
  *     recorded `fertility-cycles-peak-day`, written as P and a count of 3
  *     (notation only: what the count means is open, status missing).
+ *   - signs (shows.signs, literature): the temperature by default.
  *
  * Left out until confirmed: the reading of the day's fields (walking, wiping,
  * inspect, test) as dry / mucus / peak-type (fieldRule, hds-draft) and with it
  * the dry (#8dc63f) and mucus (#2aa9e0) colours and peak candidates; the data
  * model's chartneo labels do not match Chart Neo's own field list
- * (hdsDisagreements). The mucus is not drawn in the cell yet.
+ * (hdsDisagreements). The mucus is not drawn in the cell yet, so the chart
+ * is almost empty: the spec is not offered (`offered: false`).
  */
 export const chartneoSpec: RepresentationSpec = {
   id: 'chartneo',
@@ -48,6 +50,8 @@ export const chartneoSpec: RepresentationSpec = {
   },
   precedence: ['bleeding'],
   periodDisplay: 'stamp',
+  chart: { signs: { temperature: 'default', lh: 'no', monitor: 'no', cervix: 'no' } },
+  offered: false,
   peakMarker: {
     compute: 'none',
     primitive: 'letter',

@@ -17,6 +17,8 @@ import type { RepresentationSpec } from '../types.ts';
  * letter (method-rules.json `peakMark` has no status of its own).
  *
  * Mucus options match `data-model/.../models/cervical-fluid/sensiplan/v0.json`.
+ *
+ * Signs beside the fluid (`shows.signs`, literature): the temperature by default, the cervix optional.
  */
 export const sensiplanSpec: RepresentationSpec = {
   id: 'sensiplan',
@@ -46,6 +48,7 @@ export const sensiplanSpec: RepresentationSpec = {
   },
   precedence: ['mucus'],
   periodDisplay: 'separate',
+  chart: { signs: { temperature: 'default', lh: 'no', monitor: 'no', cervix: 'optional' } },
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',

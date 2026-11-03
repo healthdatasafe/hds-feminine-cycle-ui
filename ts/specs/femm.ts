@@ -7,6 +7,8 @@ import type { RepresentationSpec } from '../types.ts';
  * Mucus options match `data-model/.../models/femm/v0.json` (1..4).
  * Bleeding intensity values follow the canonical body-vagina-bleeding labels
  * (heavy / medium / light / spotting). Substate is brown-dark.
+ *
+ * Signs beside the fluid (`shows.signs`, literature): the LH tests by default.
  */
 export const femmSpec: RepresentationSpec = {
   id: 'femm',
@@ -66,6 +68,7 @@ export const femmSpec: RepresentationSpec = {
       ['mucus', 'bleedingSubstate']
     ]
   },
+  chart: { signs: { temperature: 'no', lh: 'default', monitor: 'no', cervix: 'no' } },
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'centerDot',

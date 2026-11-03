@@ -18,6 +18,8 @@ import type { RepresentationSpec } from '../types.ts';
  * the peak letter.
  *
  * Mucus options match `data-model/.../models/cervical-fluid/justisse/v0.json`.
+ *
+ * Signs beside the fluid (`shows.signs`, literature): the temperature optional.
  */
 export const justisseSpec: RepresentationSpec = {
   id: 'justisse',
@@ -47,6 +49,7 @@ export const justisseSpec: RepresentationSpec = {
     }
   },
   precedence: ['mucus'],
+  chart: { signs: { temperature: 'optional', lh: 'no', monitor: 'no', cervix: 'no' } },
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',

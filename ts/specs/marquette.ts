@@ -9,6 +9,8 @@ import type { RepresentationSpec } from '../types.ts';
  *     (periodDays "separate", literature): the spec consumes the mucus only.
  *   - peak, mucus only: the peak day of the mucus (hds); 8 is the only
  *     peak-type number with status hds. Count of 3 after the peak (hds).
+ *   - signs (shows.signs, literature): the monitor by default, the
+ *     temperature optional; the monitor's readings are `monitorItem`.
  *
  * Left out until confirmed (experts' worksheet): the Low / High / Peak levels
  * and their colours (levels, status app: Marquette NFP Pro screenshots), and
@@ -51,6 +53,10 @@ export const marquetteSpec: RepresentationSpec = {
   },
   precedence: ['mucus'],
   periodDisplay: 'separate',
+  chart: {
+    signs: { temperature: 'optional', lh: 'no', monitor: 'default', cervix: 'no' },
+    monitorItem: 'fertility-monitor-lh-marquette'
+  },
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',

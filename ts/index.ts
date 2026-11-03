@@ -26,10 +26,14 @@ export type {
   ConsumesEntry,
   PeakMarkerSpec,
   PeriodDisplay,
+  ChartSign,
+  SignShown,
+  ChartSpec,
   I18nText
 } from './types.ts';
 
 export { registry } from './registry.ts';
+export { longestCode } from './longestCode.ts';
 export { composeCellInput } from './composeCellInput.ts';
 export type { ComposeOptions } from './composeCellInput.ts';
 export { detectFertilityWindow } from './detectFertilityWindow.ts';

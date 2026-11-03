@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.10.0] - 2026-11-03
+
+A method's chart is now described in its spec, so hosts draw every method the same way.
+
+### Added
+- `RepresentationSpec.chart` (`ChartSpec`): `signs`, whether the method charts the temperature, the LH tests, a monitor
+  and the cervix (`default` / `optional` / `no`), from model-cervical-fluid `method-rules.json` `shows.signs`
+  (literature) for Creighton, Billings, FEMM, Justisse, sympto-thermal, Sensiplan, Chart Neo and Marquette; and
+  `monitorItem`, the item the method's monitor writes (Marquette: `fertility-monitor-lh-marquette`). Mira and Apple
+  Health have no `shows.signs` yet.
+- `RepresentationSpec.offered`: `false` keeps a spec out of hosts' pickers. Chart Neo is not offered until its mucus
+  rule is confirmed (`methods.chartneo.fieldRule`).
+- `longestCode(spec)`: the widest code or letter a spec writes (Creighton 4), for hosts sizing their day columns.
+
 ## [0.9.0] - 2026-10-28
 
 Display rules now come from model-cervical-fluid `references/rules/method-rules.json` (1.2.0), and a spec ships a rule
