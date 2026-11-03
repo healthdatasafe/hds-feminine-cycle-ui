@@ -26,6 +26,8 @@ import type { RepresentationSpec, MappingRuleFragment } from '../types.ts';
  * 8CK are left out until confirmed (gaps[1]); 10CK is in through its stretch.
  *
  * Mucus options match `data-model/.../models/cervical-fluid/creighton/v0.json`.
+ *
+ * Signs beside the fluid (`shows.signs`, literature): none.
  */
 
 const CREIGHTON_OPTIONS = [
@@ -105,6 +107,7 @@ export const creightonSpec: RepresentationSpec = {
   },
   precedence: ['mucus', 'bleeding'],
   periodDisplay: 'stamp',
+  chart: { signs: { temperature: 'no', lh: 'no', monitor: 'no', cervix: 'no' } },
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',

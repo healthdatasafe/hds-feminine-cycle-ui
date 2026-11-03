@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { registry, composeCellInput } from '../js/index.js';
+import { registry, composeCellInput, longestCode } from '../js/index.js';
 
 const BLEEDING_ITEMS = ['body-vulva-bleeding', 'body-vagina-bleeding', 'body-vulva-bleeding-browndark', 'bleeding-brown-dark'];
 
@@ -103,6 +103,35 @@ test('chartneo: red sticker for bleeding, spotting lighter, mucus not drawn yet'
   assert.equal(composeCellInput([bleeding(0.75)], rep).fill, '#E8341C');
   assert.equal(composeCellInput([bleeding(0.08)], rep).fill, '#EF9A9A');
   assert.deepEqual(composeCellInput([mucus('chartneo', { walking: 3 })], rep), { empty: true });
+});
+
+test('signs beside the fluid, as method-rules.json shows.signs', () => {
+  const signs = (id) => registry.get(id).spec.chart?.signs;
+  const none = { temperature: 'no', lh: 'no', monitor: 'no', cervix: 'no' };
+  assert.deepEqual(signs('creighton'), none);
+  assert.deepEqual(signs('billings'), none);
+  assert.deepEqual(signs('femm'), { ...none, lh: 'default' });
+  assert.deepEqual(signs('justisse'), { ...none, temperature: 'optional' });
+  assert.deepEqual(signs('sympto-thermal'), { ...none, temperature: 'default', cervix: 'optional' });
+  assert.deepEqual(signs('sensiplan'), { ...none, temperature: 'default', cervix: 'optional' });
+  assert.deepEqual(signs('chartneo'), { ...none, temperature: 'default' });
+  assert.deepEqual(signs('marquette'), { ...none, temperature: 'optional', monitor: 'default' });
+  assert.equal(registry.get('marquette').spec.chart.monitorItem, 'fertility-monitor-lh-marquette');
+  // no shows.signs for these yet
+  assert.equal(signs('mira'), undefined);
+  assert.equal(signs('appleHealth'), undefined);
+});
+
+test('only chartneo is not offered yet', () => {
+  const notOffered = registry.list().filter(r => r.spec.offered === false).map(r => r.spec.id);
+  assert.deepEqual(notOffered, ['chartneo']);
+});
+
+test('longestCode: the widest notation a spec writes', () => {
+  assert.equal(longestCode(registry.get('creighton').spec), 4);
+  assert.equal(longestCode(registry.get('sympto-thermal').spec), 2);
+  assert.equal(longestCode(registry.get('marquette').spec), 1);
+  assert.equal(longestCode(registry.get('chartneo').spec), 0);
 });
 
 test('peakCount writes the count as the cell letter', () => {

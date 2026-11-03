@@ -18,6 +18,8 @@ import type { RepresentationSpec } from '../types.ts';
  * an HDS decision without a source); the peak letter (`peakMark` has no status).
  *
  * Mucus options match `data-model/.../models/cervical-fluid/sympto-thermal/v0.json`.
+ *
+ * Signs beside the fluid (`shows.signs`, literature): the temperature by default, the cervix optional.
  */
 export const symptoThermalSpec: RepresentationSpec = {
   id: 'sympto-thermal',
@@ -47,6 +49,7 @@ export const symptoThermalSpec: RepresentationSpec = {
   },
   precedence: ['mucus'],
   periodDisplay: 'separate',
+  chart: { signs: { temperature: 'default', lh: 'no', monitor: 'no', cervix: 'optional' } },
   peakMarker: {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',

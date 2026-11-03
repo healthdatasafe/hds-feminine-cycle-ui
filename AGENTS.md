@@ -34,6 +34,7 @@ import {
   composeCellInput,          // pure function: events → CellInput
   peakNotation,              // pure: one cycle's events → peak day, mark (P/X), 1-2-3 count (notation only)
   detectFertilityWindow,     // sliding-window display heuristic — NOT for patient-facing verdicts
+  longestCode,               // pure: the widest code/letter a spec writes (hosts size day columns by it)
   registry,                  // built-in + user-extensible registrations
   samplePreviewEvents,       // shared 7-day fixture for previews
   femmSpec, billingsSpec, creightonSpec, miraSpec,
@@ -50,10 +51,17 @@ import type {
   FertilityWindow,
   PeakNotation,
   PeriodDisplay,
+  ChartSpec,                 // spec.chart: the signs the method charts beside the fluid, its monitor item
+  ChartSign,
+  SignShown,
   HdsEventLike,
   I18nText
 } from 'hds-feminine-cycle-ui';
 ```
+
+A method's chart is described in its spec, never in a host: `chart.signs` (from `shows.signs`) says which signs it
+shows by default, `chart.monitorItem` which item its monitor writes, `offered: false` keeps an incomplete spec out of
+pickers, and `longestCode` gives the width its notation needs.
 
 Adding a new field to `CellInput` is **non-breaking** (older renderers ignore unknown fields). Removing or renaming a field requires a version bump.
 

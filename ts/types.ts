@@ -79,6 +79,28 @@ export interface PeakMarkerSpec {
  */
 export type PeriodDisplay = 'stamp' | 'separate';
 
+/**
+ * The signs a cycle chart can follow beside the fluid, by the hosts' row ids:
+ * the basal temperature, the LH tests, a fertility monitor, the cervix.
+ */
+export type ChartSign = 'temperature' | 'lh' | 'monitor' | 'cervix';
+
+/**
+ * Whether the method charts a sign (model-cervical-fluid `shows.signs`):
+ *   - 'default': part of the method, shown by default.
+ *   - 'optional': part of the method for some, off by default.
+ *   - 'no': not part of the method, off by default.
+ * The person can still show or hide any sign.
+ */
+export type SignShown = 'default' | 'optional' | 'no';
+
+/** What the method's chart follows beside the fluid. */
+export interface ChartSpec {
+  signs: Partial<Record<ChartSign, SignShown>>;
+  /** The item key of the method's monitor readings, drawn as the monitor row's marks. */
+  monitorItem?: string;
+}
+
 export interface RepresentationSpec {
   id: string;
   label: I18nText;
@@ -95,6 +117,13 @@ export interface RepresentationSpec {
   peakMarker?: PeakMarkerSpec;
   /** How the method charts the period days (see `PeriodDisplay`). */
   periodDisplay?: PeriodDisplay;
+  /** The signs the method charts (see `ChartSpec`). Omitted when not known. */
+  chart?: ChartSpec;
+  /**
+   * False while the method's chart is not complete enough to offer: hosts
+   * leave it out of their pickers, and keep it for a person who chose it.
+   */
+  offered?: boolean;
   referenceUrl?: string;
 }
 
