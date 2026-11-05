@@ -73,7 +73,7 @@ End-to-end: raw HDS events for one day → `composeCellInput` → `<Representati
 
 ```jsonc
 {
-  "source":  { "key": "vulva-mucus-inspect", "sourceData": 4 },  // method id + native option (scalar or { mucus: "Sticky" })
+  "source":  { "key": "femm", "sourceData": 4 },  // method id (compared to rep.spec.boundMethod.methodId) + native option (scalar or { mucus: "Sticky" })
   "vectors": { /* n-D observation vector, e.g. the FEMM 9d-vector */ }
 }
 ```
@@ -94,7 +94,7 @@ const engine = converters.getEngine('cervical-fluid');
 const closestOption = (methodId, vector) => engine.fromVector(methodId, vector)?.data;
 
 // 3. Reduce one day's events to a CellInput for a chosen representation.
-const rep = registry.get('femm');            // 'femm' | 'billings' | 'creighton' | 'mira'
+const rep = registry.get('femm');            // any built-in id: 'femm' | 'billings' | 'creighton' | 'mira' | 'sensiplan' | 'sympto-thermal' | 'justisse' | 'chartneo' | 'marquette' | 'appleHealth'
 const input = composeCellInput(eventsForDay, rep, {
   closestOption,
   dayContext: { isPeak: true }                // optional: from detectFertilityWindow over the cycle
@@ -106,7 +106,7 @@ const input = composeCellInput(eventsForDay, rep, {
 
 Notes:
 - `composeCellInput(events, rep, opts)` is pure aside from the `closestOption` callback; with no `closestOption`, only native (`source.key`-matching) mucus and presence-only events resolve — cross-method events fall through to empty.
-- `registry.get(id)` returns a `Representation` (`{ spec, resolveColor }`); the four built-ins auto-register at import. `RepresentationCell` looks the rep up again by `representationId`, so pass the same id you composed with.
+- `registry.get(id)` returns a `Representation` (`{ spec, resolveColor }`); the ten built-ins (`ts/specs/`) auto-register at import. `RepresentationCell` looks the rep up again by `representationId`, so pass the same id you composed with.
 - Peak decoration comes from `opts.dayContext`, which the host sets from `peakNotation` over the cycle (`isPeak`, `peakCount`). `detectFertilityWindow` / `isFertile` remain for compatibility and are not for patient-facing verdicts (HDS charts notation, not fertile days).
 
 ## Don't
@@ -120,7 +120,7 @@ Notes:
 
 ## Status
 
-`v0.9.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
+`v0.11.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
 
 | Slice | Status |
 |---|---|
