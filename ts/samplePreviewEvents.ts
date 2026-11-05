@@ -40,11 +40,11 @@ const mucus = (femmValue: 1 | 2 | 3 | 4): HdsEventLike => ({
 
 // Bleeding events carry a numeric ratio (matching the canonical HDS bleeding
 // stream `body-vulva-bleeding`, type `ratio/proportion`); composeCellInput
-// buckets them into spotting/medium/heavy.
+// buckets them into spotting/light/medium/heavy. Values are the scale's anchors.
 const BLEEDING_NUM: Record<'heavy' | 'medium' | 'light' | 'spotting', number> = {
   heavy: 0.75,
   medium: 0.55,
-  light: 0.25,
+  light: 0.35,
   spotting: 0.08
 };
 

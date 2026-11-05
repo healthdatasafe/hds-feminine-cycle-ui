@@ -62,7 +62,7 @@ test('brown-dark presence event (null content, real-world shape) merges with ble
   // `body-vulva-bleeding-browndark` stream — presence is the signal.
   // It must compose: brown fill wins, bleeding letter retained.
   const events = [
-    { streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: 0.15 },
+    { streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: 0.35 },
     { streamIds: ['body-vulva-bleeding-browndark'], type: 'activity/plain', content: null }
   ];
   const out = composeCellInput(events, femm);
@@ -86,6 +86,64 @@ test('events with no mucus option in source.sourceData → empty', () => {
   // (Force-conversion across methods is a deferred follow-up.)
   const out = composeCellInput(events, femm);
   assert.equal(out.empty, true);
+});
+
+// A representation writing each bleeding band as its own letter.
+const bands = {
+  spec: {
+    consumes: [{ itemKey: 'body-vulva-bleeding', role: 'bleeding' }],
+    mappingRules: {
+      bleeding: { spotting: { letter: 'S' }, light: { letter: 'L' }, medium: { letter: 'M' }, heavy: { letter: 'H' } }
+    },
+    precedence: ['bleeding']
+  },
+  resolveColor: (key) => key
+};
+const bandOf = (value) => composeCellInput([{ streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: value }], bands).letter;
+
+test('bleeding scale anchors: Spotting and Very light are spotting, Light light, Moderate medium, Heavy and Very heavy heavy', () => {
+  assert.equal(bandOf(0.08), 'S');
+  assert.equal(bandOf(0.2), 'S', 'Very light (0.2) is spotting (method-rules.json, Creighton VL)');
+  assert.equal(bandOf(0.35), 'L');
+  assert.equal(bandOf(0.55), 'M');
+  assert.equal(bandOf(0.75), 'H');
+  assert.equal(bandOf(0.95), 'H');
+  assert.equal(bandOf(1), 'H');
+});
+
+test('bleeding between anchors reads as the nearest anchor', () => {
+  assert.equal(bandOf(0.01), 'S');
+  assert.equal(bandOf(0.15), 'S');
+  assert.equal(bandOf(0.27), 'S', 'nearer Very light (0.2) than Light (0.35)');
+  assert.equal(bandOf(0.28), 'L', 'nearer Light (0.35) than Very light (0.2)');
+  assert.equal(bandOf(0.44), 'L');
+  assert.equal(bandOf(0.46), 'M');
+  assert.equal(bandOf(0.65), 'M', 'on the Moderate / Heavy midpoint: the lower');
+  assert.equal(bandOf(0.66), 'H');
+});
+
+test('bleeding 0 or below draws nothing; content.value is read like a bare number', () => {
+  assert.equal(composeCellInput([{ streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: 0 }], bands).empty, true);
+  assert.equal(composeCellInput([{ streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: { value: 0.2 } }], bands).letter, 'S');
+});
+
+test('during the period (dayContext.inPeriod) any bleeding is bleeding: the spotting band reads as light', () => {
+  const inPeriod = (value, flag) => composeCellInput([{ streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: value }], bands, { dayContext: { inPeriod: flag } }).letter;
+  assert.equal(inPeriod(0.08, true), 'L');
+  assert.equal(inPeriod(0.2, true), 'L');
+  assert.equal(inPeriod(0.35, true), 'L');
+  assert.equal(inPeriod(0.55, true), 'M');
+  assert.equal(inPeriod(0.95, true), 'H');
+  assert.equal(inPeriod(0.2, false), 'S', 'outside the period, as after it');
+  assert.equal(inPeriod(0, true), undefined, 'no flow, nothing drawn');
+});
+
+test('FEMM: very light bleeding (0.2) is a spotting circle, light (0.35) an L', () => {
+  const at = (value) => composeCellInput([{ streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: value }], femm);
+  assert.equal(at(0.2).fill, '#F4A2BD');
+  assert.equal(at(0.2).letter, undefined);
+  assert.equal(at(0.35).fill, '#C8155A');
+  assert.equal(at(0.35).letter, 'L');
 });
 
 test('event on unrelated stream is ignored', () => {

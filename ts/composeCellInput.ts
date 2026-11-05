@@ -23,11 +23,15 @@ export interface ComposeOptions {
    * `peakCount` writes the count after the peak (1, 2, 3) as the cell's letter.
    * `isFertile` (a small center dot on FEMM-style cells) is not for
    * patient-facing views: HDS charts notation, not fertile days.
+   * `inPeriod` (the host's period days, e.g. from hds-lib `cyclePhaseAt`): any
+   * bleeding during the period is bleeding, so a spotting-band flow (0.08, 0.2)
+   * reads as light there. Unset or false: spotting, as after the period.
    */
   dayContext?: {
     isPeak?: boolean;
     peakCount?: number;
     isFertile?: boolean;
+    inPeriod?: boolean;
   };
 }
 
@@ -179,6 +183,33 @@ function pickOptionKey (
   return orderedOptions[bestIndex];
 }
 
+/**
+ * The options of the `body-vulva-bleeding` scale (data-model `definitions/items/body-vulva.yaml`): each is an anchor
+ * on the 0-1 flow, read as one of the bands representations draw. Very light (0.2) is spotting: model-cervical-fluid
+ * `method-rules.json` counts it as spotting after the period, as the Creighton book counts VL; during the period any
+ * bleeding is bleeding, so with `dayContext.inPeriod` the spotting band reads as light.
+ */
+const BLEEDING_ANCHORS: ReadonlyArray<[number, string]> = [
+  [0.08, 'spotting'], // Spotting
+  [0.2, 'spotting'], // Very light
+  [0.35, 'light'], // Light
+  [0.55, 'medium'], // Moderate
+  [0.75, 'heavy'], // Heavy
+  [0.95, 'heavy'] // Very heavy
+];
+
+/**
+ * The band of a flow above 0: that of its nearest anchor, so a device's value between two anchors reads as the
+ * nearer one (as hds-lib `eventToShortText` labels it and `cyclePhaseAt` thresholds it). On the midpoint, the lower.
+ */
+function bleedingBandOf (value: number, inPeriod?: boolean): string {
+  for (let i = 0; i < BLEEDING_ANCHORS.length - 1; i++) {
+    const [anchor, band] = BLEEDING_ANCHORS[i];
+    if (value <= (anchor + BLEEDING_ANCHORS[i + 1][0]) / 2) return inPeriod && band === 'spotting' ? 'light' : band;
+  }
+  return BLEEDING_ANCHORS[BLEEDING_ANCHORS.length - 1][1];
+}
+
 function readOptionCandidates (
   role: string,
   ev: HdsEventLike,
@@ -221,17 +252,12 @@ function readOptionCandidates (
   if (role === 'bleeding') {
     // The canonical HDS bleeding event is `ratio/proportion` (0..1).
     // Bucket numeric values into the categorical labels representations expect.
-    // Thresholds match `bridge-cyclefeminin-net/src/converters/bleeding.js`:
-    //   Traces=0.08 → spotting, Medium=0.55 → medium, Heavy=0.75 → heavy.
     let num: number | null = null;
     if (typeof c === 'number') num = c;
     else if (typeof c?.value === 'number') num = c.value;
     if (num != null) {
       if (num <= 0) return [];
-      if (num < 0.15) return ['spotting'];
-      if (num < 0.4) return ['light'];
-      if (num < 0.65) return ['medium'];
-      return ['heavy'];
+      return [bleedingBandOf(num, opts?.dayContext?.inPeriod)];
     }
     if (typeof c === 'string') return [c];
     if (typeof c?.value === 'string') return [c.value];

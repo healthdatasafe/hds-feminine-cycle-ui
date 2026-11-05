@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.11.0] - 2026-11-05
+
+### Added
+- `ComposeOptions.dayContext.inPeriod`: during the period any bleeding is bleeding (method-rules.json), so a
+  spotting-band flow (0.08, 0.2) reads as light there. Unset or false keeps spotting, as after the period. Hosts set
+  it from their period days (e.g. hds-lib `cyclePhaseAt`).
+
+### Fixed — bleeding bands follow the scale's anchors (B-2026-10-28-15)
+- `composeCellInput` reads a `body-vulva-bleeding` flow as the band of its nearest anchor on the data-model scale
+  (Spotting 0.08, Very light 0.2, Light 0.35, Moderate 0.55, Heavy 0.75, Very heavy 0.95), the lower one on a
+  midpoint, as hds-lib `eventToShortText` and `cyclePhaseAt` do. Very light (0.2) is now spotting, not light:
+  model-cervical-fluid `method-rules.json` counts it as spotting after the period, as the Creighton book counts VL.
+  Bands: up to 0.275 spotting, up to 0.45 light, up to 0.65 medium, above heavy (were `< 0.15`, `< 0.4`, `< 0.65`).
+- `samplePreviewEvents`: the light day is 0.35 (the Light anchor), was 0.25.
+
+### Documentation
+- `AGENTS.md`: the worked example's `source.key` is the method id (`femm`), as `composeCellInput` compares it to
+  `boundMethod.methodId` (B-2026-10-28-16). A stray `[Unreleased]` heading removed from this file: its entry shipped
+  with 0.8.2.
+
 ## [0.10.0] - 2026-11-03
 
 A method's chart is now described in its spec, so hosts draw every method the same way.
@@ -70,8 +90,6 @@ as neutral notation; each `docs/methods/<id>.md` lists what is still to confirm.
 - `billingsSpec.label`: `{ en: 'Billings (BOM)', fr: 'Billings (MOB)' }` → `{ en: 'Billings', fr: 'Billings' }`.
 - `creightonSpec.label`: `{ en: 'Creighton Model', fr: 'Modèle Creighton' }` → `{ en: 'Creighton', fr: 'Creighton' }`.
 - Drops the protected marks (BOM/MOB = Billings Ovulation Method®; "Creighton Model") from the bundled, user-visible labels. Method ids unchanged. Matches data-model v1.10.3 + model-cervical-fluid b401488.
-
-## [Unreleased]
 
 ### Documentation
 - `AGENTS.md`: added an end-to-end worked example — HDS mucus events
