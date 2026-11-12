@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.11.1] - 2026-11-12
+
+### Fixed — accessibility of the cell glyphs (B-2026-10-27-13)
+- `RepresentationCell` and `CervixPositionMarker` no longer expose an unnamed `role="img"`. With `ariaLabel` they
+  are a named image (a named button when clickable). A clickable `RepresentationCell` without one is named by its
+  visible letter or code. A non-clickable glyph without one is decorative: `aria-hidden="true"`, no role. The
+  fallback box is always hidden.
+- A clickable `CervixPositionMarker` is focusable and activates on Enter / Space, as `RepresentationCell` does.
+- A cell's centred code is drawn as large as fits the cell (up to half its size), never smaller than before: a
+  two-character code in a 24 px cell goes from 8.2 px to about 12 px. Long codes keep their size.
+
 ## [0.11.0] - 2026-11-05
 
 ### Added
