@@ -20,6 +20,8 @@
  * Designed to read at 18-32px in timelines, calendar grids, and pickers.
  */
 
+import { cellA11y } from './cellA11y.ts';
+
 const DEFAULT_SIZE = 28;
 
 const COLOR_FERTILE = '#0d9488'; // teal-600 (fertile signal)
@@ -92,9 +94,12 @@ export function CervixPositionMarker ({
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       className={className}
-      role={isInteractive ? 'button' : 'img'}
-      aria-label={ariaLabel}
+      {...cellA11y(isInteractive, ariaLabel, undefined)}
+      tabIndex={isInteractive ? 0 : undefined}
       onClick={onClick}
+      onKeyDown={isInteractive
+        ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }
+        : undefined}
       style={isInteractive ? { cursor: 'pointer' } : undefined}
     >
       {/* Horizon bar — only drawn when height is known. Drawn first so the

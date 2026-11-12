@@ -1,4 +1,5 @@
 import { registry } from './registry.ts';
+import { cellA11y, fittedFontSize } from './cellA11y.ts';
 import type { CellProps } from './types.ts';
 
 export type { CellProps };
@@ -21,7 +22,7 @@ export function RepresentationCell (props: CellProps): React.JSX.Element {
 
 function FallbackBox ({ size, className }: { size: number; className?: string }): React.JSX.Element {
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={className}>
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={className} aria-hidden='true'>
       <rect x={1} y={1} width={size - 2} height={size - 2} fill='none' stroke='#999' strokeDasharray='2 2' />
     </svg>
   );
@@ -39,14 +40,14 @@ function DotCircle (props: CellProps): React.JSX.Element {
   const stroke = empty ? '#888' : 'none';
   const strokeWidth = empty ? 2 : 0;
   const interactive = onClick != null;
+  const visibleText = empty ? undefined : (input.letter ?? input.code);
 
   return (
     <svg
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
-      role={interactive ? 'button' : 'img'}
-      aria-label={ariaLabel}
+      {...cellA11y(interactive, ariaLabel, visibleText)}
       tabIndex={interactive ? 0 : undefined}
       onClick={onClick}
       onKeyDown={interactive
@@ -96,7 +97,7 @@ function DotCircle (props: CellProps): React.JSX.Element {
           y={cy}
           textAnchor='middle'
           dominantBaseline='central'
-          fontSize={size * 0.34}
+          fontSize={fittedFontSize(size, input.code, 0.34, 0.5)}
           fontWeight='600'
           fill='#fff'
           style={{ userSelect: 'none' }}
@@ -125,14 +126,14 @@ function StampSquare (props: CellProps): React.JSX.Element {
 
   // Letter overlay color: dark for light stamps, white for dark stamps.
   const overlayFill = isLight ? '#1f2937' : '#fff';
+  const visibleText = empty ? undefined : (input.code ?? input.letter);
 
   return (
     <svg
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
-      role={interactive ? 'button' : 'img'}
-      aria-label={ariaLabel}
+      {...cellA11y(interactive, ariaLabel, visibleText)}
       tabIndex={interactive ? 0 : undefined}
       onClick={onClick}
       onKeyDown={interactive
@@ -178,7 +179,7 @@ function StampSquare (props: CellProps): React.JSX.Element {
           y={size / 2}
           textAnchor='middle'
           dominantBaseline='central'
-          fontSize={size * 0.36}
+          fontSize={fittedFontSize(size, input.code, 0.36, 0.5, input.letter ? 0.7 : 0.86)}
           fontWeight='700'
           fill={overlayFill}
           style={{ userSelect: 'none' }}
