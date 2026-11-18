@@ -116,4 +116,4 @@ Reference images live under `docs/images/`; per-method docs link to them.
 
 ## License
 
-BSD-3-Clause
+[BSD-3-Clause](LICENSE)
