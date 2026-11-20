@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { registry, composeCellInput } from '../js/index.js';
+import { registry, composeCellInput, peakNotation } from '../js/index.js';
 
 const rep = registry.get('creighton');
 const cell = (code) => composeCellInput([{
@@ -37,6 +37,25 @@ test('creighton: every mucus code is white with a baby, never yellow', () => {
 
 test('creighton: B and R codes stay red', () => {
   for (const code of ['6B', '6R', '10B', '10R']) assert.equal(cell(code).fill, RED, code);
+});
+
+test('creighton: a code stored in another case draws as the spec spells it (B-plan-131 bug 2)', () => {
+  assert.deepEqual(cell('10kl'), cell('10KL'));
+  assert.equal(cell('6ck').code, '6CK');
+  assert.equal(cell('2w').fill, GREEN);
+});
+
+test('creighton: a lower-case peak-type code still sets the peak', () => {
+  const day = (d, code) => ({ time: d * 86400, streamIds: ['body-vulva-mucus-inspect'], type: 'vulva-mucus-inspect/9d-vector', content: { source: { key: 'creighton', sourceData: code } } });
+  const n = peakNotation([day(0, '6c'), day(1, '10kl'), day(2, '6c')], rep);
+  assert.equal(n.peakDay, 1);
+});
+
+test('creighton: brown bleeding alone (presence-only event) draws a red stamp (bug 5)', () => {
+  for (const itemKey of ['body-vulva-bleeding-browndark', 'bleeding-brown-dark']) {
+    const input = composeCellInput([{ time: 0, streamIds: [itemKey], type: 'activity/plain', content: null }], rep);
+    assert.equal(input.fill, RED, itemKey);
+  }
 });
 
 test('creighton: clear, lubricative or 10 are peak-type; partly clear C/K is left out', () => {

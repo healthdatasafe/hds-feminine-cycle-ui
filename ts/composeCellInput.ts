@@ -4,6 +4,7 @@ import type {
   MappingRuleFragment,
   Representation
 } from './types.ts';
+import { ruleKeyOf } from './mucusOption.ts';
 
 /**
  * Optional behaviours for `composeCellInput`.
@@ -175,7 +176,7 @@ function pickOptionKey (
   for (const ev of list) {
     const candidates = readOptionCandidates(role, ev, rep, opts);
     for (const candidate of candidates) {
-      const idx = orderedOptions.indexOf(candidate);
+      const idx = orderedOptions.indexOf(ruleKeyOf(rep, role, candidate));
       if (idx > bestIndex) bestIndex = idx;
     }
   }
@@ -219,11 +220,15 @@ function readOptionCandidates (
   const c = ev.content;
   if (c == null) {
     // Presence-only events: e.g. brown-dark coloration is an `activity/plain`
-    // event with null content — the event's existence IS the signal. When the
-    // role's mapping table has a single unambiguous option, presence selects
-    // it (FEMM/Mira `bleedingSubstate: { brown: … }`). Mucus and multi-option
-    // roles still require explicit content.
+    // event with null content — the event's existence IS the signal. The
+    // consumes entry may name the option its presence selects (Creighton,
+    // Billings: `presenceOption: 'brown'` among five bleeding options); else,
+    // when the role's mapping table has a single unambiguous option, presence
+    // selects it (FEMM/Mira `bleedingSubstate: { brown: … }`). Mucus and other
+    // multi-option roles still require explicit content.
     if (role === 'mucus') return [];
+    const named = rep.spec.consumes.find(e => e.role === role && e.presenceOption && ev.streamIds.includes(e.itemKey));
+    if (named?.presenceOption) return [named.presenceOption];
     const rules = rep.spec.mappingRules[role];
     const keys = rules ? Object.keys(rules) : [];
     if (keys.length === 1) return [keys[0]];

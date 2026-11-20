@@ -25,7 +25,7 @@ export function mucusOptionOf (
           ? sd.mucus
           : undefined;
   const targetMethod = rep.spec.boundMethod.methodId;
-  if (sourceKey === targetMethod && native != null) return String(native);
+  if (sourceKey === targetMethod && native != null) return ruleKeyOf(rep, 'mucus', String(native));
   if (c?.vectors && opts?.closestOption) {
     try {
       const closest = opts.closestOption(targetMethod, c.vectors);
@@ -34,7 +34,18 @@ export function mucusOptionOf (
       return null;
     }
   }
-  return native != null ? String(native) : null;
+  return native != null ? ruleKeyOf(rep, 'mucus', String(native)) : null;
+}
+
+/**
+ * A role's option key as the spec spells it. Methods such as Creighton are case-insensitive (`6ck` converts as
+ * `6CK`), so a stored spelling that differs only in case reads as the spec's key; any other key comes back unchanged.
+ */
+export function ruleKeyOf (rep: Representation, role: string, key: string): string {
+  const rules = rep.spec.mappingRules[role];
+  if (!rules || key in rules) return key;
+  const upper = key.toUpperCase();
+  return Object.keys(rules).find(k => k.toUpperCase() === upper) ?? key;
 }
 
 /** Item keys the representation reads under the mucus role. */

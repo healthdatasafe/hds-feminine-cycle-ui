@@ -27,6 +27,11 @@ export interface HdsEventLike {
 export interface ConsumesEntry {
   itemKey: string;
   role: string; // 'mucus' | 'bleeding' | 'bleedingSubstate' | future
+  /**
+   * For a presence-only item (no content, e.g. `body-vulva-bleeding-browndark`): the option of the role's mapping
+   * rules its presence selects. Needed when the role has several options (Creighton bleeding: heavy … brown).
+   */
+  presenceOption?: string;
 }
 
 /** A single mapping-rule fragment. Palette names are resolved later. */

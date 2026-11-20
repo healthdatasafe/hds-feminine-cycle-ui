@@ -29,8 +29,8 @@ export const billingsSpec: RepresentationSpec = {
   consumes: [
     { itemKey: 'body-vulva-bleeding', role: 'bleeding' },
     { itemKey: 'body-vagina-bleeding', role: 'bleeding' },
-    { itemKey: 'body-vulva-bleeding-browndark', role: 'bleeding' },
-    { itemKey: 'bleeding-brown-dark', role: 'bleeding' },
+    { itemKey: 'body-vulva-bleeding-browndark', role: 'bleeding', presenceOption: 'brown' },
+    { itemKey: 'bleeding-brown-dark', role: 'bleeding', presenceOption: 'brown' },
     { itemKey: 'body-vulva-mucus-inspect', role: 'mucus' }
   ],
   palette: {
