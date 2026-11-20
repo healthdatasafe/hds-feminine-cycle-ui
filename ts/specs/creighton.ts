@@ -25,33 +25,48 @@ import type { RepresentationSpec, MappingRuleFragment, BleedingNotationEntry } f
  *                                    stampNote: "white with a baby for mucus …
  *                                    the app never colours them yellow").
  *
- * Peak-type (codeRules[2], hds, `peakMarker.isCandidate`): clear (K),
- * lubricative (L) or very stretchy (10) mucus, whatever the quantity. The partly
- * clear codes without L below 10 (6CK, 8CK, 6GCK, 8GCK) are left out until
- * confirmed (gaps[1], practitioner Q6); 10CK is in through its stretch.
+ * Peak-type (codeRules[2], hds, `peakMarker.isCandidate`): clear (K, so C/K too),
+ * lubricative (L) or very stretchy (10) mucus, whatever the quantity, also when
+ * the code carries B or R (the Peak Day can be a red sticker); never a dry code.
+ * Practitioner answers Q6 and Q10 (plan 131 `08-practitioner-answers.md`).
+ *
+ * The sign of the day (Q7): peak-type, then other mucus, then dry, the highest
+ * dry number first (`mucusRank`).
  *
  * Bleeding letters (book ch. 6; plan 131 06 D5): H, M, L, VL on the flow scale,
- * B (brown) as the presence of `body-vulva-bleeding-browndark`.
+ * B (brown) as the presence of `body-vulva-bleeding-browndark`. H and M are
+ * written alone; L, VL and B always with a mucus or dry code (book ch. 6, Q0).
  *
  * Signs beside the fluid (`shows.signs`, literature): none.
  */
 
-/** A code as Creighton writes it: a number, then letters. Loose on purpose: a new letter still draws. */
-const CODE_SHAPE = /^\d+[A-Z]*$/;
+/**
+ * A code as Creighton writes it: a number, then letters; or P and letters (PC, PY: a pasty discharge without stretch,
+ * Q3). Loose on purpose: a new letter still draws.
+ */
+const CODE_SHAPE = /^(\d+[A-Z]*|P[A-Z]+)$/;
+const DRY = /^(0|2W?|4)$/;
 
 type CreightonStamp = 'dryGreen' | 'bleedingRed' | 'discharge';
 
 function stampFillFor (code: string): CreightonStamp {
   if (/[BR]/.test(code)) return 'bleedingRed';
-  if (/^(0|2W?|4)$/.test(code)) return 'dryGreen';
+  if (DRY.test(code)) return 'dryGreen';
   return 'discharge';
 }
 
 function isPeakType (code: string): boolean {
   const c = code.toUpperCase();
-  if (!CODE_SHAPE.test(c) || stampFillFor(c) !== 'discharge') return false;
-  if (/^(6|8)G?CK$/.test(c)) return false;
+  if (!CODE_SHAPE.test(c) || DRY.test(c)) return false;
   return /K|L|^10/.test(c);
+}
+
+/** The most fertile sign of the day ranks highest (Q7): peak-type 3, other mucus 2, dry 1 + 0 < 2 < 2W < 4. */
+function mucusRank (code: string): number {
+  const c = code.toUpperCase();
+  if (isPeakType(c)) return 3;
+  if (DRY.test(c)) return 1 + ['0', '2', '2W', '4'].indexOf(c) / 10;
+  return 2;
 }
 
 function mucusRule (code: string): MappingRuleFragment | undefined {
@@ -69,11 +84,11 @@ const SAMPLE_CODES = ['0', '2', '4', '6C', '8CK', '10KL', '10WL', '6B'];
 const mucusSamples: Record<string, MappingRuleFragment> = Object.fromEntries(SAMPLE_CODES.map(c => [c, mucusRule(c)!]));
 
 const bleedingNotation: BleedingNotationEntry[] = [
-  { code: 'H', label: { en: 'Heavy', fr: 'Abondant' }, band: 'heavy', itemKey: 'body-vulva-bleeding', value: 0.75 },
-  { code: 'M', label: { en: 'Medium', fr: 'Moyen' }, band: 'medium', itemKey: 'body-vulva-bleeding', value: 0.55 },
-  { code: 'L', label: { en: 'Light', fr: 'Léger' }, band: 'light', itemKey: 'body-vulva-bleeding', value: 0.35 },
-  { code: 'VL', label: { en: 'Very light', fr: 'Très léger' }, band: 'spotting', itemKey: 'body-vulva-bleeding', value: 0.2 },
-  { code: 'B', label: { en: 'Brown bleeding', fr: 'Saignement brun' }, band: 'brown', itemKey: 'body-vulva-bleeding-browndark' }
+  { code: 'H', label: { en: 'Heavy', fr: 'Abondant' }, band: 'heavy', itemKey: 'body-vulva-bleeding', value: 0.75, mucus: 'none' },
+  { code: 'M', label: { en: 'Medium', fr: 'Moyen' }, band: 'medium', itemKey: 'body-vulva-bleeding', value: 0.55, mucus: 'none' },
+  { code: 'L', label: { en: 'Light', fr: 'Léger' }, band: 'light', itemKey: 'body-vulva-bleeding', value: 0.35, mucus: 'required' },
+  { code: 'VL', label: { en: 'Very light', fr: 'Très léger' }, band: 'spotting', itemKey: 'body-vulva-bleeding', value: 0.2, mucus: 'required' },
+  { code: 'B', label: { en: 'Brown bleeding', fr: 'Saignement brun' }, band: 'brown', itemKey: 'body-vulva-bleeding-browndark', mucus: 'required' }
 ];
 
 export const creightonSpec: RepresentationSpec = {
@@ -112,7 +127,8 @@ export const creightonSpec: RepresentationSpec = {
     }
   },
   mucusRule,
-  maxCodeLength: 6, // 10GCKL
+  mucusRank,
+  maxCodeLength: 6, // 10GCKL, 10GKYL
   bleedingNotation,
   precedence: ['mucus', 'bleeding'],
   periodDisplay: 'stamp',

@@ -1,5 +1,5 @@
 {
-  "source": "model-cervical-fluid src/definitions/v0/creighton.json (branch plan-134-creighton-entry, 2026-11-20): every option value with its offer flag",
+  "source": "model-cervical-fluid src/definitions/v0/creighton.json (branch plan-134-creighton-entry, plan 131 practitioner answers, 2026-11-20): every option value with its offer flag",
   "codes": [
     {
       "value": "0",
@@ -18,11 +18,23 @@
       "offer": true
     },
     {
+      "value": "PC",
+      "offer": true
+    },
+    {
+      "value": "PY",
+      "offer": true
+    },
+    {
       "value": "6",
       "offer": false
     },
     {
       "value": "6B",
+      "offer": true
+    },
+    {
+      "value": "6BL",
       "offer": true
     },
     {
@@ -43,6 +55,14 @@
     },
     {
       "value": "6G",
+      "offer": false
+    },
+    {
+      "value": "6GB",
+      "offer": true
+    },
+    {
+      "value": "6GBL",
       "offer": true
     },
     {
@@ -70,7 +90,23 @@
       "offer": true
     },
     {
+      "value": "6GKY",
+      "offer": true
+    },
+    {
+      "value": "6GKYL",
+      "offer": true
+    },
+    {
       "value": "6GL",
+      "offer": false
+    },
+    {
+      "value": "6GR",
+      "offer": true
+    },
+    {
+      "value": "6GRL",
       "offer": true
     },
     {
@@ -90,12 +126,20 @@
       "offer": true
     },
     {
-      "value": "6L",
+      "value": "6KY",
       "offer": true
     },
     {
-      "value": "6P",
+      "value": "6KYL",
       "offer": true
+    },
+    {
+      "value": "6L",
+      "offer": false
+    },
+    {
+      "value": "6P",
+      "offer": false
     },
     {
       "value": "6PC",
@@ -107,6 +151,10 @@
     },
     {
       "value": "6R",
+      "offer": true
+    },
+    {
+      "value": "6RL",
       "offer": true
     },
     {
@@ -122,6 +170,14 @@
       "offer": false
     },
     {
+      "value": "8B",
+      "offer": true
+    },
+    {
+      "value": "8BL",
+      "offer": true
+    },
+    {
       "value": "8C",
       "offer": true
     },
@@ -135,6 +191,14 @@
     },
     {
       "value": "8CL",
+      "offer": true
+    },
+    {
+      "value": "8GB",
+      "offer": true
+    },
+    {
+      "value": "8GBL",
       "offer": true
     },
     {
@@ -162,6 +226,22 @@
       "offer": true
     },
     {
+      "value": "8GKY",
+      "offer": true
+    },
+    {
+      "value": "8GKYL",
+      "offer": true
+    },
+    {
+      "value": "8GR",
+      "offer": true
+    },
+    {
+      "value": "8GRL",
+      "offer": true
+    },
+    {
       "value": "8GY",
       "offer": true
     },
@@ -178,12 +258,28 @@
       "offer": true
     },
     {
-      "value": "8L",
+      "value": "8KY",
       "offer": true
+    },
+    {
+      "value": "8KYL",
+      "offer": true
+    },
+    {
+      "value": "8L",
+      "offer": false
     },
     {
       "value": "8P",
       "offer": false
+    },
+    {
+      "value": "8R",
+      "offer": true
+    },
+    {
+      "value": "8RL",
+      "offer": true
     },
     {
       "value": "8Y",
@@ -202,6 +298,10 @@
       "offer": true
     },
     {
+      "value": "10BL",
+      "offer": true
+    },
+    {
       "value": "10C",
       "offer": true
     },
@@ -215,6 +315,14 @@
     },
     {
       "value": "10CL",
+      "offer": true
+    },
+    {
+      "value": "10GB",
+      "offer": true
+    },
+    {
+      "value": "10GBL",
       "offer": true
     },
     {
@@ -242,6 +350,22 @@
       "offer": true
     },
     {
+      "value": "10GKY",
+      "offer": true
+    },
+    {
+      "value": "10GKYL",
+      "offer": true
+    },
+    {
+      "value": "10GR",
+      "offer": true
+    },
+    {
+      "value": "10GRL",
+      "offer": true
+    },
+    {
       "value": "10GY",
       "offer": true
     },
@@ -258,8 +382,16 @@
       "offer": true
     },
     {
-      "value": "10L",
+      "value": "10KY",
       "offer": true
+    },
+    {
+      "value": "10KYL",
+      "offer": true
+    },
+    {
+      "value": "10L",
+      "offer": false
     },
     {
       "value": "10P",
@@ -267,6 +399,10 @@
     },
     {
       "value": "10R",
+      "offer": true
+    },
+    {
+      "value": "10RL",
       "offer": true
     },
     {

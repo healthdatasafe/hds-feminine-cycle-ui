@@ -126,10 +126,12 @@ export interface RepresentationSpec {
   /**
    * For a method whose codes are a notation (Creighton): the fragment of any mucus code, by rule on its text,
    * case-insensitive; undefined for a text it cannot read. Used when `mappingRules.mucus` has no entry for the code;
-   * the fragment's `code` is the code as the method spells it. With it, a day holding two codes shows the peak-type
-   * one, else the last.
+   * the fragment's `code` is the code as the method spells it. With it, a day holding two codes shows the one
+   * `mucusRank` ranks highest, else the peak-type one, else the last.
    */
   mucusRule?: (code: string) => MappingRuleFragment | undefined;
+  /** With `mucusRule`: how fertile a code's sign is, higher first (Creighton: peak-type, other mucus, dry). Ties: the last read. */
+  mucusRank?: (code: string) => number;
   /** The longest code `mucusRule` writes, for `longestCode` (the table holds only samples then). */
   maxCodeLength?: number;
   /** The method's bleeding letters (Creighton H, M, L, VL, B): what each one saves. Pickers only. */
@@ -159,6 +161,11 @@ export interface BleedingNotationEntry {
   band: string;
   itemKey: string;
   value?: number;
+  /**
+   * The mucus part of the record (Creighton book ch. 6): `none` the letter is written alone (H, M), `required` always
+   * with a mucus or dry code (L, VL, B). Omitted: either.
+   */
+  mucus?: 'none' | 'required';
 }
 
 /** Normalized result of composeCellInput. Forward-compatible: unknown fields ignored. */

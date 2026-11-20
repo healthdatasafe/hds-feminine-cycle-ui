@@ -164,7 +164,7 @@ function applyFertileMarker (input: CellInput, rep: Representation): CellInput {
  * If multiple events of the same role on the same day, pick the highest-precedence
  * option (last entry in the rules table wins; stable but representation-defined).
  * Mucus of a spec with `mucusRule` (codes drawn by rule, no ranked table): the
- * peak-type code, else the last one read.
+ * code `mucusRank` ranks highest; without it the peak-type code; ties: the last read.
  */
 function pickOptionKey (
   role: string,
@@ -175,14 +175,15 @@ function pickOptionKey (
   const rules = rep.spec.mappingRules[role];
   if (!rules) return null;
   if (role === 'mucus' && rep.spec.mucusRule) {
+    const rank = rep.spec.mucusRank ?? ((key: string) => isPeakOption(rep, key) ? 1 : 0);
     let best: string | null = null;
-    let bestPeak = false;
+    let bestRank = -Infinity;
     for (const ev of list) {
       for (const candidate of readOptionCandidates(role, ev, rep, opts)) {
         const key = ruleKeyOf(rep, role, candidate);
         if (!fragmentOf(rep, role, key)) continue;
-        const peak = isPeakOption(rep, key);
-        if (peak || !bestPeak) { best = key; bestPeak = peak; }
+        const r = rank(key);
+        if (r >= bestRank) { best = key; bestRank = r; }
       }
     }
     return best;

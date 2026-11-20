@@ -59,21 +59,38 @@ test('creighton: brown bleeding alone (presence-only event) draws a red stamp (b
   }
 });
 
-test('creighton: clear, lubricative or 10 are peak-type; partly clear C/K is left out', () => {
+test('creighton: clear (C/K too), lubricative or 10 are peak-type, also with B or R; dry never (Q6, Q10)', () => {
   const peak = (code) => isPeakOption(rep, code);
-  for (const code of ['6K', '8K', '6L', '6GL', '8L', '8YL', '10', '10C', '10CK', '10K', '10KL', '10L', '10P', '10Y', '10DL', '10SL', '10WL']) {
+  for (const code of ['6K', '8K', '6L', '6GL', '8L', '8YL', '10', '10C', '10CK', '10K', '10KL', '10L', '10P', '10Y', '10DL', '10SL', '10WL', '6CK', '8CK', '10B', '10R', '8KR', '6BL']) {
     assert.ok(peak(code), code);
   }
-  for (const code of ['0', '2', '2W', '4', '6', '6C', '6P', '6Y', '6G', '8', '8C', '8P', '8Y', '6CK', '8CK', '6B', '6R', '10B', '10R']) {
+  for (const code of ['0', '2', '2W', '4', '6', '6C', '6P', '6Y', '6G', '8', '8C', '8P', '8Y', '6B', '6R', '8B', 'PC', 'PY']) {
     assert.equal(peak(code), false, code);
   }
+});
+
+test('creighton: the Peak Day can be a red sticker (Q10)', () => {
+  const day = (d, code) => ({ time: d * 86400, streamIds: ['body-vulva-mucus-inspect'], type: 'vulva-mucus-inspect/9d-vector', content: { source: { key: 'creighton', sourceData: code } } });
+  const n = peakNotation([day(0, '6C'), day(1, '10R'), day(2, '6C')], rep);
+  assert.equal(n.peakDay, 1);
+  assert.equal(cell('10R').fill, RED);
+});
+
+test('creighton: PC and PY (no number, Q3) draw white with a baby, not peak-type', () => {
+  for (const code of ['PC', 'PY']) {
+    const input = cell(code);
+    assert.equal(input.fill, WHITE, code);
+    assert.equal(input.baby, true, code);
+    assert.equal(input.code, code);
+  }
+  assert.equal(cell('pc').code, 'PC');
 });
 
 // Plan 134: the codes are the model's; fcui draws them by rule, with no list of its own.
 const MODEL_CODES = JSON.parse(readFileSync(new URL('./fixtures/creighton-codes.json', import.meta.url))).codes.map(c => c.value);
 
 test('creighton: every code of the model draws a fill and its own code', () => {
-  assert.equal(MODEL_CODES.length, 72);
+  assert.equal(MODEL_CODES.length, 106);
   for (const code of MODEL_CODES) {
     const input = cell(code);
     assert.ok([GREEN, WHITE, RED].includes(input.fill), code);
@@ -82,16 +99,15 @@ test('creighton: every code of the model draws a fill and its own code', () => {
   }
 });
 
-test('creighton: new codes are peak-type by rule (K, L or 10; not partly clear below 10 without L)', () => {
+test('creighton: new codes are peak-type by rule (K, L or 10)', () => {
   const peak = (code) => isPeakOption(rep, code);
-  for (const code of ['6GK', '6GKL', '6CKL', '6GCKL', '8GK', '8GCKL', '8CL', '10GC', '10GCK', '10CL', '10YL', '6YL']) {
+  for (const code of ['6GK', '6GKL', '6CKL', '6GCKL', '8GK', '8GCKL', '8CL', '10GC', '10GCK', '10CL', '10YL', '6YL', '6GCK', '8GCK', '6KY', '10GKYL']) {
     assert.ok(peak(code), code);
   }
-  for (const code of ['6GC', '6GY', '6PC', '6PY', '8GC', '8GY', '6GCK', '8GCK']) {
+  for (const code of ['6GC', '6GY', '6PC', '6PY', '8GC', '8GY', '8GB', '6GR']) {
     assert.equal(peak(code), false, code);
   }
-  for (const code of ['10gck', '6gckl']) assert.ok(peak(code), code);
-  assert.equal(peak('8gck'), false);
+  for (const code of ['10gck', '6gckl', '8gck']) assert.ok(peak(code), code);
 });
 
 test('creighton: a lower-case new code draws as the model spells it', () => {
@@ -109,11 +125,17 @@ test('creighton: a new peak-type code sets the peak', () => {
   assert.equal(n.peakDay, 1);
 });
 
-test('creighton: two codes on one day show the peak-type one, else the last', () => {
+test('creighton: two codes on one day show the most fertile sign: peak-type, other mucus, dry (Q7)', () => {
   const ev = (code) => ({ time: 0, streamIds: ['body-vulva-mucus-inspect'], type: 'vulva-mucus-inspect/9d-vector', content: { source: { key: 'creighton', sourceData: code } } });
-  assert.equal(composeCellInput([ev('10GCK'), ev('6C')], rep).code, '10GCK');
-  assert.equal(composeCellInput([ev('6C'), ev('0')], rep).code, '0');
-  assert.equal(composeCellInput([ev('0'), ev('6C')], rep).code, '6C');
+  const day = (...codes) => composeCellInput(codes.map(ev), rep).code;
+  assert.equal(day('10GCK', '6C'), '10GCK');
+  assert.equal(day('6C', '10KL', '6Y'), '10KL');
+  assert.equal(day('6C', '0'), '6C');
+  assert.equal(day('0', '6C'), '6C');
+  assert.equal(day('PC', '4'), 'PC');
+  assert.equal(day('4', '2W', '0'), '4');
+  assert.equal(day('2', '2W'), '2W');
+  assert.equal(day('6C', '6Y'), '6Y');
 });
 
 test('creighton: bleeding notation H, M, L, VL on the flow, B as brown presence', () => {
@@ -124,6 +146,8 @@ test('creighton: bleeding notation H, M, L, VL on the flow, B as brown presence'
     assert.ok(rep.spec.mappingRules.bleeding[e.band], e.code);
     if (e.value != null) assert.equal(bleedingBandOf(e.value), e.band, e.code);
   }
+  // Book ch. 6 and Q0: H, M alone; L, VL and B always with a mucus or dry code.
+  assert.deepEqual(Object.fromEntries(bn.map(e => [e.code, e.mucus])), { H: 'none', M: 'none', L: 'required', VL: 'required', B: 'required' });
   assert.equal(bn.find(e => e.code === 'B').itemKey, 'body-vulva-bleeding-browndark');
   assert.equal(bn.find(e => e.code === 'B').value, undefined);
   const letterOf = (v) => bn.find(e => e.value != null && e.band === bleedingBandOf(v))?.code;
