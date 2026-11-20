@@ -1,5 +1,27 @@
 # Changelog
 
+## [Unreleased] (plans 131 and 134, not published)
+
+### Changed — Creighton draws every code by rule
+- The Creighton spec keeps no list of codes: `RepresentationSpec.mucusRule` draws any code by rule on its text
+  (case-insensitive), so the 72 codes of the generated model list all draw, with their fill, baby and code.
+  `mappingRules.mucus` holds only sample codes for previews and legends.
+- Peak-type by rule (`PeakMarkerSpec.isCandidate`): K, L or base 10, not a bleeding code, and not a partly clear code
+  without L below 10 (6CK, 8CK, 6GCK, 8GCK). `peakNotation` and `detectFertilityWindow` read it.
+- A day holding two Creighton codes shows the peak-type one, else the last (was: the later one in the fixed table).
+- `longestCode` is 6 for Creighton (`10GCKL`), from `RepresentationSpec.maxCodeLength`.
+
+### Fixed
+- Creighton: a bleeding day with mucus drew a red stamp with a baby, a sticker the book does not have; it is a red
+  stamp with the code. `MappingRuleFragment.baby: false` removes a baby a lower-precedence role drew.
+
+### Added
+- `RepresentationSpec.bleedingNotation`: Creighton H, M, L, VL on the flow (0.75, 0.55, 0.35, 0.2), B as brown
+  presence. Exported `bleedingBandOf` reads a stored flow back as its band (0.95 → H, 0.08 → VL).
+- `stickerOf(input)`: a stable key of a cell's sticker (fill, baby, half fill), for pickers grouping choices.
+- `isPeakOption(rep, key)`.
+- Case-insensitive codes; presence option for brown bleeding (plan 131).
+
 ## [0.11.1] - 2026-11-12
 
 ### Fixed — accessibility of the cell glyphs (B-2026-10-27-13)

@@ -40,6 +40,7 @@ export interface MappingRuleFragment {
   letter?: string; // single-char overlay
   code?: string; // multi-char overlay (Creighton)
   centerDot?: { color: string };
+  /** `true` draws a baby; `false` removes one a lower-precedence role drew (Creighton: no red stamp with a baby). */
   baby?: boolean;
 }
 
@@ -59,6 +60,11 @@ export interface PeakMarkerSpec {
    * dimensions (e.g. cyclefeminin → Creighton imports).
    */
   candidateOptions?: string[];
+  /**
+   * Peak-type by rule on the option key, for a method whose codes are a notation (Creighton): any code it accepts
+   * counts as a candidate, with or without `candidateOptions`.
+   */
+  isCandidate?: (code: string) => boolean;
   /**
    * Letter shown on the peak day when `primitive === 'letter'`. Defaults to
    * 'X' (Billings convention). Creighton uses 'P'.
@@ -117,6 +123,17 @@ export interface RepresentationSpec {
   consumes: ConsumesEntry[];
   palette: Record<string, string>; // name -> hex
   mappingRules: MappingRules;
+  /**
+   * For a method whose codes are a notation (Creighton): the fragment of any mucus code, by rule on its text,
+   * case-insensitive; undefined for a text it cannot read. Used when `mappingRules.mucus` has no entry for the code;
+   * the fragment's `code` is the code as the method spells it. With it, a day holding two codes shows the peak-type
+   * one, else the last.
+   */
+  mucusRule?: (code: string) => MappingRuleFragment | undefined;
+  /** The longest code `mucusRule` writes, for `longestCode` (the table holds only samples then). */
+  maxCodeLength?: number;
+  /** The method's bleeding letters (Creighton H, M, L, VL, B): what each one saves. Pickers only. */
+  bleedingNotation?: BleedingNotationEntry[];
   precedence: string[]; // role names, lowest precedence first
   halfSplit?: { enabled: boolean; pairs: [string, string][] };
   peakMarker?: PeakMarkerSpec;
@@ -130,6 +147,18 @@ export interface RepresentationSpec {
    */
   offered?: boolean;
   referenceUrl?: string;
+}
+
+/**
+ * A bleeding letter of the method's notation and what it saves: a value of a flow item (`value`), or the presence of
+ * an item (no `value`, e.g. `body-vulva-bleeding-browndark`). `band` is the key of `mappingRules.bleeding` it draws.
+ */
+export interface BleedingNotationEntry {
+  code: string;
+  label: I18nText;
+  band: string;
+  itemKey: string;
+  value?: number;
 }
 
 /** Normalized result of composeCellInput. Forward-compatible: unknown fields ignored. */

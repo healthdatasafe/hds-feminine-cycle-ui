@@ -128,7 +128,7 @@ test('only chartneo is not offered yet', () => {
 });
 
 test('longestCode: the widest notation a spec writes', () => {
-  assert.equal(longestCode(registry.get('creighton').spec), 4);
+  assert.equal(longestCode(registry.get('creighton').spec), 6);
   assert.equal(longestCode(registry.get('sympto-thermal').spec), 2);
   assert.equal(longestCode(registry.get('marquette').spec), 1);
   assert.equal(longestCode(registry.get('chartneo').spec), 0);

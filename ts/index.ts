@@ -29,12 +29,14 @@ export type {
   ChartSign,
   SignShown,
   ChartSpec,
-  I18nText
+  I18nText,
+  BleedingNotationEntry
 } from './types.ts';
 
 export { registry } from './registry.ts';
 export { longestCode } from './longestCode.ts';
-export { composeCellInput } from './composeCellInput.ts';
+export { composeCellInput, stickerOf, bleedingBandOf } from './composeCellInput.ts';
+export { isPeakOption } from './mucusOption.ts';
 export type { ComposeOptions } from './composeCellInput.ts';
 export { detectFertilityWindow } from './detectFertilityWindow.ts';
 export type { FertilityWindow } from './detectFertilityWindow.ts';

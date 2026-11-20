@@ -4,7 +4,7 @@ import type {
   MappingRuleFragment,
   Representation
 } from './types.ts';
-import { ruleKeyOf } from './mucusOption.ts';
+import { fragmentOf, isPeakOption, ruleKeyOf } from './mucusOption.ts';
 
 /**
  * Optional behaviours for `composeCellInput`.
@@ -68,7 +68,7 @@ export function composeCellInput (
     const rules = rep.spec.mappingRules[role];
     if (!rules) continue;
     const optionKey = pickOptionKey(role, list, rep, opts);
-    const fragment = optionKey != null ? rules[optionKey] : undefined;
+    const fragment = optionKey != null ? fragmentOf(rep, role, optionKey) : undefined;
     if (fragment) roleFragments.set(role, fragment);
   }
 
@@ -79,7 +79,9 @@ export function composeCellInput (
 
   const result: CellInput = {};
   for (const role of ordered) {
-    Object.assign(result, fragmentToInput(roleFragments.get(role)!, rep));
+    const frag = roleFragments.get(role)!;
+    Object.assign(result, fragmentToInput(frag, rep));
+    if (frag.baby === false) delete result.baby;
   }
 
   applyHalfSplit(result, ordered, roleFragments, rep);
@@ -161,6 +163,8 @@ function applyFertileMarker (input: CellInput, rep: Representation): CellInput {
  *
  * If multiple events of the same role on the same day, pick the highest-precedence
  * option (last entry in the rules table wins; stable but representation-defined).
+ * Mucus of a spec with `mucusRule` (codes drawn by rule, no ranked table): the
+ * peak-type code, else the last one read.
  */
 function pickOptionKey (
   role: string,
@@ -170,6 +174,19 @@ function pickOptionKey (
 ): string | null {
   const rules = rep.spec.mappingRules[role];
   if (!rules) return null;
+  if (role === 'mucus' && rep.spec.mucusRule) {
+    let best: string | null = null;
+    let bestPeak = false;
+    for (const ev of list) {
+      for (const candidate of readOptionCandidates(role, ev, rep, opts)) {
+        const key = ruleKeyOf(rep, role, candidate);
+        if (!fragmentOf(rep, role, key)) continue;
+        const peak = isPeakOption(rep, key);
+        if (peak || !bestPeak) { best = key; bestPeak = peak; }
+      }
+    }
+    return best;
+  }
   const orderedOptions = Object.keys(rules);
 
   let bestIndex = -1;
@@ -202,8 +219,9 @@ const BLEEDING_ANCHORS: ReadonlyArray<[number, string]> = [
 /**
  * The band of a flow above 0: that of its nearest anchor, so a device's value between two anchors reads as the
  * nearer one (as hds-lib `eventToShortText` labels it and `cyclePhaseAt` thresholds it). On the midpoint, the lower.
+ * Pickers read a stored flow back as a bleeding letter through it (`bleedingNotation[].band`).
  */
-function bleedingBandOf (value: number, inPeriod?: boolean): string {
+export function bleedingBandOf (value: number, inPeriod?: boolean): string {
   for (let i = 0; i < BLEEDING_ANCHORS.length - 1; i++) {
     const [anchor, band] = BLEEDING_ANCHORS[i];
     if (value <= (anchor + BLEEDING_ANCHORS[i + 1][0]) / 2) return inPeriod && band === 'spotting' ? 'light' : band;
@@ -272,6 +290,15 @@ function readOptionCandidates (
   if (typeof c === 'number') return [String(c)];
   if (typeof c?.value === 'string') return [c.value];
   return [];
+}
+
+/**
+ * A stable key of what makes a cell's sticker: its fill, baby and half fill, without the code or letter written on
+ * it. Two records with the same key draw the same sticker; pickers group choices by it.
+ */
+export function stickerOf (input: CellInput): string {
+  if (input.empty) return 'empty';
+  return [input.fill ?? '', input.baby ? 'baby' : '', input.halfFill?.color ?? ''].join('|');
 }
 
 function fragmentToInput (frag: MappingRuleFragment, rep: Representation): CellInput {
