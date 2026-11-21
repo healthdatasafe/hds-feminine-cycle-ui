@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased] (plans 131 and 134, not published)
+## [Unreleased]
+
+## [0.12.0] - 2026-11-21
+
+Plans 131 and 134: draws the 106 Creighton codes of data-model 4.23.0 (cervical-fluid converter v1).
 
 ### Changed — Creighton draws every code by rule
 - The Creighton spec keeps no list of codes: `RepresentationSpec.mucusRule` draws any code by rule on its text
