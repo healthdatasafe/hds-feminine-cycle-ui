@@ -1,6 +1,6 @@
 import type { HdsEventLike, Representation } from './types.ts';
 import type { ComposeOptions } from './composeCellInput.ts';
-import { mucusItemKeysOf, mucusOptionOf } from './mucusOption.ts';
+import { hasPeakRule, isPeakOption, mucusItemKeysOf, mucusOptionOf } from './mucusOption.ts';
 
 const SECONDS_PER_DAY = 86400;
 const FERTILE_LOOKAHEAD_DAYS = 4;
@@ -21,7 +21,7 @@ const FERTILE_LOOKAHEAD_DAYS = 4;
  *      force-convert to the bound method's closest option key.
  *   3. Else skip.
  *
- * A day's mucus option is checked against `rep.spec.peakMarker.candidateOptions`.
+ * A day's mucus option is checked against `rep.spec.peakMarker.candidateOptions` (or `isCandidate`).
  * A candidate day is the **peak** if no other candidate day exists within the
  * next FERTILE_LOOKAHEAD_DAYS days. Other candidate days are **fertile**.
  *
@@ -40,9 +40,7 @@ export function detectFertilityWindow (
   const peakDays = new Set<number>();
   const fertileDays = new Set<number>();
 
-  const candidates = rep.spec.peakMarker?.candidateOptions;
-  if (!candidates || candidates.length === 0) return { peakDays, fertileDays };
-  const candidateSet = new Set(candidates.map(String));
+  if (!hasPeakRule(rep)) return { peakDays, fertileDays };
 
   const mucusItemKeys = mucusItemKeysOf(rep);
   if (mucusItemKeys.size === 0) return { peakDays, fertileDays };
@@ -54,7 +52,7 @@ export function detectFertilityWindow (
     const isMucus = ev.streamIds?.some(s => mucusItemKeys.has(s));
     if (!isMucus) continue;
     const optionKey = mucusOptionOf(ev, rep, opts);
-    if (optionKey && candidateSet.has(optionKey)) {
+    if (optionKey && isPeakOption(rep, optionKey)) {
       dayHit.add(Math.floor(ev.time / SECONDS_PER_DAY));
     }
   }

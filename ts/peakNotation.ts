@@ -1,6 +1,6 @@
 import type { HdsEventLike, Representation } from './types.ts';
 import type { ComposeOptions } from './composeCellInput.ts';
-import { mucusItemKeysOf, mucusOptionOf } from './mucusOption.ts';
+import { hasPeakRule, isPeakOption, mucusItemKeysOf, mucusOptionOf } from './mucusOption.ts';
 
 const SECONDS_PER_DAY = 86400;
 
@@ -45,7 +45,7 @@ const NONE: PeakNotation = { peakDay: null, basis: null, mark: null, count: [] }
  * status hds): the peak day is the last day of peak-type mucus, known the next
  * day when the mucus changes; a peak day recorded in the account
  * (`fertility-cycles-peak-day`) is used first.
- *   - peak-type = the spec's `peakMarker.candidateOptions`;
+ *   - peak-type = the spec's `peakMarker.candidateOptions` or `isCandidate`;
  *   - "known when the mucus changes" = the next day with a mucus observation
  *     is not peak-type; with several patches, the latest such day wins
  *     (Creighton: "only the last peak opens the count");
@@ -65,7 +65,6 @@ export function peakNotation (
   const dayOf = opts?.dayOf ?? ((t: number) => Math.floor(t / SECONDS_PER_DAY));
   const mark = pm.letter ?? (pm.primitive === 'centerDot' ? null : 'X');
 
-  const candidateSet = new Set((pm.candidateOptions ?? []).map(String));
   const mucusItemKeys = mucusItemKeysOf(rep);
 
   let lastDay: number | null = null;
@@ -83,7 +82,7 @@ export function peakNotation (
     if (!ev.streamIds?.some(s => mucusItemKeys.has(s))) continue;
     const option = mucusOptionOf(ev, rep, opts);
     if (option == null) continue;
-    observed.set(day, (observed.get(day) ?? false) || candidateSet.has(option));
+    observed.set(day, (observed.get(day) ?? false) || isPeakOption(rep, option));
   }
 
   let peakDay: number | null = null;
@@ -91,7 +90,7 @@ export function peakNotation (
   if (recorded != null) {
     peakDay = recorded;
     basis = 'recorded';
-  } else if (pm.compute !== 'none' && candidateSet.size > 0) {
+  } else if (pm.compute !== 'none' && hasPeakRule(rep)) {
     const days = Array.from(observed.keys()).sort((a, b) => a - b);
     for (let i = days.length - 2; i >= 0; i--) {
       if (observed.get(days[i]) && !observed.get(days[i + 1])) {

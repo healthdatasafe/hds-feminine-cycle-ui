@@ -4,6 +4,7 @@ import type {
   MappingRuleFragment,
   Representation
 } from './types.ts';
+import { fragmentOf, isPeakOption, ruleKeyOf } from './mucusOption.ts';
 
 /**
  * Optional behaviours for `composeCellInput`.
@@ -67,7 +68,7 @@ export function composeCellInput (
     const rules = rep.spec.mappingRules[role];
     if (!rules) continue;
     const optionKey = pickOptionKey(role, list, rep, opts);
-    const fragment = optionKey != null ? rules[optionKey] : undefined;
+    const fragment = optionKey != null ? fragmentOf(rep, role, optionKey) : undefined;
     if (fragment) roleFragments.set(role, fragment);
   }
 
@@ -78,7 +79,9 @@ export function composeCellInput (
 
   const result: CellInput = {};
   for (const role of ordered) {
-    Object.assign(result, fragmentToInput(roleFragments.get(role)!, rep));
+    const frag = roleFragments.get(role)!;
+    Object.assign(result, fragmentToInput(frag, rep));
+    if (frag.baby === false) delete result.baby;
   }
 
   applyHalfSplit(result, ordered, roleFragments, rep);
@@ -160,6 +163,8 @@ function applyFertileMarker (input: CellInput, rep: Representation): CellInput {
  *
  * If multiple events of the same role on the same day, pick the highest-precedence
  * option (last entry in the rules table wins; stable but representation-defined).
+ * Mucus of a spec with `mucusRule` (codes drawn by rule, no ranked table): the
+ * code `mucusRank` ranks highest; without it the peak-type code; ties: the last read.
  */
 function pickOptionKey (
   role: string,
@@ -169,13 +174,27 @@ function pickOptionKey (
 ): string | null {
   const rules = rep.spec.mappingRules[role];
   if (!rules) return null;
+  if (role === 'mucus' && rep.spec.mucusRule) {
+    const rank = rep.spec.mucusRank ?? ((key: string) => isPeakOption(rep, key) ? 1 : 0);
+    let best: string | null = null;
+    let bestRank = -Infinity;
+    for (const ev of list) {
+      for (const candidate of readOptionCandidates(role, ev, rep, opts)) {
+        const key = ruleKeyOf(rep, role, candidate);
+        if (!fragmentOf(rep, role, key)) continue;
+        const r = rank(key);
+        if (r >= bestRank) { best = key; bestRank = r; }
+      }
+    }
+    return best;
+  }
   const orderedOptions = Object.keys(rules);
 
   let bestIndex = -1;
   for (const ev of list) {
     const candidates = readOptionCandidates(role, ev, rep, opts);
     for (const candidate of candidates) {
-      const idx = orderedOptions.indexOf(candidate);
+      const idx = orderedOptions.indexOf(ruleKeyOf(rep, role, candidate));
       if (idx > bestIndex) bestIndex = idx;
     }
   }
@@ -201,8 +220,9 @@ const BLEEDING_ANCHORS: ReadonlyArray<[number, string]> = [
 /**
  * The band of a flow above 0: that of its nearest anchor, so a device's value between two anchors reads as the
  * nearer one (as hds-lib `eventToShortText` labels it and `cyclePhaseAt` thresholds it). On the midpoint, the lower.
+ * Pickers read a stored flow back as a bleeding letter through it (`bleedingNotation[].band`).
  */
-function bleedingBandOf (value: number, inPeriod?: boolean): string {
+export function bleedingBandOf (value: number, inPeriod?: boolean): string {
   for (let i = 0; i < BLEEDING_ANCHORS.length - 1; i++) {
     const [anchor, band] = BLEEDING_ANCHORS[i];
     if (value <= (anchor + BLEEDING_ANCHORS[i + 1][0]) / 2) return inPeriod && band === 'spotting' ? 'light' : band;
@@ -219,11 +239,15 @@ function readOptionCandidates (
   const c = ev.content;
   if (c == null) {
     // Presence-only events: e.g. brown-dark coloration is an `activity/plain`
-    // event with null content — the event's existence IS the signal. When the
-    // role's mapping table has a single unambiguous option, presence selects
-    // it (FEMM/Mira `bleedingSubstate: { brown: … }`). Mucus and multi-option
-    // roles still require explicit content.
+    // event with null content — the event's existence IS the signal. The
+    // consumes entry may name the option its presence selects (Creighton,
+    // Billings: `presenceOption: 'brown'` among five bleeding options); else,
+    // when the role's mapping table has a single unambiguous option, presence
+    // selects it (FEMM/Mira `bleedingSubstate: { brown: … }`). Mucus and other
+    // multi-option roles still require explicit content.
     if (role === 'mucus') return [];
+    const named = rep.spec.consumes.find(e => e.role === role && e.presenceOption && ev.streamIds.includes(e.itemKey));
+    if (named?.presenceOption) return [named.presenceOption];
     const rules = rep.spec.mappingRules[role];
     const keys = rules ? Object.keys(rules) : [];
     if (keys.length === 1) return [keys[0]];
@@ -267,6 +291,15 @@ function readOptionCandidates (
   if (typeof c === 'number') return [String(c)];
   if (typeof c?.value === 'string') return [c.value];
   return [];
+}
+
+/**
+ * A stable key of what makes a cell's sticker: its fill, baby and half fill, without the code or letter written on
+ * it. Two records with the same key draw the same sticker; pickers group choices by it.
+ */
+export function stickerOf (input: CellInput): string {
+  if (input.empty) return 'empty';
+  return [input.fill ?? '', input.baby ? 'baby' : '', input.halfFill?.color ?? ''].join('|');
 }
 
 function fragmentToInput (frag: MappingRuleFragment, rep: Representation): CellInput {

@@ -199,7 +199,8 @@ function buildRows (rep) {
   } else if (rep.spec.peakMarker?.primitive === 'letter') {
     // Letter peak (Creighton, Sensiplan, …): the last peak-type option with the letter.
     const pm = rep.spec.peakMarker;
-    const candidate = pm.candidateOptions?.[pm.candidateOptions.length - 1];
+    const candidate = pm.candidateOptions?.[pm.candidateOptions.length - 1] ??
+      (pm.isCandidate ? mucusKeys.filter(k => pm.isCandidate(k)).pop() : undefined);
     const frag = candidate != null ? rep.spec.mappingRules.mucus?.[candidate] : null;
     const base = frag ? inputFromFragment(rep, frag) : { fill: '#FFFFFF' };
     rows.push({ label: `Peak day (${pm.letter ?? 'X'})`, input: { ...base, letter: pm.letter ?? 'X' } });
@@ -242,7 +243,8 @@ function svgFor (rep) {
 `;
 }
 
-// Special: Creighton — render all 33 codes as a 6×6-ish grid (no labels, codes are inside the stamp)
+// Special: Creighton — render the spec's sample codes as a grid (no labels, codes are inside the stamp). Every other
+// code draws by `mucusRule` (plan 134); the sample table is not the list of valid codes.
 function svgCreightonGrid (rep) {
   const codes = Object.keys(rep.spec.mappingRules?.mucus ?? {});
   const cols = 7;

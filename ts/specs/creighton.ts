@@ -1,4 +1,4 @@
-import type { RepresentationSpec, MappingRuleFragment } from '../types.ts';
+import type { RepresentationSpec, MappingRuleFragment, BleedingNotationEntry } from '../types.ts';
 
 /**
  * Creighton Model FertilityCare (CrMS).
@@ -8,7 +8,11 @@ import type { RepresentationSpec, MappingRuleFragment } from '../types.ts';
  * Visual: square colored stamps + textual code overlay (e.g. "8CK", "10WL").
  * Same primitive as Billings; Creighton always renders the textual code so the
  * exact mucus characteristics are visible (the stamp color alone doesn't
- * disambiguate Creighton's 33-code grammar).
+ * disambiguate Creighton's codes).
+ *
+ * Every code draws by rule on its text (`mucusRule`), case-insensitive: the
+ * valid codes are the model's (model-cervical-fluid `creighton.json`, generated
+ * from the book's grammar), and fcui keeps no list of them (plan 134, decision 5).
  *
  * Rules from model-cervical-fluid `references/rules/method-rules.json`,
  * `methods.creighton` (Creighton book (FR), ch. 7 "Instructions de base",
@@ -21,55 +25,71 @@ import type { RepresentationSpec, MappingRuleFragment } from '../types.ts';
  *                                    stampNote: "white with a baby for mucus …
  *                                    the app never colours them yellow").
  *
- * Peak candidates (codeRules[2], hds): clear (K), lubricative (L) or very
- * stretchy (10) mucus, whatever the quantity. The partly clear codes 6CK and
- * 8CK are left out until confirmed (gaps[1]); 10CK is in through its stretch.
+ * Peak-type (codeRules[2], hds, `peakMarker.isCandidate`): clear (K, so C/K too),
+ * lubricative (L) or very stretchy (10) mucus, whatever the quantity, also when
+ * the code carries B or R (the Peak Day can be a red sticker); never a dry code.
+ * Practitioner answers Q6 and Q10 (plan 131 `08-practitioner-answers.md`).
  *
- * Mucus options match `data-model/.../models/cervical-fluid/creighton/v0.json`.
+ * The sign of the day (Q7): peak-type, then other mucus, then dry, the highest
+ * dry number first (`mucusRank`).
+ *
+ * Bleeding letters (book ch. 6; plan 131 06 D5): H, M, L, VL on the flow scale,
+ * B (brown) as the presence of `body-vulva-bleeding-browndark`. H and M are
+ * written alone; L, VL and B always with a mucus or dry code (book ch. 6, Q0).
  *
  * Signs beside the fluid (`shows.signs`, literature): none.
  */
 
-const CREIGHTON_OPTIONS = [
-  '0',
-  '2', '2W',
-  '4',
-  '6', '6B', '6C', '6CK', '6G', '6GL', '6K', '6L', '6P', '6R', '6Y',
-  '8', '8C', '8CK', '8K', '8L', '8P', '8Y', '8YL',
-  '10', '10B', '10C', '10CK', '10K', '10KL', '10L', '10P', '10R', '10Y',
-  '10DL', '10SL', '10WL'
-] as const;
-
-/** Partly clear (C/K): peak-type to confirm (method-rules.json methods.creighton.gaps[1]). */
-const TO_CONFIRM_PEAK = new Set(['6CK', '8CK']);
+/**
+ * A code as Creighton writes it: a number, then letters; or P and letters (PC, PY: a pasty discharge without stretch,
+ * Q3). Loose on purpose: a new letter still draws.
+ */
+const CODE_SHAPE = /^(\d+[A-Z]*|P[A-Z]+)$/;
+const DRY = /^(0|2W?|4)$/;
 
 type CreightonStamp = 'dryGreen' | 'bleedingRed' | 'discharge';
 
 function stampFillFor (code: string): CreightonStamp {
   if (/[BR]/.test(code)) return 'bleedingRed';
-  if (/^(0|2W?|4)$/.test(code)) return 'dryGreen';
+  if (DRY.test(code)) return 'dryGreen';
   return 'discharge';
 }
 
 function isPeakType (code: string): boolean {
-  if (stampFillFor(code) !== 'discharge') return false;
-  if (TO_CONFIRM_PEAK.has(code)) return false;
-  return /K|L|^10/.test(code);
+  const c = code.toUpperCase();
+  if (!CODE_SHAPE.test(c) || DRY.test(c)) return false;
+  return /K|L|^10/.test(c);
 }
 
-function buildMucusRules (): Record<string, MappingRuleFragment> {
-  const out: Record<string, MappingRuleFragment> = {};
-  for (const code of CREIGHTON_OPTIONS) {
-    const fill = stampFillFor(code);
-    out[code] = fill === 'discharge'
-      ? { fill, code, baby: true }
-      : { fill, code };
-  }
-  return out;
+/** The most fertile sign of the day ranks highest (Q7): peak-type 3, other mucus 2, dry 1 + 0 < 2 < 2W < 4. */
+function mucusRank (code: string): number {
+  const c = code.toUpperCase();
+  if (isPeakType(c)) return 3;
+  if (DRY.test(c)) return 1 + ['0', '2', '2W', '4'].indexOf(c) / 10;
+  return 2;
 }
 
-const mucusRules = buildMucusRules();
-const peakTypeOptions = CREIGHTON_OPTIONS.filter(isPeakType);
+function mucusRule (code: string): MappingRuleFragment | undefined {
+  const c = code.toUpperCase();
+  if (!CODE_SHAPE.test(c)) return undefined;
+  const fill = stampFillFor(c);
+  return fill === 'discharge' ? { fill, code: c, baby: true } : { fill, code: c };
+}
+
+/**
+ * Sample codes for previews and legends (hosts read the first key; the method images list them). Not the valid
+ * codes: any code draws by `mucusRule`.
+ */
+const SAMPLE_CODES = ['0', '2', '4', '6C', '8CK', '10KL', '10WL', '6B'];
+const mucusSamples: Record<string, MappingRuleFragment> = Object.fromEntries(SAMPLE_CODES.map(c => [c, mucusRule(c)!]));
+
+const bleedingNotation: BleedingNotationEntry[] = [
+  { code: 'H', label: { en: 'Heavy', fr: 'Abondant' }, band: 'heavy', itemKey: 'body-vulva-bleeding', value: 0.75, mucus: 'none' },
+  { code: 'M', label: { en: 'Medium', fr: 'Moyen' }, band: 'medium', itemKey: 'body-vulva-bleeding', value: 0.55, mucus: 'none' },
+  { code: 'L', label: { en: 'Light', fr: 'Léger' }, band: 'light', itemKey: 'body-vulva-bleeding', value: 0.35, mucus: 'required' },
+  { code: 'VL', label: { en: 'Very light', fr: 'Très léger' }, band: 'spotting', itemKey: 'body-vulva-bleeding', value: 0.2, mucus: 'required' },
+  { code: 'B', label: { en: 'Brown bleeding', fr: 'Saignement brun' }, band: 'brown', itemKey: 'body-vulva-bleeding-browndark', mucus: 'required' }
+];
 
 export const creightonSpec: RepresentationSpec = {
   id: 'creighton',
@@ -85,8 +105,8 @@ export const creightonSpec: RepresentationSpec = {
   consumes: [
     { itemKey: 'body-vulva-bleeding', role: 'bleeding' },
     { itemKey: 'body-vagina-bleeding', role: 'bleeding' },
-    { itemKey: 'body-vulva-bleeding-browndark', role: 'bleeding' },
-    { itemKey: 'bleeding-brown-dark', role: 'bleeding' },
+    { itemKey: 'body-vulva-bleeding-browndark', role: 'bleeding', presenceOption: 'brown' },
+    { itemKey: 'bleeding-brown-dark', role: 'bleeding', presenceOption: 'brown' },
     { itemKey: 'body-vulva-mucus-inspect', role: 'mucus' }
   ],
   palette: {
@@ -96,15 +116,20 @@ export const creightonSpec: RepresentationSpec = {
     peak: '#1F3B7A'
   },
   mappingRules: {
-    mucus: mucusRules,
+    mucus: mucusSamples,
+    // `baby: false`: a bleeding day with mucus is a red stamp, never red with a baby (the book has no such sticker).
     bleeding: {
-      heavy: { fill: 'bleedingRed' },
-      medium: { fill: 'bleedingRed' },
-      light: { fill: 'bleedingRed' },
-      spotting: { fill: 'bleedingRed' },
-      brown: { fill: 'bleedingRed' }
+      heavy: { fill: 'bleedingRed', baby: false },
+      medium: { fill: 'bleedingRed', baby: false },
+      light: { fill: 'bleedingRed', baby: false },
+      spotting: { fill: 'bleedingRed', baby: false },
+      brown: { fill: 'bleedingRed', baby: false }
     }
   },
+  mucusRule,
+  mucusRank,
+  maxCodeLength: 6, // 10GCKL, 10GKYL
+  bleedingNotation,
   precedence: ['mucus', 'bleeding'],
   periodDisplay: 'stamp',
   chart: { signs: { temperature: 'no', lh: 'no', monitor: 'no', cervix: 'no' } },
@@ -113,7 +138,7 @@ export const creightonSpec: RepresentationSpec = {
     primitive: 'letter',
     color: 'peak',
     thresholds: { lubricative: 0.7, stretchability: 0.7 },
-    candidateOptions: [...peakTypeOptions],
+    isCandidate: isPeakType,
     letter: 'P',
     countAfter: 3
   }

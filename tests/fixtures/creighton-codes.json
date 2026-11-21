@@ -1,0 +1,429 @@
+{
+  "source": "model-cervical-fluid src/definitions/v0/creighton.json (branch plan-134-creighton-entry, plan 131 practitioner answers, 2026-11-20): every option value with its offer flag",
+  "codes": [
+    {
+      "value": "0",
+      "offer": true
+    },
+    {
+      "value": "2",
+      "offer": true
+    },
+    {
+      "value": "4",
+      "offer": true
+    },
+    {
+      "value": "2W",
+      "offer": true
+    },
+    {
+      "value": "PC",
+      "offer": true
+    },
+    {
+      "value": "PY",
+      "offer": true
+    },
+    {
+      "value": "6",
+      "offer": false
+    },
+    {
+      "value": "6B",
+      "offer": true
+    },
+    {
+      "value": "6BL",
+      "offer": true
+    },
+    {
+      "value": "6C",
+      "offer": true
+    },
+    {
+      "value": "6CK",
+      "offer": true
+    },
+    {
+      "value": "6CKL",
+      "offer": true
+    },
+    {
+      "value": "6CL",
+      "offer": true
+    },
+    {
+      "value": "6G",
+      "offer": false
+    },
+    {
+      "value": "6GB",
+      "offer": true
+    },
+    {
+      "value": "6GBL",
+      "offer": true
+    },
+    {
+      "value": "6GC",
+      "offer": true
+    },
+    {
+      "value": "6GCK",
+      "offer": true
+    },
+    {
+      "value": "6GCKL",
+      "offer": true
+    },
+    {
+      "value": "6GCL",
+      "offer": true
+    },
+    {
+      "value": "6GK",
+      "offer": true
+    },
+    {
+      "value": "6GKL",
+      "offer": true
+    },
+    {
+      "value": "6GKY",
+      "offer": true
+    },
+    {
+      "value": "6GKYL",
+      "offer": true
+    },
+    {
+      "value": "6GL",
+      "offer": false
+    },
+    {
+      "value": "6GR",
+      "offer": true
+    },
+    {
+      "value": "6GRL",
+      "offer": true
+    },
+    {
+      "value": "6GY",
+      "offer": true
+    },
+    {
+      "value": "6GYL",
+      "offer": true
+    },
+    {
+      "value": "6K",
+      "offer": true
+    },
+    {
+      "value": "6KL",
+      "offer": true
+    },
+    {
+      "value": "6KY",
+      "offer": true
+    },
+    {
+      "value": "6KYL",
+      "offer": true
+    },
+    {
+      "value": "6L",
+      "offer": false
+    },
+    {
+      "value": "6P",
+      "offer": false
+    },
+    {
+      "value": "6PC",
+      "offer": true
+    },
+    {
+      "value": "6PY",
+      "offer": true
+    },
+    {
+      "value": "6R",
+      "offer": true
+    },
+    {
+      "value": "6RL",
+      "offer": true
+    },
+    {
+      "value": "6Y",
+      "offer": true
+    },
+    {
+      "value": "6YL",
+      "offer": true
+    },
+    {
+      "value": "8",
+      "offer": false
+    },
+    {
+      "value": "8B",
+      "offer": true
+    },
+    {
+      "value": "8BL",
+      "offer": true
+    },
+    {
+      "value": "8C",
+      "offer": true
+    },
+    {
+      "value": "8CK",
+      "offer": true
+    },
+    {
+      "value": "8CKL",
+      "offer": true
+    },
+    {
+      "value": "8CL",
+      "offer": true
+    },
+    {
+      "value": "8GB",
+      "offer": true
+    },
+    {
+      "value": "8GBL",
+      "offer": true
+    },
+    {
+      "value": "8GC",
+      "offer": true
+    },
+    {
+      "value": "8GCK",
+      "offer": true
+    },
+    {
+      "value": "8GCKL",
+      "offer": true
+    },
+    {
+      "value": "8GCL",
+      "offer": true
+    },
+    {
+      "value": "8GK",
+      "offer": true
+    },
+    {
+      "value": "8GKL",
+      "offer": true
+    },
+    {
+      "value": "8GKY",
+      "offer": true
+    },
+    {
+      "value": "8GKYL",
+      "offer": true
+    },
+    {
+      "value": "8GR",
+      "offer": true
+    },
+    {
+      "value": "8GRL",
+      "offer": true
+    },
+    {
+      "value": "8GY",
+      "offer": true
+    },
+    {
+      "value": "8GYL",
+      "offer": true
+    },
+    {
+      "value": "8K",
+      "offer": true
+    },
+    {
+      "value": "8KL",
+      "offer": true
+    },
+    {
+      "value": "8KY",
+      "offer": true
+    },
+    {
+      "value": "8KYL",
+      "offer": true
+    },
+    {
+      "value": "8L",
+      "offer": false
+    },
+    {
+      "value": "8P",
+      "offer": false
+    },
+    {
+      "value": "8R",
+      "offer": true
+    },
+    {
+      "value": "8RL",
+      "offer": true
+    },
+    {
+      "value": "8Y",
+      "offer": true
+    },
+    {
+      "value": "8YL",
+      "offer": true
+    },
+    {
+      "value": "10",
+      "offer": false
+    },
+    {
+      "value": "10B",
+      "offer": true
+    },
+    {
+      "value": "10BL",
+      "offer": true
+    },
+    {
+      "value": "10C",
+      "offer": true
+    },
+    {
+      "value": "10CK",
+      "offer": true
+    },
+    {
+      "value": "10CKL",
+      "offer": true
+    },
+    {
+      "value": "10CL",
+      "offer": true
+    },
+    {
+      "value": "10GB",
+      "offer": true
+    },
+    {
+      "value": "10GBL",
+      "offer": true
+    },
+    {
+      "value": "10GC",
+      "offer": true
+    },
+    {
+      "value": "10GCK",
+      "offer": true
+    },
+    {
+      "value": "10GCKL",
+      "offer": true
+    },
+    {
+      "value": "10GCL",
+      "offer": true
+    },
+    {
+      "value": "10GK",
+      "offer": true
+    },
+    {
+      "value": "10GKL",
+      "offer": true
+    },
+    {
+      "value": "10GKY",
+      "offer": true
+    },
+    {
+      "value": "10GKYL",
+      "offer": true
+    },
+    {
+      "value": "10GR",
+      "offer": true
+    },
+    {
+      "value": "10GRL",
+      "offer": true
+    },
+    {
+      "value": "10GY",
+      "offer": true
+    },
+    {
+      "value": "10GYL",
+      "offer": true
+    },
+    {
+      "value": "10K",
+      "offer": true
+    },
+    {
+      "value": "10KL",
+      "offer": true
+    },
+    {
+      "value": "10KY",
+      "offer": true
+    },
+    {
+      "value": "10KYL",
+      "offer": true
+    },
+    {
+      "value": "10L",
+      "offer": false
+    },
+    {
+      "value": "10P",
+      "offer": false
+    },
+    {
+      "value": "10R",
+      "offer": true
+    },
+    {
+      "value": "10RL",
+      "offer": true
+    },
+    {
+      "value": "10Y",
+      "offer": true
+    },
+    {
+      "value": "10YL",
+      "offer": true
+    },
+    {
+      "value": "10DL",
+      "offer": true
+    },
+    {
+      "value": "10SL",
+      "offer": true
+    },
+    {
+      "value": "10WL",
+      "offer": true
+    }
+  ]
+}
