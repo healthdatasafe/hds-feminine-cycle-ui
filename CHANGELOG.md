@@ -4,11 +4,13 @@
 
 ### Changed — Creighton draws every code by rule
 - The Creighton spec keeps no list of codes: `RepresentationSpec.mucusRule` draws any code by rule on its text
-  (case-insensitive), so the 72 codes of the generated model list all draw, with their fill, baby and code.
-  `mappingRules.mucus` holds only sample codes for previews and legends.
-- Peak-type by rule (`PeakMarkerSpec.isCandidate`): K, L or base 10, not a bleeding code, and not a partly clear code
-  without L below 10 (6CK, 8CK, 6GCK, 8GCK). `peakNotation` and `detectFertilityWindow` read it.
-- A day holding two Creighton codes shows the peak-type one, else the last (was: the later one in the fixed table).
+  (case-insensitive), so the 106 codes of the generated model list (data-model cervical-fluid converter v1) all draw,
+  with their fill, baby and code, PC and PY (no number) included. `mappingRules.mucus` holds only sample codes for
+  previews and legends.
+- Peak-type by rule (`PeakMarkerSpec.isCandidate`), as the practitioner answered (plan 131, Q6 and Q10): K, L or
+  base 10, C/K included, also with B or R; a dry code never. `peakNotation` and `detectFertilityWindow` read it.
+- A day holding two Creighton codes shows the most fertile sign (Q7, `RepresentationSpec.mucusRank`): peak-type, then
+  other mucus, then dry (0 < 2 < 2W < 4); on a tie the last read (was: the later one in the fixed table).
 - `longestCode` is 6 for Creighton (`10GCKL`), from `RepresentationSpec.maxCodeLength`.
 
 ### Fixed
@@ -17,7 +19,8 @@
 
 ### Added
 - `RepresentationSpec.bleedingNotation`: Creighton H, M, L, VL on the flow (0.75, 0.55, 0.35, 0.2), B as brown
-  presence. Exported `bleedingBandOf` reads a stored flow back as its band (0.95 → H, 0.08 → VL).
+  presence. Each entry's `mucus` says whether a mucus code goes with it: `none` for H and M, `required` for L, VL and
+  B (book ch. 6, practitioner Q0). Exported `bleedingBandOf` reads a stored flow back as its band (0.95 → H, 0.08 → VL).
 - `stickerOf(input)`: a stable key of a cell's sticker (fill, baby, half fill), for pickers grouping choices.
 - `isPeakOption(rep, key)`.
 - Case-insensitive codes; presence option for brown bleeding (plan 131).
