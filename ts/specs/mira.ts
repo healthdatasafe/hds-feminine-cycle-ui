@@ -74,7 +74,6 @@ export const miraSpec: RepresentationSpec = {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'centerDot',
     color: 'peak',
-    thresholds: { lubricative: 0.7, stretchability: 0.7 },
     candidateOptions: ['Watery', 'Raw Egg White']
   }
 };

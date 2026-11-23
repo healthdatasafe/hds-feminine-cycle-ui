@@ -51,7 +51,6 @@ export interface PeakMarkerSpec {
   compute: 'lastSlipperyDayInCycle' | 'none';
   primitive: 'centerDot' | 'letter' | 'X';
   color?: string; // palette key
-  thresholds?: { lubricative?: number; stretchability?: number };
   /**
    * Mucus option keys that count as high-fertility candidates for peak/fertile
    * marking. The key is the value of `source.sourceData.mucus` (or the
