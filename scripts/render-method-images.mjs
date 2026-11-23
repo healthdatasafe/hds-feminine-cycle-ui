@@ -243,11 +243,27 @@ function svgFor (rep) {
 `;
 }
 
-// Special: Creighton — render the spec's sample codes as a grid (no labels, codes are inside the stamp). Every other
-// code draws by `mucusRule` (plan 134); the sample table is not the list of valid codes.
-function svgCreightonGrid (rep) {
-  const codes = Object.keys(rep.spec.mappingRules?.mucus ?? {});
-  const cols = 7;
+// Special: Creighton — the codes offered for entry, read from the published cervical-fluid converter pack, each drawn
+// by `mucusRule` (no labels, codes are inside the stamp). Without the network, the spec's sample codes.
+const CREIGHTON_PACK = 'https://model.datasafe.dev/converters/cervical-fluid/pack-v1.json';
+
+async function creightonCodes (rep) {
+  try {
+    const pack = await (await fetch(CREIGHTON_PACK)).json();
+    const method = pack.methods.find(m => m.methodId === 'creighton');
+    const options = method.components.find(c => c.field === 'mucus').options;
+    return { codes: options.filter(o => o.offer !== false).map(o => o.value), source: 'pack' };
+  } catch (e) {
+    console.warn(`Creighton grid: ${CREIGHTON_PACK} unavailable (${e.message}), drawing the sample codes`);
+    return { codes: Object.keys(rep.spec.mappingRules?.mucus ?? {}), source: 'samples' };
+  }
+}
+
+function svgCreightonGrid (rep, { codes, source }) {
+  const title = source === 'pack'
+    ? `Creighton — the ${codes.length} codes offered for entry (cervical-fluid converter v1)`
+    : 'Creighton — sample codes';
+  const cols = 10;
   const rows = Math.ceil(codes.length / cols);
   const cellSize = 36;
   const gap = 10;
@@ -258,12 +274,12 @@ function svgCreightonGrid (rep) {
     const c = i % cols;
     const x = PADDING + c * (cellSize + gap);
     const y = PADDING + r * (cellSize + gap);
-    const frag = rep.spec.mappingRules.mucus[code];
+    const frag = rep.spec.mucusRule?.(code) ?? rep.spec.mappingRules.mucus[code];
     return `<g transform="translate(${x}, ${y})">${stampSquare(cellSize, inputFromFragment(rep, frag))}</g>`;
   }).join('\n  ');
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Creighton 33-code grid">
-  <title>Creighton 33-code grid</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(title)}">
+  <title>${escapeXml(title)}</title>
   <rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff"/>
   ${body}
 </svg>
@@ -363,7 +379,7 @@ function svgCervixSamples () {
 `;
 }
 
-function main () {
+async function main () {
   const reps = registry.list();
   for (const rep of reps) {
     const id = rep.spec.id;
@@ -372,7 +388,7 @@ function main () {
     console.log(`wrote ${out}`);
     if (id === 'creighton') {
       const grid = join(OUT_DIR, 'creighton-codes-grid.svg');
-      writeFileSync(grid, svgCreightonGrid(rep));
+      writeFileSync(grid, svgCreightonGrid(rep, await creightonCodes(rep)));
       console.log(`wrote ${grid}`);
     }
   }
@@ -381,4 +397,4 @@ function main () {
   console.log(`wrote ${cervixOut}`);
 }
 
-main();
+await main();
