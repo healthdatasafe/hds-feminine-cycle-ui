@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.13.2] - 2026-11-23
+
+### Fixed
+- Dot-circle letters and codes (FEMM, Mira) are dark or white by contrast with the circle, like the stamp-square text
+  since 0.13.0; they were always white. FEMM's 1-2-3 count on a light circle now reads in dark. A letter over a
+  half-filled circle takes the colour that reads on both halves.
+
+### Added
+- `textOn(...fills)` (exported): dark or white, whichever keeps the higher contrast on all the given fills.
+
 ## [0.13.1] - 2026-11-23
 
 ### Changed

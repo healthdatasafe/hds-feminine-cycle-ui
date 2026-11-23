@@ -15,7 +15,7 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { registry, stampColours, stampTextLayout } from '../js/index.js';
+import { registry, stampColours, stampTextLayout, textOn } from '../js/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, '..', 'docs', 'images');
@@ -85,7 +85,7 @@ function dotCircle (size, input) {
     parts.push(`<circle cx="${cx}" cy="${cy}" r="${Math.max(2, size * 0.12)}" fill="${input.centerDot.color}"/>`);
   }
   if (input.letter && !empty) {
-    parts.push(`<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${size * 0.55}" font-weight="600" fill="#fff">${escapeXml(input.letter)}</text>`);
+    parts.push(`<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${size * 0.55}" font-weight="600" fill="${textOn(input.fill, input.halfFill?.color)}">${escapeXml(input.letter)}</text>`);
   }
   return parts.join('');
 }
