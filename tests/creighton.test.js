@@ -13,7 +13,7 @@ const cell = (code) => composeCellInput([{
 
 const GREEN = '#7FB069';
 const WHITE = '#FFFFFF';
-const RED = '#C8155A';
+const RED = '#D32F2F';
 
 test('creighton: 0, 2, 2W, 4 are dry (green, no baby)', () => {
   for (const code of ['0', '2', '2W', '4']) {

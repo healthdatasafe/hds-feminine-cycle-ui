@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-11-23
+
+### Changed
+- Creighton bleeding red is `#D32F2F` (was the magenta `#C8155A`): the colour of the method rules
+  (model-cervical-fluid `method-rules.json`, sourced from the Creighton introductory session slides). Plan 131 review
+  03 I4.
+
+### Removed
+- `PeakMarkerSpec.thresholds`: declared and set in the Creighton, Billings, FEMM and Mira specs, read nowhere
+  (peak-type comes from `candidateOptions` or `isCandidate`). Plan 131 review 03 I6.
+
 ## [0.13.0] - 2026-11-23
 
 ### Added

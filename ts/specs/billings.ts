@@ -66,7 +66,6 @@ export const billingsSpec: RepresentationSpec = {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',
     color: 'peak',
-    thresholds: { lubricative: 0.7, stretchability: 0.7 },
     candidateOptions: ['wetSlippery', 'peak'],
     // "X on the peak day; 1, 2, 3 after it" (method-rules.json fertileAfterOvulation.afterPeak, hds).
     countAfter: 3

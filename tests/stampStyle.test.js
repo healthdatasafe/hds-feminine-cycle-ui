@@ -8,7 +8,7 @@ const WHITE = '#fff';
 const BOLD_CHAR_WIDTH_EM = 0.7;
 
 test('stamp text: red stamps take white text (B-2026-11-23-3)', () => {
-  for (const red of ['#C8155A', '#E8341C']) {
+  for (const red of ['#C8155A', '#D32F2F', '#E8341C']) {
     assert.equal(stampColours(red, false).overlay, WHITE, red);
     assert.equal(stampColours(red, false).stroke, 'none', red);
   }

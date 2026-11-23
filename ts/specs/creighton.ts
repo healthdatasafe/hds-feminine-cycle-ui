@@ -110,7 +110,7 @@ export const creightonSpec: RepresentationSpec = {
     { itemKey: 'body-vulva-mucus-inspect', role: 'mucus' }
   ],
   palette: {
-    bleedingRed: '#C8155A',
+    bleedingRed: '#D32F2F',
     dryGreen: '#7FB069',
     discharge: '#FFFFFF',
     peak: '#1F3B7A'
@@ -137,7 +137,6 @@ export const creightonSpec: RepresentationSpec = {
     compute: 'lastSlipperyDayInCycle',
     primitive: 'letter',
     color: 'peak',
-    thresholds: { lubricative: 0.7, stretchability: 0.7 },
     isCandidate: isPeakType,
     letter: 'P',
     countAfter: 3
