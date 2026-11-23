@@ -37,7 +37,10 @@ peak-type stretch for `10`; `references/creighton.md` disagrees, `hdsDisagreemen
 Same palette family as Billings (see [billings.md](./billings.md)) with a few differences:
 
 - Peak day is marked with **`P`** (not `X`).
-- A frequency suffix (`X1`, `X2`, `X3`, `AD`) is shown next to or under the stamp. v0.2 will likely render this as a separate annotation slot rather than packing it into the cell SVG.
+- The frequency (`X1`, `X2`, `X3`, `AD`) is written under the code, inside the stamp (since 0.13.0,
+  B-2026-11-23-9): `CellInput.frequency`, read from the shown record's `source.annotations.frequency`. A record from
+  another method, or converted, has none.
+- Text colour by contrast (0.13.0): white on the red stamps, dark on the white and green ones.
 
 ## Mucus options
 
@@ -61,8 +64,8 @@ the code rules above, not from vectors. `mappingRules.mucus` holds only sample c
 
 ## Open choices
 
-- **Frequency suffix** placement. Two options: (a) extend `CellInput` with a `frequency?: string` field; (b) render it outside the SVG as a sibling label. Probably (a) for layout-agnosticness.
-- **Long codes**. `10WL` fits at 24 px easily, but `10KL` + an `X1` could overflow. Probably truncate the suffix at 12 px sizes.
+- **Long codes** (0.13.0): a code shrinks to fit the stamp, down to 0.2 of the cell, so `10GCKL` fits at 22 px but
+  reads small there; a host can widen its days from `longestCode` (hds-webapp's cycle chart does).
 - **Cyclefeminin pass-through codes** (`2`, `2W`, `10`) — already routed through Creighton on ingest by `bridge-cyclefeminin-net/src/converters/mucus.js`. No special display handling needed; they'll match `creighton/v0.json` directly.
 
 ## Reference images

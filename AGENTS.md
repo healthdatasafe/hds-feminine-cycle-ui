@@ -120,7 +120,7 @@ Notes:
 
 ## Status
 
-`v0.11.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
+`v0.13.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
 
 | Slice | Status |
 |---|---|
@@ -143,7 +143,8 @@ Notes:
 | Creighton stamp colours per the book (B-2026-10-26-11) | ✅ shipped (v0.9) |
 | Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health specs (sourced only) | ✅ shipped (v0.9) |
 | `peakNotation` (peak mark + 1-2-3 count), `periodDisplay`, `peakMarker.countAfter` | ✅ shipped (v0.9) |
-| Creighton codes drawn by rule (`mucusRule`, `isCandidate`), `bleedingNotation`, `stickerOf` (plans 131, 134) | 🔧 on branch, unpublished |
+| Creighton codes drawn by rule (`mucusRule`, `isCandidate`), `bleedingNotation`, `stickerOf` (plans 131, 134) | ✅ shipped (v0.12) |
+| Creighton frequency on the stamp (`CellInput.frequency`), stamp text by contrast, long codes fit (`stampStyle.ts`) | ✅ shipped (v0.13) |
 | Marquette Low / High / Peak levels, Chart Neo mucus fields | ⏳ to confirm with the experts |
 | `cycleGrid` row container | ⏳ deferred (lives in `hds-react-timeline`) |
 | `StampGridPicker` (host) field for `hds-forms-js` | ✅ shipped (lives in hds-forms-js, consumes RepresentationCell + registry) |

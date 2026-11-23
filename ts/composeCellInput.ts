@@ -64,12 +64,14 @@ export function composeCellInput (
   if (roleEvents.size === 0) return { empty: true };
 
   const roleFragments = new Map<string, MappingRuleFragment>();
+  let frequency: string | undefined;
   for (const [role, list] of roleEvents) {
     const rules = rep.spec.mappingRules[role];
     if (!rules) continue;
     const optionKey = pickOptionKey(role, list, rep, opts);
     const fragment = optionKey != null ? fragmentOf(rep, role, optionKey) : undefined;
     if (fragment) roleFragments.set(role, fragment);
+    if (fragment && role === 'mucus') frequency = frequencyOf(list, rep, optionKey!);
   }
 
   if (roleFragments.size === 0) return { empty: true };
@@ -85,6 +87,7 @@ export function composeCellInput (
   }
 
   applyHalfSplit(result, ordered, roleFragments, rep);
+  if (frequency && result.code != null && result.code === roleFragments.get('mucus')?.code) result.frequency = frequency;
 
   if (opts?.dayContext?.isPeak) {
     return applyPeakMarker(result, rep);
@@ -112,6 +115,24 @@ function readNativeMucus (sourceData: any): string | number | undefined {
   const m = sourceData?.mucus;
   if (typeof m === 'string' || typeof m === 'number') return m;
   return undefined;
+}
+
+/**
+ * The frequency of the last mucus record of the day recorded in the bound method with the code the cell shows
+ * (`source.annotations.frequency`, Creighton X1, X2, X3, AD). Annotations belong to the method named by
+ * `source.key`, so a record from another method, or converted, has none.
+ */
+function frequencyOf (list: HdsEventLike[], rep: Representation, optionKey: string): string | undefined {
+  let found: string | undefined;
+  for (const ev of list) {
+    const source = ev.content?.source;
+    if (source?.key !== rep.spec.boundMethod.methodId) continue;
+    const f = source.annotations?.frequency;
+    const native = readNativeMucus(source.sourceData);
+    if (typeof f !== 'string' || !f || native == null) continue;
+    if (ruleKeyOf(rep, 'mucus', String(native)) === optionKey) found = f;
+  }
+  return found;
 }
 
 function applyPeakMarker (input: CellInput, rep: Representation): CellInput {
