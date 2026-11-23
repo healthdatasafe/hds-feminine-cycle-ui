@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { stampColours, stampTextLayout, luminanceOf, registry } from '../js/index.js';
+import { stampColours, stampTextLayout, luminanceOf, textOn, registry } from '../js/index.js';
 
 const DARK = '#1f2937';
 const WHITE = '#fff';
@@ -23,6 +23,23 @@ test('stamp border: only very light fills, and empty cells', () => {
   assert.deepEqual(stampColours('#FFFFFF', false), { overlay: DARK, stroke: '#888', strokeWidth: 1 });
   assert.equal(stampColours('#7FB069', false).stroke, 'none');
   assert.deepEqual(stampColours(undefined, true), { overlay: WHITE, stroke: '#888', strokeWidth: 2 });
+});
+
+test('textOn: a dot-circle letter by contrast, over one fill or both halves', () => {
+  assert.equal(textOn('#C8155A'), WHITE);
+  assert.equal(textOn('#F4C752'), DARK);
+  assert.equal(textOn('#FFFFFF', '#F4C752'), DARK);
+  assert.equal(textOn('#1F3B7A', '#C8155A'), WHITE);
+  assert.equal(textOn(undefined), WHITE);
+  assert.equal(textOn('transparent'), WHITE);
+});
+
+test('dot-circle specs: FEMM and Mira bleeding letters stay white on their red', () => {
+  for (const id of ['femm', 'mira']) {
+    const rep = registry.get(id);
+    assert.equal(textOn(rep.resolveColor('bleedingHeavy')), WHITE, id);
+    assert.equal(textOn(rep.resolveColor('bleedingLight')), WHITE, id);
+  }
 });
 
 test('luminanceOf: hex only', () => {

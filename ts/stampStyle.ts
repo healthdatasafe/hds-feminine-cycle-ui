@@ -1,5 +1,5 @@
 /**
- * Colours and text layout of a stamp-square cell, shared by `RepresentationCell` and
+ * Colours and text layout of a stamp-square cell (and the letter colour of a dot-circle one), shared by `RepresentationCell` and
  * `scripts/render-method-images.mjs` so the app and the docs images draw the same stamp.
  */
 
@@ -32,15 +32,26 @@ export interface StampColours {
 }
 
 /**
+ * The text colour for these fills: dark or white, whichever keeps the higher contrast on all of them (a letter over
+ * a half-filled circle sits on two colours). White when no fill is a `#rgb` / `#rrggbb` colour.
+ */
+export function textOn (...fills: Array<string | undefined>): string {
+  const ls = fills.map(f => f == null ? undefined : luminanceOf(f)).filter((l): l is number => l != null);
+  if (ls.length === 0) return WHITE_TEXT;
+  const worst = (textL: number): number => Math.min(...ls.map(l => contrast(l, textL)));
+  return worst(DARK_L) > worst(1) ? DARK_TEXT : WHITE_TEXT;
+}
+
+/**
  * The stamp's text colour is the one of dark and white with the higher contrast on its fill (Creighton's red
- * `#C8155A` takes white, its green `#7FB069` dark). A very light fill (white, pale yellow) also gets a grey border,
+ * `#D32F2F` takes white, its green `#7FB069` dark). A very light fill (white, pale yellow) also gets a grey border,
  * so it does not vanish on a light page.
  */
 export function stampColours (fill: string | undefined, empty: boolean): StampColours {
   if (empty || !fill) return { overlay: WHITE_TEXT, stroke: '#888', strokeWidth: 2 };
   const l = luminanceOf(fill);
   if (l == null) return { overlay: WHITE_TEXT, stroke: 'none', strokeWidth: 0 };
-  const overlay = contrast(l, DARK_L) > contrast(l, 1) ? DARK_TEXT : WHITE_TEXT;
+  const overlay = textOn(fill);
   const veryLight = l > 0.5;
   return { overlay, stroke: veryLight ? '#888' : 'none', strokeWidth: veryLight ? 1 : 0 };
 }
@@ -52,7 +63,8 @@ export interface StampTextLine { y: number; fontSize: number }
 
 /**
  * Where the code and the frequency go: the code centred, shrunk to fit the stamp's width; with a frequency
- * (Creighton X1, X2, X3, AD), the code moves up and the frequency is written under it, as on the method's chart.
+ * (Creighton X1, X2, X3, AD), the code is smaller and the frequency is written in the band under it, as on the
+ * method's chart.
  */
 export function stampTextLayout (size: number, input: Pick<CellInput, 'code' | 'letter' | 'frequency'>): { code?: StampTextLine; frequency?: StampTextLine } {
   if (!input.code) return {};

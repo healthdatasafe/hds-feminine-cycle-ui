@@ -1,6 +1,6 @@
 import { registry } from './registry.ts';
 import { cellA11y, fittedFontSize } from './cellA11y.ts';
-import { stampColours, stampTextLayout } from './stampStyle.ts';
+import { stampColours, stampTextLayout, textOn } from './stampStyle.ts';
 import type { CellProps } from './types.ts';
 
 export type { CellProps };
@@ -42,6 +42,7 @@ function DotCircle (props: CellProps): React.JSX.Element {
   const strokeWidth = empty ? 2 : 0;
   const interactive = onClick != null;
   const visibleText = empty ? undefined : (input.letter ?? input.code);
+  const textFill = textOn(input.fill, input.halfFill?.color);
 
   return (
     <svg
@@ -86,7 +87,7 @@ function DotCircle (props: CellProps): React.JSX.Element {
           dominantBaseline='central'
           fontSize={size * 0.55}
           fontWeight='600'
-          fill='#fff'
+          fill={textFill}
           style={{ userSelect: 'none' }}
         >
           {input.letter}
@@ -100,7 +101,7 @@ function DotCircle (props: CellProps): React.JSX.Element {
           dominantBaseline='central'
           fontSize={fittedFontSize(size, input.code, 0.34, 0.5)}
           fontWeight='600'
-          fill='#fff'
+          fill={textFill}
           style={{ userSelect: 'none' }}
         >
           {input.code}

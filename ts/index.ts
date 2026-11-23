@@ -37,7 +37,7 @@ export { registry } from './registry.ts';
 export { longestCode } from './longestCode.ts';
 export { composeCellInput, stickerOf, bleedingBandOf } from './composeCellInput.ts';
 export { isPeakOption } from './mucusOption.ts';
-export { stampColours, stampTextLayout, luminanceOf } from './stampStyle.ts';
+export { stampColours, stampTextLayout, luminanceOf, textOn } from './stampStyle.ts';
 export type { StampColours, StampTextLine } from './stampStyle.ts';
 export type { ComposeOptions } from './composeCellInput.ts';
 export { detectFertilityWindow } from './detectFertilityWindow.ts';
