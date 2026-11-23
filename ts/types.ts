@@ -176,6 +176,11 @@ export interface CellInput {
   centerDot?: { color: string };
   halfFill?: { color: string };
   baby?: boolean;
+  /**
+   * The frequency of the record whose code the cell shows (Creighton X1, X2, X3, AD: `source.annotations.frequency`
+   * of an event recorded in the bound method), written under the code. Only with a `code`.
+   */
+  frequency?: string;
   /** True when no event matched any role — render as empty outline. */
   empty?: boolean;
 }

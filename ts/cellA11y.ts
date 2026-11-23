@@ -21,7 +21,8 @@ export function cellA11y (interactive: boolean, ariaLabel: string | undefined, v
   return { 'aria-hidden': true };
 }
 
-const BOLD_CHAR_WIDTH_EM = 0.62;
+// A bold capital or digit of the hosts' sans-serif (system-ui): 0.62 left `6GBL` wider than its stamp (B-2026-11-23-3).
+const BOLD_CHAR_WIDTH_EM = 0.7;
 
 /**
  * Font size for a centred code: as large as `maxRatio` of the cell allows,

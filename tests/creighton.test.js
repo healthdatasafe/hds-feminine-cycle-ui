@@ -165,6 +165,27 @@ test('creighton: bleeding with mucus is a red stamp with the code, no baby', () 
   assert.equal(input.baby, undefined);
 });
 
+test('creighton: the cell carries the frequency of the record it shows (B-2026-11-23-9)', () => {
+  const ev = (code, frequency, key = 'creighton') => ({ time: 0, streamIds: ['body-vulva-mucus-inspect'], type: 'vulva-mucus-inspect/9d-vector', content: { source: { key, sourceData: code, ...(frequency ? { annotations: { frequency } } : {}) } } });
+  assert.equal(composeCellInput([ev('10KL', 'X2')], rep).frequency, 'X2');
+  assert.equal(composeCellInput([ev('10kl', 'AD')], rep).frequency, 'AD');
+  assert.equal(composeCellInput([ev('10KL')], rep).frequency, undefined);
+  // two records: the frequency of the code shown, not of the other one
+  assert.deepEqual(pick(composeCellInput([ev('6C', 'X1'), ev('10KL', 'X3')], rep)), { code: '10KL', frequency: 'X3' });
+  assert.deepEqual(pick(composeCellInput([ev('10KL', 'X3'), ev('6C', 'X1')], rep)), { code: '10KL', frequency: 'X3' });
+  assert.deepEqual(pick(composeCellInput([ev('10KL'), ev('6C', 'X1')], rep)), { code: '10KL', frequency: undefined });
+  // annotations belong to the method named by `source.key`
+  assert.equal(composeCellInput([ev('10KL', 'X2', 'femm')], rep).frequency, undefined);
+  // the peak mark and the count keep it; a bleeding stamp keeps its code's
+  assert.equal(composeCellInput([ev('10KL', 'X2')], rep, { dayContext: { isPeak: true } }).frequency, 'X2');
+  assert.equal(composeCellInput([ev('6C', 'X1')], rep, { dayContext: { peakCount: 2 } }).frequency, 'X1');
+  const bleeding = { time: 0, streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: 0.35 };
+  assert.deepEqual(pick(composeCellInput([ev('6C', 'X1'), bleeding], rep)), { code: '6C', frequency: 'X1' });
+  assert.equal(composeCellInput([bleeding], rep).frequency, undefined);
+});
+
+function pick ({ code, frequency }) { return { code, frequency }; }
+
 test('stickerOf: same sticker for codes of one group, regardless of code or letter', () => {
   const s = (code) => stickerOf(cell(code));
   assert.equal(s('0'), s('4'));

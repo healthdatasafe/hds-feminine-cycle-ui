@@ -1,5 +1,6 @@
 import { registry } from './registry.ts';
 import { cellA11y, fittedFontSize } from './cellA11y.ts';
+import { stampColours, stampTextLayout } from './stampStyle.ts';
 import type { CellProps } from './types.ts';
 
 export type { CellProps };
@@ -116,17 +117,12 @@ function StampSquare (props: CellProps): React.JSX.Element {
   const sq = size - 2 * inset;
   const rx = Math.max(2, size * 0.16);
 
-  const empty = input.empty || !input.fill;
+  const empty = !!input.empty || !input.fill;
   const fill = input.fill ?? 'transparent';
-  // Light stamps (whites) need a visible border so they don't disappear on a light background.
-  const isLight = !empty && fill && /^#?(f|e|d|c)/i.test(fill.replace('#', ''));
-  const stroke = empty ? '#888' : (isLight ? '#888' : 'none');
-  const strokeWidth = empty ? 2 : (isLight ? 1 : 0);
+  const { overlay: overlayFill, stroke, strokeWidth } = stampColours(input.fill, empty);
   const interactive = onClick != null;
-
-  // Letter overlay color: dark for light stamps, white for dark stamps.
-  const overlayFill = isLight ? '#1f2937' : '#fff';
-  const visibleText = empty ? undefined : (input.code ?? input.letter);
+  const text = stampTextLayout(size, input);
+  const visibleText = empty ? undefined : (input.code ? [input.code, input.frequency].filter(Boolean).join(' ') : input.letter);
 
   return (
     <svg
@@ -173,18 +169,32 @@ function StampSquare (props: CellProps): React.JSX.Element {
           {input.letter}
         </text>
       )}
-      {input.code && !empty && (
+      {input.code && text.code && !empty && (
         <text
           x={size / 2}
-          y={size / 2}
+          y={text.code.y}
           textAnchor='middle'
           dominantBaseline='central'
-          fontSize={fittedFontSize(size, input.code, 0.36, 0.5, input.letter ? 0.7 : 0.86)}
+          fontSize={text.code.fontSize}
           fontWeight='700'
           fill={overlayFill}
           style={{ userSelect: 'none' }}
         >
           {input.code}
+        </text>
+      )}
+      {input.frequency && text.frequency && !empty && (
+        <text
+          x={size / 2}
+          y={text.frequency.y}
+          textAnchor='middle'
+          dominantBaseline='central'
+          fontSize={text.frequency.fontSize}
+          fontWeight='600'
+          fill={overlayFill}
+          style={{ userSelect: 'none' }}
+        >
+          {input.frequency}
         </text>
       )}
       {input.code && input.letter && !empty && (

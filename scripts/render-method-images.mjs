@@ -15,7 +15,7 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { registry } from '../js/index.js';
+import { registry, stampColours, stampTextLayout } from '../js/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, '..', 'docs', 'images');
@@ -94,12 +94,10 @@ function stampSquare (size, input) {
   const inset = 1;
   const sq = size - 2 * inset;
   const rx = Math.max(2, size * 0.16);
-  const empty = input.empty || !input.fill;
+  const empty = !!input.empty || !input.fill;
   const fill = input.fill ?? 'transparent';
-  const isLight = !empty && fill && /^#?(f|e|d|c)/i.test(fill.replace('#', ''));
-  const stroke = empty ? '#888' : (isLight ? '#888' : 'none');
-  const strokeWidth = empty ? 2 : (isLight ? 1 : 0);
-  const overlayFill = isLight ? '#1f2937' : '#fff';
+  const { overlay: overlayFill, stroke, strokeWidth } = stampColours(input.fill, empty);
+  const text = stampTextLayout(size, input);
   const parts = [];
   if (input.halfFill && !empty) {
     parts.push(`<rect x="${inset}" y="${inset}" width="${sq / 2}" height="${sq}" rx="${rx}" ry="${rx}" fill="${input.halfFill.color}"/>`);
@@ -114,8 +112,11 @@ function stampSquare (size, input) {
   if (input.letter && !empty && !input.code) {
     parts.push(`<text x="${size / 2}" y="${size / 2}" text-anchor="middle" dominant-baseline="central" font-size="${size * 0.6}" font-weight="700" fill="${overlayFill}">${escapeXml(input.letter)}</text>`);
   }
-  if (input.code && !empty) {
-    parts.push(`<text x="${size / 2}" y="${size / 2}" text-anchor="middle" dominant-baseline="central" font-size="${size * 0.36}" font-weight="700" fill="${overlayFill}">${escapeXml(input.code)}</text>`);
+  if (input.code && text.code && !empty) {
+    parts.push(`<text x="${size / 2}" y="${text.code.y}" text-anchor="middle" dominant-baseline="central" font-size="${text.code.fontSize}" font-weight="700" fill="${overlayFill}">${escapeXml(input.code)}</text>`);
+  }
+  if (input.frequency && text.frequency && !empty) {
+    parts.push(`<text x="${size / 2}" y="${text.frequency.y}" text-anchor="middle" dominant-baseline="central" font-size="${text.frequency.fontSize}" font-weight="600" fill="${overlayFill}">${escapeXml(input.frequency)}</text>`);
   }
   if (input.code && input.letter && !empty) {
     parts.push(`<g><circle cx="${size - inset - 1}" cy="${inset + 1}" r="${size * 0.18}" fill="#fff" stroke="${overlayFill}" stroke-width="0.5"/><text x="${size - inset - 1}" y="${inset + 1}" text-anchor="middle" dominant-baseline="central" font-size="${size * 0.28}" font-weight="700" fill="${overlayFill}">${escapeXml(input.letter)}</text></g>`);
@@ -164,6 +165,9 @@ function buildRows (rep) {
     const frag = rep.spec.mappingRules.mucus[key];
     const label = labelsForMethod[key] ?? key;
     rows.push({ label, input: inputFromFragment(rep, frag) });
+  }
+  if (id === 'creighton') {
+    rows.push({ label: 'Code with its frequency (10KL, seen 3 times: X3)', input: { ...inputFromFragment(rep, rep.spec.mucusRule('10KL')), frequency: 'X3' } });
   }
 
   // Bleeding states (deduplicate visually identical fills/letters)

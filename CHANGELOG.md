@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-23
+
+### Added
+- Creighton frequency on the stamp (B-2026-11-23-9): `CellInput.frequency` carries the frequency of the record whose
+  code the cell shows (`source.annotations.frequency`, X1, X2, X3, AD, of an event recorded in the bound method;
+  another method's or a converted record has none). `RepresentationCell` writes it under the code; the peak mark and
+  the count keep it. An unlabelled clickable cell is named "code frequency".
+- `stampColours(fill, empty)`, `stampTextLayout(size, input)`, `luminanceOf(color)`: the stamp's text colour, border
+  and text layout, shared by `RepresentationCell` and the docs images script.
+
+### Fixed
+- Stamp text colour by contrast (B-2026-11-23-3): of dark and white, the one that contrasts more with the fill
+  (WCAG luminance). Was: dark on any fill starting with c, d, e or f, so Creighton's red `#C8155A` and Billings' and
+  Chart Neo's `#E8341C` drew dark text. Fills of mid luminance now take dark text too: Creighton's green `#7FB069`,
+  `#7BB7E0`, `#A8A8A8`. Only very light fills (white, pale yellow) keep the grey border; pink, orange and tan lose it.
+- Long codes fit the stamp (B-2026-11-23-3): a code shrinks to 0.2 of the cell (was 0.36), so Creighton's 5–6
+  character codes (`10GCKL`) stay inside it at every host size; the width estimate of a bold character is 0.7 em
+  (was 0.62, which let `6GBL` touch the edges in system-ui).
+- The docs images draw the stamp as the app does (fitted code size, contrast colours); the Creighton sheet shows a
+  code with its frequency.
+
 ## [0.12.0] - 2026-11-21
 
 Plans 131 and 134: draws the 106 Creighton codes of data-model 4.23.0 (cervical-fluid converter v1).
