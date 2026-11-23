@@ -67,7 +67,7 @@ const input = composeCellInput(eventsForADay, rep, { closestOption, dayContext }
 |-------------|----------------|---------|-------------------|
 | `femm`      | `dot-circle`   | v0.1    | [`docs/images/femm-options.svg`](./docs/images/femm-options.svg) |
 | `billings`  | `stamp-square` | v0.2    | [`docs/images/billings-options.svg`](./docs/images/billings-options.svg) |
-| `creighton` | `stamp-square` | v0.4    | [`docs/images/creighton-options.svg`](./docs/images/creighton-options.svg) · 33-code grid: [`docs/images/creighton-codes-grid.svg`](./docs/images/creighton-codes-grid.svg) |
+| `creighton` | `stamp-square` | v0.4    | [`docs/images/creighton-options.svg`](./docs/images/creighton-options.svg) · the 95 offered codes: [`docs/images/creighton-codes-grid.svg`](./docs/images/creighton-codes-grid.svg) |
 | `mira`      | `dot-circle`   | v0.5    | [`docs/images/mira-options.svg`](./docs/images/mira-options.svg) |
 | `sensiplan` | `stamp-square` | v0.9    | [`docs/images/sensiplan-options.svg`](./docs/images/sensiplan-options.svg) |
 | `sympto-thermal` | `stamp-square` | v0.9 | [`docs/images/sympto-thermal-options.svg`](./docs/images/sympto-thermal-options.svg) |
