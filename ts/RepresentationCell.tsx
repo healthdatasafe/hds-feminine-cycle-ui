@@ -1,6 +1,6 @@
 import { registry } from './registry.ts';
 import { cellA11y, fittedFontSize } from './cellA11y.ts';
-import { stampColours, stampTextLayout, textOn } from './stampStyle.ts';
+import { stampBadge, stampColours, stampTextLayout, textOn } from './stampStyle.ts';
 import type { CellProps } from './types.ts';
 
 export type { CellProps };
@@ -123,6 +123,7 @@ function StampSquare (props: CellProps): React.JSX.Element {
   const { overlay: overlayFill, stroke, strokeWidth } = stampColours(input.fill, empty);
   const interactive = onClick != null;
   const text = stampTextLayout(size, input);
+  const badge = stampBadge(size);
   const visibleText = empty ? undefined : (input.code ? [input.code, input.frequency].filter(Boolean).join(' ') : input.letter);
 
   return (
@@ -200,15 +201,15 @@ function StampSquare (props: CellProps): React.JSX.Element {
       )}
       {input.code && input.letter && !empty && (
         <g>
-          <circle cx={size - inset - 1} cy={inset + 1} r={size * 0.18} fill='#fff' stroke={overlayFill} strokeWidth={0.5} />
+          <circle cx={badge.cx} cy={badge.cy} r={badge.r} fill={badge.fill} stroke={badge.ink} strokeWidth={badge.strokeWidth} />
           <text
-            x={size - inset - 1}
-            y={inset + 1}
+            x={badge.cx}
+            y={badge.cy}
             textAnchor='middle'
             dominantBaseline='central'
-            fontSize={size * 0.28}
+            fontSize={badge.fontSize}
             fontWeight='700'
-            fill={overlayFill}
+            fill={badge.ink}
             style={{ userSelect: 'none' }}
           >
             {input.letter}

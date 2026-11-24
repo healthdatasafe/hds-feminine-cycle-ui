@@ -16,6 +16,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { registry, stampColours, stampTextLayout, textOn } from '../js/index.js';
+import { stampBadge } from '../js/stampStyle.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, '..', 'docs', 'images');
@@ -119,7 +120,8 @@ function stampSquare (size, input) {
     parts.push(`<text x="${size / 2}" y="${text.frequency.y}" text-anchor="middle" dominant-baseline="central" font-size="${text.frequency.fontSize}" font-weight="600" fill="${overlayFill}">${escapeXml(input.frequency)}</text>`);
   }
   if (input.code && input.letter && !empty) {
-    parts.push(`<g><circle cx="${size - inset - 1}" cy="${inset + 1}" r="${size * 0.18}" fill="#fff" stroke="${overlayFill}" stroke-width="0.5"/><text x="${size - inset - 1}" y="${inset + 1}" text-anchor="middle" dominant-baseline="central" font-size="${size * 0.28}" font-weight="700" fill="${overlayFill}">${escapeXml(input.letter)}</text></g>`);
+    const badge = stampBadge(size);
+    parts.push(`<g><circle cx="${badge.cx}" cy="${badge.cy}" r="${badge.r}" fill="${badge.fill}" stroke="${badge.ink}" stroke-width="${badge.strokeWidth}"/><text x="${badge.cx}" y="${badge.cy}" text-anchor="middle" dominant-baseline="central" font-size="${badge.fontSize}" font-weight="700" fill="${badge.ink}">${escapeXml(input.letter)}</text></g>`);
   }
   if (input.baby && !empty) {
     const cx = inset + size * 0.18;

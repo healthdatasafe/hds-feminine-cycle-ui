@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stampColours, stampTextLayout, luminanceOf, textOn, registry } from '../js/index.js';
+import { stampBadge } from '../js/stampStyle.js';
 
 const DARK = '#1f2937';
 const WHITE = '#fff';
@@ -77,4 +78,23 @@ test('stamp text: with a frequency, the code stays centred and the frequency is 
   assert.ok(t.code.y + t.code.fontSize / 2 <= t.frequency.y - t.frequency.fontSize / 2 + 1e-9);
   assert.ok(fits(28, 'X3', t.frequency));
   assert.equal(stampTextLayout(28, { frequency: 'X3' }).frequency, undefined);
+});
+
+test('stamp badge (peak letter, count): whole inside the cell at every size', () => {
+  for (const size of [14, 16, 22, 24, 26, 28, 40]) {
+    const b = stampBadge(size);
+    const reach = b.r + b.strokeWidth / 2;
+    assert.ok(b.cx + reach <= size + 1e-9 && b.cy - reach >= -1e-9, `${size}: right and top`);
+    assert.ok(b.cx - reach >= size / 2, `${size}: in the right half, clear of the baby (top left)`);
+    assert.ok(b.cy + reach < size / 2, `${size}: above the code's line`);
+  }
+});
+
+test('stamp badge: its letter and outline read on the disc, whatever the stamp', () => {
+  const { ink, fill } = stampBadge(24);
+  assert.equal(fill, WHITE);
+  assert.equal(ink, DARK);
+  assert.notEqual(ink, fill);
+  // the overlay of a red stamp is white: it must not be the badge's ink
+  assert.notEqual(ink, stampColours('#D32F2F', false).overlay);
 });
