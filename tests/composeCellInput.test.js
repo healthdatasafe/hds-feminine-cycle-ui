@@ -78,14 +78,53 @@ test('brown-dark presence event alone (null content) → brown cell', () => {
   assert.equal(out.fill, '#7A4A2B');
 });
 
-test('events with no mucus option in source.sourceData → empty', () => {
-  const events = [
-    { streamIds: ['body-vulva-mucus-inspect'], type: 'vulva-mucus-inspect/9d-vector', content: { source: { key: 'billings', sourceData: { mucus: 'cloudyWhite' } } } }
-  ];
-  // billings option keys aren't in FEMM's mappingRules, so this falls through to empty.
-  // (Force-conversion across methods is a deferred follow-up.)
-  const out = composeCellInput(events, femm);
-  assert.equal(out.empty, true);
+const mucusOf = (key, mucus, vectors) => ({
+  streamIds: ['body-vulva-mucus-inspect'],
+  type: 'vulva-mucus-inspect/9d-vector',
+  time: 0,
+  content: { source: { key, sourceData: { mucus } }, vectors }
+});
+const creighton = registry.get('creighton');
+
+test('[FOREIGN-1] an event of another method draws nothing without a conversion', () => {
+  assert.equal(composeCellInput([mucusOf('billings', 'cloudyWhite')], femm).empty, true);
+  // the same text exists in both methods, with another meaning: FEMM 4 is Slippery, Creighton 4 is dry
+  assert.equal(composeCellInput([mucusOf('femm', 4)], creighton).empty, true);
+  assert.equal(composeCellInput([mucusOf('marquette', '2')], femm).empty, true);
+  assert.equal(composeCellInput([{ ...mucusOf('femm'), content: { source: { key: 'femm', sourceData: 4 } } }], creighton).empty, true);
+});
+
+test('[FOREIGN-2] no method draws another one\'s options', () => {
+  const reps = registry.list();
+  for (const from of reps) {
+    const options = Object.keys(from.spec.mappingRules.mucus ?? {});
+    for (const to of reps) {
+      if (to === from) continue;
+      for (const o of options) {
+        const out = composeCellInput([mucusOf(from.spec.boundMethod.methodId, o)], to);
+        assert.equal(out.empty, true, `${from.spec.id} "${o}" drawn as ${to.spec.id}`);
+      }
+    }
+  }
+});
+
+test('[FOREIGN-3] a conversion that finds nothing, or fails, draws nothing; one that finds an option draws it', () => {
+  const ev = mucusOf('femm', 4, { stretchability: 0.85 });
+  assert.equal(composeCellInput([ev], creighton, { closestOption: () => null }).empty, true);
+  assert.equal(composeCellInput([ev], creighton, { closestOption: () => { throw new Error('not loaded'); } }).empty, true);
+  assert.equal(composeCellInput([ev], creighton, { closestOption: () => '10KL' }).code, '10KL');
+});
+
+test('[FOREIGN-4] an event that names no method is read by its own option, converted or not', () => {
+  const ev = mucusOf(undefined, '8CK', { stretchability: 0.5 });
+  assert.equal(composeCellInput([ev], creighton).code, '8CK');
+  assert.equal(composeCellInput([ev], creighton, { closestOption: () => null }).code, '8CK');
+});
+
+test('[FOREIGN-5] bleeding is no method\'s: it draws beside another method\'s mucus', () => {
+  const out = composeCellInput([mucusOf('femm', 4), { streamIds: ['body-vulva-bleeding'], type: 'ratio/proportion', content: 0.75 }], creighton);
+  assert.equal(out.fill, '#D32F2F');
+  assert.equal(out.code, undefined);
 });
 
 // A representation writing each bleeding band as its own letter.

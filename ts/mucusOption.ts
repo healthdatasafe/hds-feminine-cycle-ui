@@ -2,12 +2,23 @@ import type { HdsEventLike, MappingRuleFragment, Representation } from './types.
 import type { ComposeOptions } from './composeCellInput.ts';
 
 /**
+ * The native option of `event.content.source.sourceData`. Two shapes in the wild:
+ *   1. Object: `{ mucus: "Sticky" }` (e.g. bridge-cyclefeminin-net).
+ *   2. Bare scalar: `"Sticky"` or `4` (e.g. bridge-mira's mira-demo dataset).
+ */
+export function readNativeMucus (sourceData: any): string | number | undefined {
+  if (typeof sourceData === 'string' || typeof sourceData === 'number') return sourceData;
+  const m = sourceData?.mucus;
+  return typeof m === 'string' || typeof m === 'number' ? m : undefined;
+}
+
+/**
  * A mucus event's option key in the representation's bound method:
- *   1. `source.key` matches the bound method → the native `source.sourceData`
- *      (bare scalar or `{ mucus }`).
+ *   1. `source.key` is the bound method → the native option.
  *   2. Else vectors + `closestOption` → the closest option in the bound method.
- *   3. Else the native option, if any.
- * Returns null when nothing resolves.
+ *   3. Else, for an event that names no method (no `source.key`), the native option.
+ * Null when nothing resolves. The native option of an event that names another method is never read as one of this
+ * method's: the same text means something else there (FEMM 4 is Slippery, Creighton 4 is dry).
  */
 export function mucusOptionOf (
   ev: HdsEventLike,
@@ -16,25 +27,17 @@ export function mucusOptionOf (
 ): string | null {
   const c: any = ev.content;
   if (!c) return null;
-  const sourceKey = c?.source?.key;
-  const sd = c?.source?.sourceData;
-  const native: string | number | undefined =
-    (typeof sd === 'string' || typeof sd === 'number')
-      ? sd
-      : (typeof sd?.mucus === 'string' || typeof sd?.mucus === 'number')
-          ? sd.mucus
-          : undefined;
+  const sourceKey = c.source?.key;
+  const native = readNativeMucus(c.source?.sourceData);
   const targetMethod = rep.spec.boundMethod.methodId;
   if (sourceKey === targetMethod && native != null) return ruleKeyOf(rep, 'mucus', String(native));
-  if (c?.vectors && opts?.closestOption) {
+  if (c.vectors && opts?.closestOption) {
     try {
       const closest = opts.closestOption(targetMethod, c.vectors);
-      return closest ? ruleKeyOf(rep, 'mucus', String(closest)) : null;
-    } catch (_e) {
-      return null;
-    }
+      if (closest) return ruleKeyOf(rep, 'mucus', String(closest));
+    } catch (_e) { /* no conversion */ }
   }
-  return native != null ? ruleKeyOf(rep, 'mucus', String(native)) : null;
+  return sourceKey == null && native != null ? ruleKeyOf(rep, 'mucus', String(native)) : null;
 }
 
 /**

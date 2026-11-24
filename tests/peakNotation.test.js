@@ -114,3 +114,9 @@ test('force-converted observations use closestOption, and dayOf sets the calenda
   const shifted = peakNotation(events, rep, { closestOption, dayOf: t => Math.floor(t / DAY) + 100 });
   assert.equal(shifted.peakDay, 101);
 });
+
+test('[FOREIGN-6] no peak is read from another method\'s options', () => {
+  const rep = registry.get('creighton');
+  assert.equal(peakNotation(cycle('marquette', ['10', '8', '1', '1']), rep).peakDay, null);
+  assert.equal(peakNotation(cycle('sympto-thermal', ['dry', 'eggWhite', 'sticky', 'dry']), registry.get('justisse')).peakDay, null);
+});
