@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.13.3] - 2026-11-24
+
+### Fixed
+- A mucus event recorded in another method is no longer read as an option of the chart's method when nothing converts
+  it (no `closestOption`, or it finds no match): it draws nothing, as documented. FEMM 4 (Slippery) was drawn on a
+  Creighton chart as a green 4 (dry), Marquette ratings as FEMM or Creighton options, and `peakNotation` and
+  `detectFertilityWindow` could take a peak from them. An event that names no method (`source.key` absent) is read as
+  before. `composeCellInput` and `mucusOptionOf` now share one reading.
+
 ## [0.13.2] - 2026-11-23
 
 ### Fixed

@@ -105,7 +105,7 @@ const input = composeCellInput(eventsForDay, rep, {
 ```
 
 Notes:
-- `composeCellInput(events, rep, opts)` is pure aside from the `closestOption` callback; with no `closestOption`, only native (`source.key`-matching) mucus and presence-only events resolve — cross-method events fall through to empty.
+- `composeCellInput(events, rep, opts)` is pure aside from the `closestOption` callback; with no `closestOption`, only native (`source.key`-matching) mucus and presence-only events resolve — cross-method events fall through to empty (an event that names another method is never read by its own option, since 0.13.3; one that names no method still is).
 - `registry.get(id)` returns a `Representation` (`{ spec, resolveColor }`); the ten built-ins (`ts/specs/`) auto-register at import. `RepresentationCell` looks the rep up again by `representationId`, so pass the same id you composed with.
 - Peak decoration comes from `opts.dayContext`, which the host sets from `peakNotation` over the cycle (`isPeak`, `peakCount`). `detectFertilityWindow` / `isFertile` remain for compatibility and are not for patient-facing verdicts (HDS charts notation, not fertile days).
 
@@ -120,7 +120,7 @@ Notes:
 
 ## Status
 
-`v0.13.2` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
+`v0.13.3` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
 
 | Slice | Status |
 |---|---|

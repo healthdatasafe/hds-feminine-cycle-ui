@@ -4,7 +4,7 @@ import type {
   MappingRuleFragment,
   Representation
 } from './types.ts';
-import { fragmentOf, isPeakOption, ruleKeyOf } from './mucusOption.ts';
+import { fragmentOf, isPeakOption, mucusOptionOf, readNativeMucus, ruleKeyOf } from './mucusOption.ts';
 
 /**
  * Optional behaviours for `composeCellInput`.
@@ -13,7 +13,8 @@ import { fragmentOf, isPeakOption, ruleKeyOf } from './mucusOption.ts';
  * (`hds-lib-js`'s `EuclidianDistanceEngine.fromVector(methodId, vector)`).
  * When present, mucus events whose `source.key` doesn't match the representation's
  * bound method are force-converted to the closest matching option in the bound
- * method — same engine bridges already use on ingest.
+ * method — same engine bridges already use on ingest. Without it, or when it
+ * finds none, an event of another method draws nothing.
  */
 export interface ComposeOptions {
   closestOption?: (methodId: string, vector: any) => string | null | undefined;
@@ -100,21 +101,6 @@ export function composeCellInput (
   }
 
   return result;
-}
-
-/**
- * Read a "native mucus option" from `event.content.source.sourceData`.
- * The HDS ecosystem has two shapes in the wild:
- *   1. Object: `{ mucus: "Sticky" }` (e.g. bridge-cyclefeminin-net).
- *   2. Bare scalar: `"Sticky"` or `4` (e.g. bridge-mira's mira-demo dataset).
- * Both are accepted.
- */
-function readNativeMucus (sourceData: any): string | number | undefined {
-  if (sourceData == null) return undefined;
-  if (typeof sourceData === 'string' || typeof sourceData === 'number') return sourceData;
-  const m = sourceData?.mucus;
-  if (typeof m === 'string' || typeof m === 'number') return m;
-  return undefined;
 }
 
 /**
@@ -275,24 +261,8 @@ function readOptionCandidates (
     return [];
   }
   if (role === 'mucus') {
-    const sourceKey = c?.source?.key;
-    const native = readNativeMucus(c?.source?.sourceData);
-    const targetMethod = rep.spec.boundMethod.methodId;
-    // Native: event was logged in the bound method.
-    if (sourceKey === targetMethod && native != null) {
-      return [String(native)];
-    }
-    // Force-convert via the host-supplied engine bridge.
-    const vectors = c?.vectors;
-    if (vectors && opts?.closestOption) {
-      try {
-        const closest = opts.closestOption(targetMethod, vectors);
-        if (closest) return [String(closest)];
-      } catch (_e) { /* swallow — fall through to empty */ }
-    }
-    // Last-resort: if the event has a native option but no source.key match, accept it.
-    if (native != null) return [String(native)];
-    return [];
+    const option = mucusOptionOf(ev, rep, opts);
+    return option != null ? [option] : [];
   }
   if (role === 'bleeding') {
     // The canonical HDS bleeding event is `ratio/proportion` (0..1).
