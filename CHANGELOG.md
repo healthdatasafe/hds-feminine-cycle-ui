@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.13.4] - 2026-11-24
+
+### Fixed
+- The badge of a stamp with a code and a letter (Creighton's P, then 1, 2, 3) is whole: it was cut by the edge of the
+  cell. Its letter is dark on its white disc; on a red stamp it was white on white. `stampBadge` (`stampStyle.ts`).
+
 ## [0.13.3] - 2026-11-24
 
 ### Fixed

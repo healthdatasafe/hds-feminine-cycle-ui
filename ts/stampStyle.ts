@@ -78,3 +78,17 @@ export function stampTextLayout (size: number, input: Pick<CellInput, 'code' | '
     frequency: { y: size * 0.82, fontSize: fittedFontSize(size, input.frequency, CODE_MIN, 0.22, 0.6) }
   };
 }
+
+export interface StampBadge { cx: number; cy: number; r: number; fontSize: number; fill: string; ink: string; strokeWidth: number }
+
+/**
+ * The badge of a stamp that shows a code and a letter (the peak's P, the count after it): a white disc in the top right
+ * corner, whole inside the cell (an svg clips what leaves its box), its letter and outline by contrast with the disc,
+ * not with the stamp (white for a red stamp, so unreadable on the disc).
+ */
+export function stampBadge (size: number): StampBadge {
+  const r = size * 0.18;
+  const strokeWidth = 0.5;
+  const edge = r + strokeWidth / 2;
+  return { cx: size - edge, cy: edge, r, fontSize: size * 0.28, fill: WHITE_TEXT, ink: textOn(WHITE_TEXT), strokeWidth };
+}
