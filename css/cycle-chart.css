@@ -1,0 +1,63 @@
+/*
+ * hds-feminine-cycle-ui: <CycleChart>. A host themes it with the custom properties:
+ *   --hdsfc-text, --hdsfc-muted, --hdsfc-line (borders), --hdsfc-paper (behind the chart), --hdsfc-cell-min (narrowest day).
+ * The page of a print is the host's. 35 days a line fit A4 landscape:
+ *   @page { size: A4 landscape; margin: 10mm; }
+ */
+.hdsfc-chart {
+  color: var(--hdsfc-text, #1f2937);
+  background: var(--hdsfc-paper, transparent);
+}
+.hdsfc-cycle { margin-bottom: 1.25rem; }
+.hdsfc-scroll { overflow-x: auto; }
+.hdsfc-scroll:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.hdsfc-table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  width: 100%;
+  min-width: calc(var(--hdsfc-columns) * var(--hdsfc-cell-min, 2rem));
+}
+.hdsfc-caption {
+  caption-side: top;
+  text-align: start;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding-bottom: 0.25rem;
+}
+.hdsfc-day, .hdsfc-cell {
+  border: 1px solid var(--hdsfc-line, #9ca3af);
+  padding: 1px;
+  vertical-align: top;
+  position: relative;
+}
+.hdsfc-day { font-weight: 400; line-height: 1.1; color: var(--hdsfc-muted, #4b5563); }
+.hdsfc-number { display: block; text-align: center; font-size: 0.75rem; min-height: 1.1em; font-variant-numeric: tabular-nums; }
+.hdsfc-line { display: block; width: 100%; height: auto; }
+.hdsfc-stamp { display: block; aspect-ratio: 1; padding: 0 6%; }
+.hdsfc-stamp svg { display: block; width: 100%; height: auto; }
+.hdsfc-mark { font-weight: 700; }
+.hdsfc-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.hdsfc-note { font-size: 0.8125rem; margin: 0.25rem 0; color: var(--hdsfc-muted, #4b5563); }
+
+@media print {
+  .hdsfc-chart { color: #000; background: none; }
+  .hdsfc-scroll { overflow: visible; }
+  .hdsfc-table { min-width: 0; }
+  /* a line of days is never cut across two pages, nor the heading left alone */
+  .hdsfc-table tbody { break-inside: avoid; }
+  .hdsfc-caption { break-after: avoid; font-size: 9pt; }
+  .hdsfc-number { font-size: 6pt; }
+  .hdsfc-day, .hdsfc-note { color: #000; }
+  .hdsfc-note { font-size: 8pt; }
+  .hdsfc-stamp svg { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

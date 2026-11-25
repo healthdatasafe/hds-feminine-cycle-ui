@@ -74,7 +74,7 @@ For v0.1 this package leaves force-conversion to the host (which has the engine 
 ## What this package does *not* do
 
 - **No data fetching.** Hosts query Pryv / hds-lib and pass events in.
-- **No layout.** Hosts position the cell.
+- **No layout**, but one: hosts position the cell; `<CycleChart>` is the method's own paper chart (a table of days), drawn the same in every app. See `docs/cycle-chart.html`.
 - **No settings UI.** Hosts pick the active representation; this package only renders the chosen one.
 - **No theming beyond the palette.** Each spec defines its own colors. A future high-contrast variant will be a separate spec, not a runtime flag.
 

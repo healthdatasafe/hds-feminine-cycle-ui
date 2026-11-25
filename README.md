@@ -51,6 +51,22 @@ const { peakDay, mark, count } = peakNotation(cycleEvents, rep, { closestOption 
 const input = composeCellInput(eventsForADay, rep, { closestOption, dayContext });
 ```
 
+A person's cycles as a paper chart, read-only (Creighton):
+
+```tsx
+import { buildCycleChart, CycleChart, registry } from 'hds-feminine-cycle-ui';
+import 'hds-feminine-cycle-ui/cycle-chart.css';
+
+const model = buildCycleChart(events, registry.get('creighton'), {
+  dayOf: (event) => calendarDayOf(event),   // 'YYYY-MM-DD' in the person's zone, null when the date is not a day
+  today: '2026-11-25'
+  // rows: [{ startDate: '2026-10-29' }]    // a chart entered from paper records no cycle start
+});
+<CycleChart model={model} lang='en' />
+```
+
+It prints as it is seen; for 35 days a line, the page is the host's: `@page { size: A4 landscape; margin: 10mm; }`. Smaller text, or `columns={28}`, for US Letter. A sample: [`docs/cycle-chart.html`](./docs/cycle-chart.html).
+
 ## What's in here
 
 - A **registry** of cycle-fluid representations.
@@ -59,6 +75,7 @@ const input = composeCellInput(eventsForADay, rep, { closestOption, dayContext }
 - A **peak/fertile detector** (`detectFertilityWindow`) — sliding-window display heuristic over option keys. **Not for patient-facing verdicts**: use `peakNotation` to chart the peak.
 - One **React component** (`RepresentationCell`) that draws a cell into a `size × size` SVG box; primitives `dot-circle` (FEMM/Mira) and `stamp-square` (Billings/Creighton) live inside it.
 - A second **React component** (`CervixPositionMarker`) that draws a stylised cervix glyph from a 3-D vector — fixed centred ring, horizontal "horizon" bar moves with `height`, ring stroke width with `firmness`, inner-hole radius with `openness`. Standalone (not part of the spec/registry).
+- A **cycle chart** (`buildCycleChart`, `<CycleChart>`): a table per cycle, a column per day, what was recorded. Every word can be replaced (`strings`, `localize`, `formatDate`), `renderDay` adds the host's control to a day.
 - A shared 7-day fixture (`samplePreviewEvents`) that any registered representation can render previews from.
 
 ## Built-in representations
@@ -112,7 +129,7 @@ Reference images live under `docs/images/`; per-method docs link to them.
 
 ## Status
 
-`v0.9.0`. See [`CHANGELOG.md`](./CHANGELOG.md).
+`v0.15.0`. See [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## License
 
