@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-25
+
+### Added
+- **`<CycleChart>` and `buildCycleChart`: a person's cycles as a paper chart draws them, read-only.** A table per cycle, a
+  column per day (35 a line by default, 7 on a phone), the method's stamp and under it the bleeding letter, the code and the
+  frequency as recorded; the recorded peak and the count after it on their own line. Creighton for now (`canChart`).
+  `import 'hds-feminine-cycle-ui/cycle-chart.css'`; it prints on A4 landscape.
+  - The rows are the recorded cycle starts, or the ones the host gives (`rows`: a chart entered from paper has none).
+    `dayOf` is the host's and required: the calendar day of an event in the person's zone.
+  - Nothing recorded, recorded in another method, recorded as no bleeding and not there yet are drawn differently. A bleeding
+    letter is written only for exactly its flow. Several observations of a day are all written. A computed peak only on
+    request (`computedPeak`), as "(P)". What is on no day of the chart is counted under it. No fertile or infertile day.
+  - English and French; every word, seen or spoken, can be replaced (`strings`, `localize`, `formatDate`).
+- The one layout container of this package (see `AGENTS.md`).
+
 ## [0.14.0] - 2026-11-25
 
 ### Added

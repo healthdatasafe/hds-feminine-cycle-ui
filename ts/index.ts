@@ -47,6 +47,14 @@ export { detectFertilityWindow } from './detectFertilityWindow.ts';
 export type { FertilityWindow } from './detectFertilityWindow.ts';
 export { peakNotation, RECORDED_PEAK_ITEM } from './peakNotation.ts';
 export type { PeakNotation, PeakNotationOptions } from './peakNotation.ts';
+export { buildCycleChart, canChart, peakLetterOf, CYCLE_START_ITEM } from './buildCycleChart.ts';
+export type {
+  ChartEvent, ChartRow, CycleChartOptions, ChartCode, ChartBleeding, ChartDay, ChartCycle, UnplacedReason, CycleChartModel
+} from './buildCycleChart.ts';
+export { CycleChart, NUMBERED_DAYS } from './CycleChart.tsx';
+export type { CycleChartProps } from './CycleChart.tsx';
+export { CYCLE_CHART_STRINGS } from './cycleChartStrings.ts';
+export type { CycleChartStringKey, CycleChartStrings } from './cycleChartStrings.ts';
 export { RepresentationCell } from './RepresentationCell.tsx';
 export { CervixPositionMarker } from './CervixPositionMarker.tsx';
 export type { CervixPositionMarkerProps } from './CervixPositionMarker.tsx';

@@ -4,7 +4,7 @@ Operational notes for AI agents working in this repo. Update as development prog
 
 ## What this package is
 
-Custom UI representations for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, **Mira**, **Sensiplan**, **sympto-thermal**, **Justisse**, **Chart Neo**, **Marquette** or **Apple Health** charts. Display rules are sourced from model-cervical-fluid `references/rules/method-rules.json`; only sourced rules ship (`docs/methods/README.md`). Layout-agnostic: the same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it.
+Custom UI representations for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, **Mira**, **Sensiplan**, **sympto-thermal**, **Justisse**, **Chart Neo**, **Marquette** or **Apple Health** charts. Display rules are sourced from model-cervical-fluid `references/rules/method-rules.json`; only sourced rules ship (`docs/methods/README.md`). Layout-agnostic: the same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it. One exception: `<CycleChart>`, the method's own paper chart.
 
 Also ships `CervixPositionMarker` — a standalone glyph for `body-vulva-cervix-position` 3-D vector events (height / firmness / openness). Not part of the spec/registry; rendered by hosts directly.
 
@@ -37,6 +37,9 @@ import {
   stampChoices,              // pure: the stamps a method's chart uses (id, label, look), for a stamp picker
   chartedStampOf,            // pure: the stamp charted among a day's events (composeCellInput draws it)
   longestCode,               // pure: the widest code/letter a spec writes (hosts size day columns by it)
+  buildCycleChart,           // pure: events → the model of a paper chart (rows, days, what was recorded); canChart(rep)
+  CycleChart,                // React component: that model as a table, read-only (needs cycle-chart.css)
+  CYCLE_CHART_STRINGS,       // its words, { en, fr }, each replaceable by the host
   registry,                  // built-in + user-extensible registrations
   samplePreviewEvents,       // shared 7-day fixture for previews
   femmSpec, billingsSpec, creightonSpec, miraSpec,
@@ -113,8 +116,8 @@ Notes:
 
 ## Don't
 
-- **Don't import `react-dom`** — this package never renders to the DOM directly. It only emits JSX. Hosts mount it.
-- **Don't add layout containers here** — calendar grids, picker grids, timeline rows live in the *host* repos (`hds-react-timeline`, `hds-forms-js`, `hds-webapp`).
+- **Don't import `react-dom`** — this package never renders to the DOM directly. It only emits JSX. Hosts mount it. (A dev dependency: the tests and `npm run docs:chart` render to a string.)
+- **Don't add layout containers here** — calendar grids, picker grids, timeline rows live in the *host* repos (`hds-react-timeline`, `hds-forms-js`, `hds-webapp`). `<CycleChart>` is the one exception: a method's paper chart needs its stamps, letters and count together, and any app can show it without hds-lib. It is read-only and takes no data itself; a host's control in a day goes through `renderDay`.
 - **Don't import from `hds-lib-js` or `data-model`** at the package top level — once force-conversion is wired, those become *peer*-deps consumed by hosts. The package itself stays free of runtime HDS dependencies so it builds standalone.
 - **Don't commit `js/`** — it's built on install via `prepare`.
 - **Don't ship an unsourced rule** — a colour, category, code or peak candidate goes in a spec only when its rule in model-cervical-fluid `references/rules/method-rules.json` has status `hds`, `literature`, or `decision` with a source. Otherwise leave it out or write neutral notation, and list it as "to confirm" in `docs/methods/<id>.md`.
@@ -122,7 +125,7 @@ Notes:
 
 ## Status
 
-`v0.13.4` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
+`v0.15.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
 
 | Slice | Status |
 |---|---|
@@ -147,6 +150,9 @@ Notes:
 | `peakNotation` (peak mark + 1-2-3 count), `periodDisplay`, `peakMarker.countAfter` | ✅ shipped (v0.9) |
 | Creighton codes drawn by rule (`mucusRule`, `isCandidate`), `bleedingNotation`, `stickerOf` (plans 131, 134) | ✅ shipped (v0.12) |
 | Creighton frequency on the stamp (`CellInput.frequency`), stamp text by contrast, long codes fit (`stampStyle.ts`) | ✅ shipped (v0.13) |
+| Charted stamps (`chartedStampOf`, `stampChoices`) | ✅ shipped (v0.14) |
+| `<CycleChart>` / `buildCycleChart`, read-only, Creighton | ✅ shipped (v0.15) |
+| `<CycleChart>` for methods that write the bleeding apart, or words per day | ⏳ later (`canChart` is false) |
 | Marquette Low / High / Peak levels, Chart Neo mucus fields | ⏳ to confirm with the experts |
 | `cycleGrid` row container | ⏳ deferred (lives in `hds-react-timeline`) |
 | `StampGridPicker` (host) field for `hds-forms-js` | ✅ shipped (lives in hds-forms-js, consumes RepresentationCell + registry) |
@@ -169,6 +175,19 @@ npm run docs:images   # writes docs/images/<id>-options.svg + creighton-codes-gr
 ```
 
 The script uses no React/JSDOM — it emits SVG markup directly. If you change `RepresentationCell.tsx` (the React renderer), mirror the change in `dotCircle()` / `stampSquare()` inside `scripts/render-method-images.mjs` so the docs stay in sync. README.md and downstream docs (e.g. `dev-site`) embed these SVGs.
+
+## The cycle chart
+
+`buildCycleChart` (`ts/buildCycleChart.ts`) decides everything that is said; `<CycleChart>` (`ts/CycleChart.tsx`) only draws it, and `css/cycle-chart.css` lays it out. What the chart must hold, each a test (`tests/buildCycleChart.test.js`, `tests/cycleChartView.test.js`):
+
+- the text is what was recorded, never what it converts to; a bleeding letter only for exactly its flow;
+- a day with nothing is blank, and nothing else is: another method (◇), no bleeding (–), a bleeding without a letter (●);
+- nothing is dropped in silence: other codes are written, what is off the chart is counted;
+- only a recorded peak is marked, unless the host asks for the computed one, drawn "(P)"; the stamp carries no peak mark;
+- what is heard says everything that is seen; a colour is never alone;
+- no word of it is a verdict.
+
+`npm run build && npm run docs:chart` writes `docs/cycle-chart.html` (made-up records): look at it, and print it, after a change.
 
 ## Updating this file
 
