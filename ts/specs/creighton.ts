@@ -23,7 +23,11 @@ import type { RepresentationSpec, MappingRuleFragment, BleedingNotationEntry } f
  *                                    shiny without lubrication: the same meaning as dry").
  *   - every other code (6, 8, 10) → white with a baby (codeRules[2], [3], hds;
  *                                    stampNote: "white with a baby for mucus …
- *                                    the app never colours them yellow").
+ *                                    the app never colours them yellow"). No code draws
+ *                                    yellow; a yellow stamp is drawn only where it was charted.
+ *
+ * Charted stamps (`stamps`, data-model 4.32.0): the six of the method. Yellow and yellow with a baby are used only on
+ * the instructor's instruction (book ch. 6; plan 131 `08-practitioner-answers.md` Q9).
  *
  * Peak-type (codeRules[2], hds, `peakMarker.isCandidate`): clear (K, so C/K too),
  * lubricative (L) or very stretchy (10) mucus, whatever the quantity, also when
@@ -107,13 +111,23 @@ export const creightonSpec: RepresentationSpec = {
     { itemKey: 'body-vagina-bleeding', role: 'bleeding' },
     { itemKey: 'body-vulva-bleeding-browndark', role: 'bleeding', presenceOption: 'brown' },
     { itemKey: 'bleeding-brown-dark', role: 'bleeding', presenceOption: 'brown' },
-    { itemKey: 'body-vulva-mucus-inspect', role: 'mucus' }
+    { itemKey: 'body-vulva-mucus-inspect', role: 'mucus' },
+    { itemKey: 'fertility-cycles-chart-stamp', role: 'stamp' }
   ],
   palette: {
     bleedingRed: '#D32F2F',
     dryGreen: '#7FB069',
     discharge: '#FFFFFF',
+    stampYellow: '#F4C752',
     peak: '#1F3B7A'
+  },
+  stamps: {
+    red: { fill: 'bleedingRed', label: { en: 'Red', fr: 'Rouge' } },
+    green: { fill: 'dryGreen', label: { en: 'Green', fr: 'Vert' } },
+    'green-baby': { fill: 'dryGreen', baby: true, label: { en: 'Green with a baby', fr: 'Vert avec un bébé' } },
+    'white-baby': { fill: 'discharge', baby: true, label: { en: 'White with a baby', fr: 'Blanc avec un bébé' } },
+    yellow: { fill: 'stampYellow', label: { en: 'Yellow', fr: 'Jaune' }, onInstruction: true },
+    'yellow-baby': { fill: 'stampYellow', baby: true, label: { en: 'Yellow with a baby', fr: 'Jaune avec un bébé' }, onInstruction: true }
   },
   mappingRules: {
     mucus: mucusSamples,

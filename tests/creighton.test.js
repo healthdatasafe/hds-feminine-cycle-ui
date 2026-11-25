@@ -33,7 +33,8 @@ test('creighton: every mucus code is white with a baby, never yellow', () => {
   for (const frag of Object.values(rep.spec.mappingRules.mucus)) {
     assert.notEqual(rep.resolveColor(frag.fill), '#F4C752');
   }
-  assert.equal(Object.values(rep.spec.palette).includes('#F4C752'), false);
+  // the palette's yellow belongs to the two stamps charted on the instructor's instruction (chartStamp.test.js)
+  for (const [id, st] of Object.entries(rep.spec.stamps)) assert.equal(rep.resolveColor(st.fill) === '#F4C752', st.onInstruction === true, id);
 });
 
 test('creighton: B and R codes stay red', () => {

@@ -18,6 +18,8 @@ export interface I18nText {
 /** Minimal HDS event shape this package needs. Hosts pass full events; we only read these fields. */
 export interface HdsEventLike {
   time?: number;
+  /** when the event was last changed (the newer of two charted stamps of a day is drawn) */
+  modified?: number;
   streamIds: string[];
   type: string;
   content?: any;
@@ -42,6 +44,16 @@ export interface MappingRuleFragment {
   centerDot?: { color: string };
   /** `true` draws a baby; `false` removes one a lower-precedence role drew (Creighton: no red stamp with a baby). */
   baby?: boolean;
+}
+
+/** A stamp of a method's chart, as a person charts it (`RepresentationSpec.stamps`). */
+export interface StampSpec {
+  fill: string; // palette key
+  baby?: boolean;
+  /** The stamp in words: its colour, never what it means. */
+  label: I18nText;
+  /** Used on the instructor's instruction only: never drawn from a code, offered to a person who asked for it. */
+  onInstruction?: boolean;
 }
 
 /** Per-role mapping table: option-value -> fragment. */
@@ -123,6 +135,12 @@ export interface RepresentationSpec {
   palette: Record<string, string>; // name -> hex
   mappingRules: MappingRules;
   /**
+   * The stamps of the method's chart by id (data-model `fertility/chart-stamp-v1` `stamp`), in picker order. A day
+   * that holds one charted in this method shows it in place of the stamp drawn from the observations. Omitted: charted
+   * stamps are not drawn.
+   */
+  stamps?: Record<string, StampSpec>;
+  /**
    * For a method whose codes are a notation (Creighton): the fragment of any mucus code, by rule on its text,
    * case-insensitive; undefined for a text it cannot read. Used when `mappingRules.mucus` has no entry for the code;
    * the fragment's `code` is the code as the method spells it. With it, a day holding two codes shows the one
@@ -175,6 +193,8 @@ export interface CellInput {
   centerDot?: { color: string };
   halfFill?: { color: string };
   baby?: boolean;
+  /** The id of the stamp charted on the day, when the cell shows it in place of the drawn one (`yellow-baby`). */
+  stamp?: string;
   /**
    * The frequency of the record whose code the cell shows (Creighton X1, X2, X3, AD: `source.annotations.frequency`
    * of an event recorded in the bound method), written under the code. Only with a `code`.

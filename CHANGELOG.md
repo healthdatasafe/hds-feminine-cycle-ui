@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-25
+
+### Added
+- **Charted stamps** (data-model 4.32.0, `fertility-cycles-chart-stamp`; plan 141): `composeCellInput` draws the stamp
+  charted on a day, in the representation's method, in place of the one drawn from the observations, with the code, the
+  frequency and the peak mark or count on it, and also on a day without a code. `CellInput.stamp` is its id. Creighton
+  lists its six (`RepresentationSpec.stamps`): red, green, green with a baby, white with a baby, yellow, yellow with a baby;
+  `onInstruction` on the two yellow ones. A stamp of another method, or one the spec does not list, changes nothing. Two
+  on a day: the one modified last (`HdsEventLike.modified`). No code draws yellow, as before.
+- `stampChoices(rep)`, for a stamp picker; `chartedStampOf(events, rep)`; `CHART_STAMP_ITEM`, `CHART_STAMP_TYPE`.
+
 ## [0.13.4] - 2026-11-24
 
 ### Fixed

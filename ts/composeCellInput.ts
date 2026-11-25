@@ -4,6 +4,7 @@ import type {
   MappingRuleFragment,
   Representation
 } from './types.ts';
+import { chartedStampOf, withStamp } from './chartStamp.ts';
 import { fragmentOf, isPeakOption, mucusOptionOf, readNativeMucus, ruleKeyOf } from './mucusOption.ts';
 
 /**
@@ -40,9 +41,37 @@ export interface ComposeOptions {
 /**
  * Reduce the HDS events on a given date to a single normalized CellInput.
  * Pure aside from the optional `closestOption` callback (which itself wraps a
- * pure engine call).
+ * pure engine call). A stamp charted on the day wins over the one drawn from its
+ * observations, also with the peak mark or the count on it.
  */
 export function composeCellInput (
+  events: HdsEventLike[],
+  rep: Representation,
+  opts?: ComposeOptions
+): CellInput {
+  const observed = composeObservations(events, rep, opts);
+  const charted = chartedStampOf(events, rep);
+  if (!charted) return withDayContext(observed, rep, opts);
+  return withStamp(withDayContext(withStamp(observed, charted, rep), rep, opts), charted, rep);
+}
+
+/** The peak mark, the count after it, or the fertile dot of the day, on a cell that draws something. */
+function withDayContext (input: CellInput, rep: Representation, opts?: ComposeOptions): CellInput {
+  if (input.empty) return input;
+  if (opts?.dayContext?.isPeak) {
+    return applyPeakMarker(input, rep);
+  }
+  if (opts?.dayContext?.peakCount != null) {
+    return { ...input, letter: String(opts.dayContext.peakCount) };
+  }
+  if (opts?.dayContext?.isFertile) {
+    return applyFertileMarker(input, rep);
+  }
+  return input;
+}
+
+/** The cell the day's observations draw by the method's rules, without the day's context. */
+function composeObservations (
   events: HdsEventLike[],
   rep: Representation,
   opts?: ComposeOptions
@@ -89,16 +118,6 @@ export function composeCellInput (
 
   applyHalfSplit(result, ordered, roleFragments, rep);
   if (frequency && result.code != null && result.code === roleFragments.get('mucus')?.code) result.frequency = frequency;
-
-  if (opts?.dayContext?.isPeak) {
-    return applyPeakMarker(result, rep);
-  }
-  if (opts?.dayContext?.peakCount != null) {
-    return { ...result, letter: String(opts.dayContext.peakCount) };
-  }
-  if (opts?.dayContext?.isFertile) {
-    return applyFertileMarker(result, rep);
-  }
 
   return result;
 }
