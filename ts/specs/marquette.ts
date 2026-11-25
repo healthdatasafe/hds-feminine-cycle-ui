@@ -24,10 +24,13 @@ import type { RepresentationSpec } from '../types.ts';
  */
 export const marquetteSpec: RepresentationSpec = {
   id: 'marquette',
-  label: { en: 'Marquette', fr: 'Marquette' },
+  label: { en: 'Marquette', fr: 'Marquette', es: 'Marquette', it: 'Marquette', 'pt-BR': 'Marquette' },
   description: {
     en: 'The mucus as its number (1 to 8) on a plain square. Bleeding and monitor on their own rows. Peak day marked P, then 1, 2, 3.',
-    fr: 'La glaire par son numéro (1 à 8) sur un carré neutre. Saignement et moniteur sur leurs propres lignes. Jour pic marqué P, puis 1, 2, 3.'
+    fr: 'La glaire par son numéro (1 à 8) sur un carré neutre. Saignement et moniteur sur leurs propres lignes. Jour pic marqué P, puis 1, 2, 3.',
+    es: 'El moco con su número (1 a 8) sobre un cuadrado liso. Sangrado y monitor en sus propias filas. Día pico marcado con P, luego 1, 2, 3.',
+    it: 'Il muco indicato con il suo numero (da 1 a 8) su un quadrato neutro. Sanguinamento e monitor su righe separate. Giorno del picco indicato con P, poi 1, 2, 3.',
+    'pt-BR': 'O muco pelo seu número (1 a 8) em um quadrado neutro. Sangramento e monitor em linhas próprias. Dia do ápice marcado com P, depois 1, 2, 3.'
   },
   version: 'v0',
   primitive: 'stamp-square',

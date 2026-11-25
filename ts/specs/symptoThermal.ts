@@ -23,10 +23,13 @@ import type { RepresentationSpec } from '../types.ts';
  */
 export const symptoThermalSpec: RepresentationSpec = {
   id: 'sympto-thermal',
-  label: { en: 'Sympto-thermal', fr: 'Symptothermie' },
+  label: { en: 'Sympto-thermal', fr: 'Symptothermie', es: 'Sintotérmico', it: 'Sintotermico', 'pt-BR': 'Sintotérmico' },
   description: {
     en: 'The fluid written short on a plain square (D, S, C, EW, W). Bleeding on its own row. Peak day marked P, then 1, 2, 3.',
-    fr: 'La glaire écrite en abrégé sur un carré neutre (D, S, C, EW, W). Le saignement sur sa propre ligne. Jour pic marqué P, puis 1, 2, 3.'
+    fr: 'La glaire écrite en abrégé sur un carré neutre (D, S, C, EW, W). Le saignement sur sa propre ligne. Jour pic marqué P, puis 1, 2, 3.',
+    es: 'El fluido escrito en abreviatura sobre un cuadrado liso (D, S, C, EW, W). El sangrado en su propia fila. Día pico marcado con P, luego 1, 2, 3.',
+    it: 'Il muco scritto in forma abbreviata su un quadrato neutro (D, S, C, EW, W). Il sanguinamento su una riga separata. Giorno del picco indicato con P, poi 1, 2, 3.',
+    'pt-BR': 'O muco escrito de forma abreviada em um quadrado neutro (D, S, C, EW, W). Sangramento em linha própria. Dia do ápice marcado com P, depois 1, 2, 3.'
   },
   version: 'v0',
   primitive: 'stamp-square',

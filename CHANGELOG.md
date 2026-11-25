@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-11-25
+
+### Added
+- **Spanish, Italian and Brazilian Portuguese** for the cycle chart strings and the method specs (plan 138, machine drafts,
+  native review to follow).
+
 ## [0.16.0] - 2026-11-25
 
 ### Added

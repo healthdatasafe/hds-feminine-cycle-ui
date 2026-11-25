@@ -22,10 +22,13 @@ import type { RepresentationSpec } from '../types.ts';
  */
 export const sensiplanSpec: RepresentationSpec = {
   id: 'sensiplan',
-  label: { en: 'Sensiplan', fr: 'Sensiplan' },
+  label: { en: 'Sensiplan', fr: 'Sensiplan', es: 'Sensiplan', it: 'Sensiplan', 'pt-BR': 'Sensiplan' },
   description: {
     en: 'The method\'s letters (t, ø, f, S, S+) in black on white. Bleeding on its own line. Peak day marked P, then 1, 2, 3.',
-    fr: 'Les lettres de la méthode (t, ø, f, S, S+) en noir sur blanc. Le saignement sur sa propre ligne. Jour pic marqué P, puis 1, 2, 3.'
+    fr: 'Les lettres de la méthode (t, ø, f, S, S+) en noir sur blanc. Le saignement sur sa propre ligne. Jour pic marqué P, puis 1, 2, 3.',
+    es: 'Las letras del método (t, ø, f, S, S+) en negro sobre blanco. El sangrado en su propia línea. Día pico marcado con P, luego 1, 2, 3.',
+    it: 'Le lettere del metodo (t, ø, f, S, S+) in nero su bianco. Il sanguinamento su una riga separata. Giorno del picco indicato con P, poi 1, 2, 3.',
+    'pt-BR': 'As letras do método (t, ø, f, S, S+) em preto sobre branco. Sangramento em linha própria. Dia do ápice marcado com P, depois 1, 2, 3.'
   },
   version: 'v0',
   primitive: 'stamp-square',
