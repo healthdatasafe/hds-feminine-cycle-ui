@@ -125,7 +125,7 @@ Notes:
 
 ## Status
 
-`v0.15.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
+`v0.16.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
 
 | Slice | Status |
 |---|---|
@@ -181,7 +181,7 @@ The script uses no React/JSDOM — it emits SVG markup directly. If you change `
 `buildCycleChart` (`ts/buildCycleChart.ts`) decides everything that is said; `<CycleChart>` (`ts/CycleChart.tsx`) only draws it, and `css/cycle-chart.css` lays it out. What the chart must hold, each a test (`tests/buildCycleChart.test.js`, `tests/cycleChartView.test.js`):
 
 - the text is what was recorded, never what it converts to; a bleeding letter only for exactly its flow;
-- a day with nothing is blank, and nothing else is: another method (◇), no bleeding (–), a bleeding without a letter (●);
+- a day with nothing is blank, and nothing else is: another method (◇), a stamp not drawn (□), no bleeding (–), a bleeding without a letter (●);
 - nothing is dropped in silence: other codes are written, what is off the chart is counted;
 - only a recorded peak is marked, unless the host asks for the computed one, drawn "(P)"; the stamp carries no peak mark;
 - what is heard says everything that is seen; a colour is never alone;

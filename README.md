@@ -129,7 +129,7 @@ Reference images live under `docs/images/`; per-method docs link to them.
 
 ## Status
 
-`v0.15.0`. See [`CHANGELOG.md`](./CHANGELOG.md).
+`v0.16.0`. See [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## License
 

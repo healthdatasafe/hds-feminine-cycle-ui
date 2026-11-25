@@ -25,6 +25,8 @@ export interface ChartRow {
   /** Day 1, `YYYY-MM-DD`. */
   startDate: string;
   endDate?: string;
+  /** Its heading, in the host's words (a row of a paper chart is not always a cycle). Default: "Cycle of {date}". */
+  title?: string;
 }
 
 export interface CycleChartOptions<T extends ChartEvent = ChartEvent> {
@@ -72,6 +74,8 @@ export interface ChartDay<T extends ChartEvent = ChartEvent> {
   bleeding: ChartBleeding[];
   /** The stamp charted on it, when the cell shows it in place of the drawn one. */
   stamp?: { id: string; label: I18nText };
+  /** Stamps charted in this method that its spec does not list, by id: not drawn. */
+  unlistedStamps: string[];
   /** The other methods it was also, or only, recorded in: their ids; '' for a record that names no method. */
   otherMethods: string[];
   peak?: 'recorded' | 'computed';
@@ -83,6 +87,8 @@ export interface ChartDay<T extends ChartEvent = ChartEvent> {
 
 export interface ChartCycle<T extends ChartEvent = ChartEvent> {
   id: string;
+  /** The host's heading for the row, when it gave one. */
+  title?: string;
   startDate: string;
   endDate: string;
   /** The cycle is not over: the days after `endDate` are not there yet. */
@@ -163,7 +169,7 @@ export function buildCycleChart<T extends ChartEvent> (events: T[], rep: Represe
 
   const cycles: Array<ChartCycle<T>> = [];
   const placed = new Set<number>();
-  for (const { id, start, end, open } of rowsOf(opts.rows, startDays, today)) {
+  for (const { id, title, start, end, open } of rowsOf(opts.rows, startDays, today)) {
     const days: Array<ChartDay<T>> = [];
     for (let i = start; i <= end; i++) {
       placed.add(i);
@@ -171,7 +177,7 @@ export function buildCycleChart<T extends ChartEvent> (events: T[], rep: Represe
       days.push(dayOfEvents(i - start + 1, dateOfIndex(i), list, rep));
     }
     markPeak(days, rep, opts.computedPeak === true);
-    cycles.push({ id, startDate: dateOfIndex(start), endDate: dateOfIndex(end), open, days });
+    cycles.push({ id, ...(title ? { title } : {}), startDate: dateOfIndex(start), endDate: dateOfIndex(end), open, days });
   }
   for (const [index, list] of [...byDay].sort((a, b) => a[0] - b[0])) {
     if (!placed.has(index)) for (const event of list) unplaced.push({ reason: 'outside-rows', event });
@@ -180,13 +186,13 @@ export function buildCycleChart<T extends ChartEvent> (events: T[], rep: Represe
 }
 
 /** The rows as day indexes, oldest first: one per start day, none after today, each ending before the next. */
-function rowsOf (given: ChartRow[] | undefined, startDays: Set<number>, today: number): Array<{ id: string; start: number; end: number; open: boolean }> {
-  const starts = new Map<number, { id?: string; end: number | null }>();
+function rowsOf (given: ChartRow[] | undefined, startDays: Set<number>, today: number): Array<{ id: string; title?: string; start: number; end: number; open: boolean }> {
+  const starts = new Map<number, { id?: string; title?: string; end: number | null }>();
   if (given) {
     for (const row of given) {
       const start = indexOfDay(row.startDate);
       if (start == null) throw new Error(`buildCycleChart: a row's startDate must be YYYY-MM-DD, not "${row.startDate}"`);
-      if (!starts.has(start)) starts.set(start, { id: row.id, end: indexOfDay(row.endDate) });
+      if (!starts.has(start)) starts.set(start, { id: row.id, title: row.title, end: indexOfDay(row.endDate) });
     }
   } else {
     for (const start of startDays) starts.set(start, { end: null });
@@ -198,6 +204,7 @@ function rowsOf (given: ChartRow[] | undefined, startDays: Set<number>, today: n
     const closed = row.end != null && row.end >= start && row.end <= limit;
     return {
       id: row.id ?? dateOfIndex(start),
+      title: row.title,
       start,
       end: closed ? row.end! : limit,
       open: next == null && !closed
@@ -206,7 +213,7 @@ function rowsOf (given: ChartRow[] | undefined, startDays: Set<number>, today: n
 }
 
 function dayOfEvents<T extends ChartEvent> (day: number, date: string, events: T[], rep: Representation): ChartDay<T> {
-  const out: ChartDay<T> = { day, date, otherCodes: [], bleeding: [], otherMethods: [], events };
+  const out: ChartDay<T> = { day, date, otherCodes: [], bleeding: [], unlistedStamps: [], otherMethods: [], events };
   if (events.length === 0) return out;
   const input = composeCellInput(events, rep);
   if (!input.empty) {
@@ -227,7 +234,9 @@ function dayOfEvents<T extends ChartEvent> (day: number, date: string, events: T
     const eventRoles = new Set(event.streamIds.map(s => roles.get(s)));
     if (event.streamIds.includes(CHART_STAMP_ITEM)) {
       // charted in another method, or a stamp this one's spec does not list: not drawn, and said
-      if (event.content?.method !== methodId || !Object.hasOwn(rep.spec.stamps ?? {}, event.content?.stamp)) other(event.content?.method);
+      const { method, stamp } = event.content ?? {};
+      if (method !== methodId) other(method);
+      else if (!Object.hasOwn(rep.spec.stamps ?? {}, stamp) && !out.unlistedStamps.includes(String(stamp))) out.unlistedStamps.push(String(stamp));
     } else if (eventRoles.has('mucus')) {
       const code = recordedCode(event, rep);
       if (code == null) other(event.content?.source?.key);

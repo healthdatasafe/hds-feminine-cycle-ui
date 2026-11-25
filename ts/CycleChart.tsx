@@ -69,6 +69,7 @@ export function CycleChart<T extends ChartEvent> (props: CycleChartProps<T>): Re
   const cycles = newestFirst ? [...model.cycles].reverse() : model.cycles;
   const days = model.cycles.flatMap(c => c.days);
   const otherMethods = [...new Set(days.flatMap(d => d.otherMethods))];
+  const unlistedStamps = [...new Set(days.flatMap(d => d.unlistedStamps))];
 
   return (
     <div className={['hdsfc-chart', className].filter(Boolean).join(' ')} lang={lang}>
@@ -83,6 +84,7 @@ export function CycleChart<T extends ChartEvent> (props: CycleChartProps<T>): Re
       {otherMethods.length > 0 && (
         <p className='hdsfc-note'>{words.say('noteOtherMethod', { mark: OTHER_METHOD, methods: otherMethods.map(id => id ? words.method(id) : words.say('methodNone')).join(', ') })}</p>
       )}
+      {unlistedStamps.length > 0 && <p className='hdsfc-note'>{words.say('noteUnlistedStamp', { mark: UNLISTED_STAMP, stamps: unlistedStamps.join(', ') })}</p>}
       {model.unplaced.length > 0 && <p className='hdsfc-note'>{unplacedText(model, words)}</p>}
     </div>
   );
@@ -110,7 +112,7 @@ function CycleTable<T extends ChartEvent> ({ cycle, representationId, columns, w
 }): React.JSX.Element {
   const id = useId();
   const n = cycle.days.length;
-  const title = words.say('cycleOf', { date: words.date(cycle.startDate, 'long') });
+  const title = cycle.title ?? words.say('cycleOf', { date: words.date(cycle.startDate, 'long') });
   const length = words.say(cycle.open ? (n === 1 ? 'daysSoFarOne' : 'daysSoFarMany') : (n === 1 ? 'daysOne' : 'daysMany'), { n });
   const lines: Array<Array<ChartDay<T>>> = [];
   for (let i = 0; i < n; i += columns) lines.push(cycle.days.slice(i, i + columns));
@@ -120,7 +122,7 @@ function CycleTable<T extends ChartEvent> ({ cycle, representationId, columns, w
       {/* scrolls when the chart is wider than the page: reachable by keyboard, and named */}
       <div className='hdsfc-scroll' role='region' tabIndex={0} aria-label={title}>
         <table className='hdsfc-table' style={{ '--hdsfc-columns': columns } as React.CSSProperties}>
-          <caption className='hdsfc-caption'>{title} · {length}</caption>
+          <caption className='hdsfc-caption'><span className='hdsfc-title'>{title} · {length}</span></caption>
           <colgroup>{Array.from({ length: columns }, (_, i) => <col key={i} />)}</colgroup>
           {lines.map((line, l) => (
             <tbody key={l}>
@@ -163,19 +165,34 @@ function DayCell ({ day, representationId, words }: { day: ChartDay; representat
       <span className='hdsfc-stamp'>
         {day.input && <RepresentationCell representationId={representationId} input={{ ...day.input, code: undefined, letter: undefined }} size={32} />}
       </span>
+      {/* a charted stamp by its name too: its colour alone says nothing to some */}
+      {day.stamp && <StampName lines={wordLines(words.localize(day.stamp.label))} />}
       {/* as on paper: the bleeding letter, then the code ("L 6C") */}
       {day.bleeding.map((b, i) => <TextLine key={i} text={b.none ? NO_BLEEDING : b.letter ?? NO_LETTER} className='hdsfc-bleeding' />)}
       {day.code && <CodeLines code={day.code} />}
       {day.otherCodes.map((c, i) => <CodeLines key={i} code={c} before='+' />)}
+      {day.unlistedStamps.length > 0 && <TextLine text={UNLISTED_STAMP} className='hdsfc-other' />}
       {day.otherMethods.length > 0 && <TextLine text={OTHER_METHOD} className='hdsfc-other' />}
     </span>
   );
 }
 
-/** A bleeding the method has no letter for; a record of no bleeding; one of another method. Each explained under the chart. */
+/** A bleeding the method has no letter for; a record of no bleeding; one of another method; a stamp not drawn. Each explained under the chart. */
 const NO_LETTER = '●';
 const NO_BLEEDING = '–';
 const OTHER_METHOD = '◇';
+const UNLISTED_STAMP = '□';
+
+/** Words on as many lines as keep them readable in a 35-column cell ("Yellow", "with a", "baby"). */
+export function wordLines (text: string, width = 7): string[] {
+  const lines: string[] = [];
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    const last = lines.at(-1);
+    if (last != null && last.length + 1 + word.length <= width) lines[lines.length - 1] = `${last} ${word}`;
+    else lines.push(word);
+  }
+  return lines;
+}
 
 function CodeLines ({ code, before = '' }: { code: ChartCode; before?: string }): React.JSX.Element {
   return (
@@ -186,17 +203,23 @@ function CodeLines ({ code, before = '' }: { code: ChartCode; before?: string })
   );
 }
 
+function StampName ({ lines }: { lines: string[] }): React.JSX.Element {
+  // one size for its lines: the longest one's
+  const longest = lines.reduce((a, b) => b.length > a.length ? b : a, '');
+  return <>{lines.map((line, i) => <TextLine key={i} text={line} fit={longest} className='hdsfc-stamp-name' />)}</>;
+}
+
 const LINE = { width: 100, height: 34 };
 
 /**
  * A line of text that always fits its column: an svg as wide as it, the text shrunk when it is long (`10GCKL`). An empty
  * line keeps its height.
  */
-function TextLine ({ text, className }: { text: string; className: string }): React.JSX.Element {
+function TextLine ({ text, className, fit = text }: { text: string; className: string; fit?: string }): React.JSX.Element {
   return (
     <svg className={`hdsfc-line ${className}`} viewBox={`0 0 ${LINE.width} ${LINE.height}`}>
       {text && (
-        <text x={LINE.width / 2} y={LINE.height / 2} textAnchor='middle' dominantBaseline='central' fontSize={fittedFontSize(LINE.width, text, 0.06, 0.32, 0.98)} fill='currentColor'>{text}</text>
+        <text x={LINE.width / 2} y={LINE.height / 2} textAnchor='middle' dominantBaseline='central' fontSize={fittedFontSize(LINE.width, fit, 0.06, 0.32, 0.98)} fill='currentColor'>{text}</text>
       )}
     </svg>
   );
@@ -216,6 +239,7 @@ function dayText (day: ChartDay, words: Words): string {
   for (const b of day.bleeding) parts.push(bleedingText(b, words));
   for (const c of day.otherCodes) parts.push(words.say('also', { code: codeText(c) }));
   if (day.stamp) parts.push(words.say('stamp', { stamp: words.localize(day.stamp.label) }));
+  for (const stamp of day.unlistedStamps) parts.push(words.say('stampUnlisted', { stamp }));
   if (day.peak) parts.push(words.say(day.peak === 'recorded' ? 'peak' : 'peakComputed'));
   if (day.count != null) parts.push(words.say('afterPeak', { n: day.count }));
   for (const id of day.otherMethods) parts.push(id ? words.say('otherMethod', { method: words.method(id) }) : words.say('otherMethodNone'));
