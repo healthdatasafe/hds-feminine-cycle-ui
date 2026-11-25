@@ -16,10 +16,13 @@ import type { RepresentationSpec } from '../types.ts';
  */
 export const miraSpec: RepresentationSpec = {
   id: 'mira',
-  label: { en: 'Mira', fr: 'Mira' },
+  label: { en: 'Mira', fr: 'Mira', es: 'Mira', it: 'Mira', 'pt-BR': 'Mira' },
   description: {
     en: 'Five-step coloured circles from grey (dry) to dark blue (peak), matching the Mira app\'s mucus labels.',
-    fr: 'Cercles colorés en cinq paliers, du gris (sec) au bleu foncé (pic), alignés sur les libellés de l\'app Mira.'
+    fr: 'Cercles colorés en cinq paliers, du gris (sec) au bleu foncé (pic), alignés sur les libellés de l\'app Mira.',
+    es: 'Círculos de color en cinco pasos, del gris (seco) al azul oscuro (pico), alineados con las etiquetas de moco de la aplicación Mira.',
+    it: "Cerchi colorati in cinque livelli, dal grigio (secco) al blu scuro (picco), in linea con le etichette del muco dell'app Mira.",
+    'pt-BR': 'Círculos coloridos em cinco níveis, do cinza (seco) ao azul-escuro (ápice), alinhados aos rótulos de muco do aplicativo Mira.'
   },
   version: 'v0',
   primitive: 'dot-circle',

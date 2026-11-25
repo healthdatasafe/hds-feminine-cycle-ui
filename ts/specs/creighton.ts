@@ -88,19 +88,22 @@ const SAMPLE_CODES = ['0', '2', '4', '6C', '8CK', '10KL', '10WL', '6B'];
 const mucusSamples: Record<string, MappingRuleFragment> = Object.fromEntries(SAMPLE_CODES.map(c => [c, mucusRule(c)!]));
 
 const bleedingNotation: BleedingNotationEntry[] = [
-  { code: 'H', label: { en: 'Heavy', fr: 'Abondant' }, band: 'heavy', itemKey: 'body-vulva-bleeding', value: 0.75, mucus: 'none' },
-  { code: 'M', label: { en: 'Medium', fr: 'Moyen' }, band: 'medium', itemKey: 'body-vulva-bleeding', value: 0.55, mucus: 'none' },
-  { code: 'L', label: { en: 'Light', fr: 'Léger' }, band: 'light', itemKey: 'body-vulva-bleeding', value: 0.35, mucus: 'required' },
-  { code: 'VL', label: { en: 'Very light', fr: 'Très léger' }, band: 'spotting', itemKey: 'body-vulva-bleeding', value: 0.2, mucus: 'required' },
-  { code: 'B', label: { en: 'Brown bleeding', fr: 'Saignement brun' }, band: 'brown', itemKey: 'body-vulva-bleeding-browndark', mucus: 'required' }
+  { code: 'H', label: { en: 'Heavy', fr: 'Abondant', es: 'Abundante', it: 'Abbondante', 'pt-BR': 'Intenso' }, band: 'heavy', itemKey: 'body-vulva-bleeding', value: 0.75, mucus: 'none' },
+  { code: 'M', label: { en: 'Medium', fr: 'Moyen', es: 'Medio', it: 'Medio', 'pt-BR': 'Moderado' }, band: 'medium', itemKey: 'body-vulva-bleeding', value: 0.55, mucus: 'none' },
+  { code: 'L', label: { en: 'Light', fr: 'Léger', es: 'Leve', it: 'Leggero', 'pt-BR': 'Leve' }, band: 'light', itemKey: 'body-vulva-bleeding', value: 0.35, mucus: 'required' },
+  { code: 'VL', label: { en: 'Very light', fr: 'Très léger', es: 'Muy leve', it: 'Molto leggero', 'pt-BR': 'Muito leve' }, band: 'spotting', itemKey: 'body-vulva-bleeding', value: 0.2, mucus: 'required' },
+  { code: 'B', label: { en: 'Brown bleeding', fr: 'Saignement brun', es: 'Sangrado marrón', it: 'Sanguinamento marrone', 'pt-BR': 'Sangramento marrom' }, band: 'brown', itemKey: 'body-vulva-bleeding-browndark', mucus: 'required' }
 ];
 
 export const creightonSpec: RepresentationSpec = {
   id: 'creighton',
-  label: { en: 'Creighton', fr: 'Creighton' },
+  label: { en: 'Creighton', fr: 'Creighton', es: 'Creighton', it: 'Creighton', 'pt-BR': 'Creighton' },
   description: {
     en: 'Square stamps with letter codes (8CK, 10WL, …): red for bleeding, green for dry, white with a baby for mucus. Peak day marked with P, then 1, 2, 3.',
-    fr: 'Tampons carrés avec codes (8CK, 10WL, …) : rouge pour le saignement, vert pour sec, blanc avec un bébé pour la glaire. Jour pic marqué d\'un P, puis 1, 2, 3.'
+    fr: 'Tampons carrés avec codes (8CK, 10WL, …) : rouge pour le saignement, vert pour sec, blanc avec un bébé pour la glaire. Jour pic marqué d\'un P, puis 1, 2, 3.',
+    es: 'Sellos cuadrados con códigos de letras (8CK, 10WL, …): rojo para el sangrado, verde para seco, blanco con un bebé para el moco. Día pico marcado con P, luego 1, 2, 3.',
+    it: 'Timbri quadrati con codici a lettere (8CK, 10WL, …): rosso per il sanguinamento, verde per il secco, bianco con un bambino per il muco. Giorno del picco indicato con P, poi 1, 2, 3.',
+    'pt-BR': 'Selos quadrados com códigos de letras (8CK, 10WL, …): vermelho para sangramento, verde para seco, branco com um bebê para muco. Dia do ápice marcado com P, depois 1, 2, 3.'
   },
   version: 'v1',
   primitive: 'stamp-square',
@@ -122,12 +125,12 @@ export const creightonSpec: RepresentationSpec = {
     peak: '#1F3B7A'
   },
   stamps: {
-    red: { fill: 'bleedingRed', label: { en: 'Red', fr: 'Rouge' } },
-    green: { fill: 'dryGreen', label: { en: 'Green', fr: 'Vert' } },
-    'green-baby': { fill: 'dryGreen', baby: true, label: { en: 'Green with a baby', fr: 'Vert avec un bébé' } },
-    'white-baby': { fill: 'discharge', baby: true, label: { en: 'White with a baby', fr: 'Blanc avec un bébé' } },
-    yellow: { fill: 'stampYellow', label: { en: 'Yellow', fr: 'Jaune' }, onInstruction: true },
-    'yellow-baby': { fill: 'stampYellow', baby: true, label: { en: 'Yellow with a baby', fr: 'Jaune avec un bébé' }, onInstruction: true }
+    red: { fill: 'bleedingRed', label: { en: 'Red', fr: 'Rouge', es: 'Rojo', it: 'Rosso', 'pt-BR': 'Vermelho' } },
+    green: { fill: 'dryGreen', label: { en: 'Green', fr: 'Vert', es: 'Verde', it: 'Verde', 'pt-BR': 'Verde' } },
+    'green-baby': { fill: 'dryGreen', baby: true, label: { en: 'Green with a baby', fr: 'Vert avec un bébé', es: 'Verde con un bebé', it: 'Verde con un bambino', 'pt-BR': 'Verde com um bebê' } },
+    'white-baby': { fill: 'discharge', baby: true, label: { en: 'White with a baby', fr: 'Blanc avec un bébé', es: 'Blanco con un bebé', it: 'Bianco con un bambino', 'pt-BR': 'Branco com um bebê' } },
+    yellow: { fill: 'stampYellow', label: { en: 'Yellow', fr: 'Jaune', es: 'Amarillo', it: 'Giallo', 'pt-BR': 'Amarelo' }, onInstruction: true },
+    'yellow-baby': { fill: 'stampYellow', baby: true, label: { en: 'Yellow with a baby', fr: 'Jaune avec un bébé', es: 'Amarillo con un bebé', it: 'Giallo con un bambino', 'pt-BR': 'Amarelo com um bebê' }, onInstruction: true }
   },
   mappingRules: {
     mucus: mucusSamples,

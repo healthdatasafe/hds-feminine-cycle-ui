@@ -12,10 +12,13 @@ import type { RepresentationSpec } from '../types.ts';
  */
 export const femmSpec: RepresentationSpec = {
   id: 'femm',
-  label: { en: 'FEMM', fr: 'FEMM' },
+  label: { en: 'FEMM', fr: 'FEMM', es: 'FEMM', it: 'FEMM', 'pt-BR': 'FEMM' },
   description: {
     en: 'One coloured circle per day. Composite: bleeding, brown spotting, and mucus on a single row, with M/L letters for bleeding intensity.',
-    fr: 'Un cercle coloré par jour. Composite : saignement, spotting brun et glaire sur une seule ligne, avec lettres M/L pour l\'intensité du saignement.'
+    fr: 'Un cercle coloré par jour. Composite : saignement, spotting brun et glaire sur une seule ligne, avec lettres M/L pour l\'intensité du saignement.',
+    es: 'Un círculo de color por día. Compuesto: sangrado, manchado marrón y moco en una sola fila, con letras M/L para la intensidad del sangrado.',
+    it: "Un cerchio colorato per giorno. Composito: sanguinamento, spotting marrone e muco su un'unica riga, con le lettere M/L per l'intensità del sanguinamento.",
+    'pt-BR': 'Um círculo colorido por dia. Composto: sangramento, escape marrom e muco em uma única linha, com letras M/L para a intensidade do sangramento.'
   },
   version: 'v0',
   primitive: 'dot-circle',

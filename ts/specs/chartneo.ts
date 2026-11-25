@@ -23,10 +23,13 @@ import type { RepresentationSpec } from '../types.ts';
  */
 export const chartneoSpec: RepresentationSpec = {
   id: 'chartneo',
-  label: { en: 'Chart Neo', fr: 'Chart Neo' },
+  label: { en: 'Chart Neo', fr: 'Chart Neo', es: 'Chart Neo', it: 'Chart Neo', 'pt-BR': 'Chart Neo' },
   description: {
     en: 'Red stickers on bleeding days. Peak day (as recorded) marked P, then 1, 2, 3.',
-    fr: 'Pastilles rouges les jours de saignement. Jour pic (enregistré) marqué P, puis 1, 2, 3.'
+    fr: 'Pastilles rouges les jours de saignement. Jour pic (enregistré) marqué P, puis 1, 2, 3.',
+    es: 'Pegatinas rojas en los días de sangrado. Día pico (tal como se registró) marcado con P, luego 1, 2, 3.',
+    it: 'Bollini rossi nei giorni di sanguinamento. Giorno del picco (come registrato) indicato con P, poi 1, 2, 3.',
+    'pt-BR': 'Selos vermelhos nos dias de sangramento. Dia do ápice (como registrado) marcado com P, depois 1, 2, 3.'
   },
   version: 'v0',
   primitive: 'stamp-square',
