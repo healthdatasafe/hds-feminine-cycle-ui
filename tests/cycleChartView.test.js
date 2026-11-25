@@ -20,7 +20,7 @@ const S = start('2026-03-01');
 
 test('a table per cycle with its caption, a header per day, each cell tied to its header', () => {
   const h = html([S, code('2026-03-03', '8C', 'X1')]);
-  assert.match(h, /<caption[^>]*>Cycle of March 1, 2026 · 10 days so far<\/caption>/);
+  assert.match(h, /<caption[^>]*><span[^>]*>Cycle of March 1, 2026 · 10 days so far<\/span><\/caption>/);
   const ids = [...h.matchAll(/<th id="([^"]+)" scope="col"/g)].map(m => m[1]);
   const refs = [...h.matchAll(/<td headers="([^"]+)"/g)].map(m => m[1]);
   assert.equal(ids.length, 10);
@@ -39,7 +39,7 @@ test('two charts on one page share no id', () => {
 
 test('a closed cycle says its days; a long one goes on a new line with its own headers', () => {
   const h = html([], { rows: [{ startDate: '2026-01-01', endDate: '2026-02-09' }] }, { columns: 35 });
-  assert.match(h, /· 40 days<\/caption>/);
+  assert.match(h, /· 40 days<\/span>/);
   const bodies = h.split('<tbody>').slice(1);
   assert.deepEqual(bodies.map(b => (b.match(/<th /g) ?? []).length), [35, 5]);
   assert.match(bodies[1], /Day 36, February 5, 2026/);
@@ -103,6 +103,27 @@ test('several observations, other methods and records off the chart are said', (
   assert.match(h, /2 records are not on the chart: 1 after today, 1 outside these cycles\./);
   const none = html([S]);
   assert.doesNotMatch(none, /hdsfc-note/);
+});
+
+test('a charted stamp is named under its day, on lines that stay readable, not by its colour alone', () => {
+  const stamp = (date, id) => ev('fertility-cycles-chart-stamp', date, { method: 'creighton', stamp: id }, { type: 'fertility/chart-stamp-v1' });
+  const events = [S, stamp('2026-03-03', 'yellow-baby'), code('2026-03-03', '6C', 'X1'), code('2026-03-04', '6C', 'X1')];
+  assert.deepEqual(seen(html(events))[2], ['Yellow', 'with a', 'baby', '6C', 'X1']);
+  assert.deepEqual(seen(html(events))[3], ['6C', 'X1']);
+  assert.equal(heard(html(events))[2], '6C X1, stamp charted: Yellow with a baby');
+  assert.deepEqual(seen(html(events, {}, { lang: 'fr' }))[2].slice(0, 3), ['Jaune', 'avec un', 'bébé']);
+  const unlisted = html([S, stamp('2026-03-03', 'star')]);
+  assert.deepEqual(seen(unlisted)[2], ['□']);
+  assert.equal(heard(unlisted)[2], 'a stamp charted that is not drawn here: star');
+  assert.match(unlisted, /□: a stamp charted that is not drawn here \(star\)\./);
+  assert.doesNotMatch(unlisted, /another method/);
+});
+
+test('the host\'s title of a row is its heading and its name', () => {
+  const h = html([], { rows: [{ startDate: '2026-02-01', title: 'Paper row 1' }, { startDate: '2026-03-01' }] });
+  assert.match(h, /aria-label="Paper row 1"/);
+  assert.match(h, /Paper row 1 · 28 days/);
+  assert.match(h, /Cycle of March 1, 2026 · 10 days so far/);
 });
 
 test('in French, every word', () => {

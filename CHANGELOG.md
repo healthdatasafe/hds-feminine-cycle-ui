@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-25
+
+### Added
+- `ChartRow.title`: the host's heading for a row of the cycle chart (a row of a paper chart is not always a cycle).
+
+### Fixed
+- The cycle chart names a charted stamp under its day ("Yellow with a baby"): it was spoken, and seen by its colour alone.
+- A stamp charted in the chart's own method that its spec does not list is said as such (□, `ChartDay.unlistedStamps`), no
+  longer as recorded in another method. New strings: `stampUnlisted`, `noteUnlistedStamp`.
+- The heading of a cycle stays in view, and wraps, when the chart is wider than the page.
+
 ## [0.15.0] - 2026-11-25
 
 ### Added

@@ -9,7 +9,7 @@
   background: var(--hdsfc-paper, transparent);
 }
 .hdsfc-cycle { margin-bottom: 1.25rem; }
-.hdsfc-scroll { overflow-x: auto; }
+.hdsfc-scroll { overflow-x: auto; container-type: inline-size; }
 .hdsfc-scroll:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .hdsfc-table {
   table-layout: fixed;
@@ -24,6 +24,8 @@
   font-weight: 600;
   padding-bottom: 0.25rem;
 }
+/* the heading stays in view, and wraps, when the chart is wider than the page */
+.hdsfc-title { position: sticky; inset-inline-start: 0; display: inline-block; max-width: 100cqi; }
 .hdsfc-day, .hdsfc-cell {
   border: 1px solid var(--hdsfc-line, #9ca3af);
   padding: 1px;

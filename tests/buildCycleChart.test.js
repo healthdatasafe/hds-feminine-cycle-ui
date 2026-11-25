@@ -45,6 +45,11 @@ test('rows of the host replace the recorded starts, may end early, and may be wi
   assert.deepEqual(m.unplaced.map(u => [u.reason, u.event.id]), [['outside-rows', 'body-vulva-mucus-inspect@2026-02-20']]);
 });
 
+test('a row keeps the title the host gave it', () => {
+  const m = chart([], { rows: [{ startDate: '2026-01-01', title: 'Paper row 1' }, { startDate: '2026-02-01' }, { startDate: '2026-03-01', title: '' }] });
+  assert.deepEqual(m.cycles.map(c => c.title), ['Paper row 1', undefined, undefined]);
+});
+
 test('a row cut by the next one ends there, whatever its endDate; one after today is not drawn', () => {
   const m = chart([], { rows: [{ startDate: '2026-01-01', endDate: '2026-03-20' }, { startDate: '2026-02-01' }, { startDate: '2026-05-01' }] });
   assert.deepEqual(m.cycles.map(c => [c.startDate, c.endDate, c.open]), [['2026-01-01', '2026-01-31', false], ['2026-02-01', '2026-03-31', true]]);
@@ -162,8 +167,9 @@ test('a charted stamp is drawn and named; one of another method, or unknown, is 
   assert.equal(d.input.stamp, 'yellow-baby');
   assert.deepEqual(d.otherMethods, []);
   assert.deepEqual(dayAt([stamp('2026-03-03', 'billings', 'red')], 3).otherMethods, ['billings']);
-  assert.deepEqual(dayAt([stamp('2026-03-03', 'creighton', 'toString')], 3).otherMethods, ['creighton']);
-  assert.equal(dayAt([stamp('2026-03-03', 'creighton', 'toString')], 3).input, undefined);
+  assert.deepEqual(dayAt([stamp('2026-03-03', 'billings', 'red')], 3).unlistedStamps, []);
+  const unlisted = dayAt([stamp('2026-03-03', 'creighton', 'toString'), stamp('2026-03-03', 'creighton', 'toString')], 3);
+  assert.deepEqual([unlisted.unlistedStamps, unlisted.otherMethods, unlisted.input, unlisted.stamp], [['toString'], [], undefined, undefined]);
 });
 
 test('only a recorded peak is marked, also on a day with nothing else, and the stamp carries none', () => {
