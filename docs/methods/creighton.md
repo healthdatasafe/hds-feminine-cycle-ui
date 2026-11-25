@@ -18,7 +18,15 @@ ch. 7 "Instructions de base", pp. 27-33. First matching rule wins:
 | every other code (`6…`, `8…`, `10…`) | white + baby | `codeRules[2]`, `[3]` (hds); `stampNote`: "white with a baby for mucus; yellow stamps only in an instructor-led programme for continuous discharge (not used). Mucus days are fertile: the app never colours them yellow." |
 
 Until v0.8, 2 / 2W / 4 and every 6 / 8 code without `L` were yellow ("non-fertile"), against the book
-(`hdsDisagreements[0]`). No Creighton stamp is yellow any more.
+(`hdsDisagreements[0]`). No code draws a yellow stamp any more.
+
+## Charted stamps (v0.14)
+
+A stamp the person or her instructor put on a day (data-model 4.32.0, `fertility-cycles-chart-stamp`, `{ method, stamp }`)
+is drawn in place of the one drawn from the code, with the code, the frequency and the peak mark or count on it, and also
+on a day without a code. Only for `method: creighton`. The spec's `stamps`: red, green, green with a baby, white with a
+baby, yellow, yellow with a baby. The last two are `onInstruction`: used only on the instructor's instruction, so a host
+offers them only to a person who asked for them. Stamps are named by their colour, never by a meaning.
 
 **Peak** (`peak`, hds): the last day of clear (`K`), lubricative (`L`) or very stretchy (`10`, 2.5 cm or more) mucus,
 whatever the quantity (`codeRules[2]`); with a later return of peak-type mucus, only the last peak opens the count.
@@ -29,7 +37,7 @@ peak-type stretch for `10`; `references/creighton.md` disagrees, `hdsDisagreemen
 - `6CK`, `8CK` (partly clear, C/K) as peak-type (`gaps[1]`): left out of the peak candidates; `10CK` is in through its
   stretch.
 - The shade of the `B` / `R` stamps (`gaps[2]`, book ch. 6 unread): kept red.
-- The green-baby and yellow-baby stamps (`gaps[0]`, book ch. 6 unread): not used.
+- The green-baby and yellow-baby stamps (`gaps[0]`): never drawn from a code, drawn where charted.
 - How the HDS bleeding levels map to Creighton's H, M, L, VL, B (E2): every bleeding level is red.
 
 ## Visual primitives

@@ -34,6 +34,8 @@ import {
   composeCellInput,          // pure function: events → CellInput
   peakNotation,              // pure: one cycle's events → peak day, mark (P/X), 1-2-3 count (notation only)
   detectFertilityWindow,     // sliding-window display heuristic — NOT for patient-facing verdicts
+  stampChoices,              // pure: the stamps a method's chart uses (id, label, look), for a stamp picker
+  chartedStampOf,            // pure: the stamp charted among a day's events (composeCellInput draws it)
   longestCode,               // pure: the widest code/letter a spec writes (hosts size day columns by it)
   registry,                  // built-in + user-extensible registrations
   samplePreviewEvents,       // shared 7-day fixture for previews
