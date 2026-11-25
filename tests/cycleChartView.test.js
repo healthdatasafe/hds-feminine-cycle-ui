@@ -147,7 +147,7 @@ test('a host in another language overrides every word, seen and spoken, the date
   assert.match(h, /lang="pt-BR"/);
   assert.match(h, /Ciclo de 2026-03-01 · 10 dias até hoje/);
   assert.deepEqual(heard(h).slice(0, 3), ['sangramento H: Intenso', 'sangramento', 'Nada anotado']);
-  assert.match(h, /●: bleeding for which/);
+  assert.match(h, /●: sangramento para o qual o método não tem letra\./); // not overridden: the chart's own pt-BR
   assert.match(html([S, flow('2026-03-02', 0)]), /–: no bleeding, as recorded/);
   assert.match(html([S, flow('2026-03-02', 0.5)], {}, { strings: { noteNoLetter: 'sem letra {mark}' } }), /sem letra ●/);
 });
