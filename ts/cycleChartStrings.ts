@@ -43,7 +43,30 @@ export const CYCLE_CHART_STRINGS = {
   unplacedNoDay: { en: '{n} on no known day', fr: '{n} sans jour connu', es: '{n} sin día conocido', it: '{n} senza giorno noto', 'pt-BR': '{n} sem dia conhecido' },
   unplacedAfterToday: { en: '{n} after today', fr: '{n} après aujourd’hui', es: '{n} después de hoy', it: '{n} dopo oggi', 'pt-BR': '{n} depois de hoje' },
   unplacedOutside: { en: '{n} outside these cycles', fr: '{n} hors de ces cycles', es: '{n} fuera de estos ciclos', it: '{n} fuori da questi cicli', 'pt-BR': '{n} fora destes ciclos' },
-  unplacedPredicted: { en: '{n} predicted', fr: '{n} d’après une prévision', es: '{n} previstos', it: '{n} previsti', 'pt-BR': '{n} previstos' }
+  unplacedPredicted: { en: '{n} predicted', fr: '{n} d’après une prévision', es: '{n} previstos', it: '{n} previsti', 'pt-BR': '{n} previstos' },
+  row: { en: 'Row {n}', fr: 'Ligne {n}', es: 'Fila {n}', it: 'Riga {n}', 'pt-BR': 'Linha {n}' },
+  rowFrom: { en: 'Row {n}, from {date}', fr: 'Ligne {n}, du {date}', es: 'Fila {n}, desde el {date}', it: 'Riga {n}, dal {date}', 'pt-BR': 'Linha {n}, a partir de {date}' },
+  rowUndated: { en: 'first day not answered', fr: 'premier jour sans réponse', es: 'primer día sin responder', it: 'primo giorno senza risposta', 'pt-BR': 'primeiro dia sem resposta' },
+  dayButton: { en: '{day}: {text}', fr: '{day} : {text}', es: '{day}: {text}', it: '{day}: {text}', 'pt-BR': '{day}: {text}' },
+  dayUndated: { en: 'Day {n}', fr: 'Jour {n}', es: 'Día {n}', it: 'Giorno {n}', 'pt-BR': 'Dia {n}' },
+  draft: { en: 'draft {draft}, not saved', fr: 'brouillon {draft}, non enregistré', es: 'borrador {draft}, sin guardar', it: 'bozza {draft}, non salvata', 'pt-BR': 'rascunho {draft}, não salvo' },
+  draftEmpty: { en: 'nothing read', fr: 'rien de lu', es: 'nada leído', it: 'nulla di letto', 'pt-BR': 'nada lido' },
+  unread: { en: 'written on the chart, not read', fr: 'écrit sur le tableau, non lu', es: 'escrito en el gráfico, sin leer', it: 'scritto sul grafico, non letto', 'pt-BR': 'escrito no gráfico, não lido' },
+  recordedUnread: { en: '{record}; on the chart, something written that was not read', fr: '{record} ; sur le tableau, quelque chose d’écrit, non lu', es: '{record}; en el gráfico, algo escrito sin leer', it: '{record}; sul grafico, qualcosa di scritto non letto', 'pt-BR': '{record}; no gráfico, algo escrito não lido' },
+  partNotRead: { en: 'part not read', fr: 'une partie non lue', es: 'una parte sin leer', it: 'una parte non letta', 'pt-BR': 'uma parte não lida' },
+  corrected: { en: 'corrected by you', fr: 'corrigé par vous', es: 'corregido por usted', it: 'corretto da te', 'pt-BR': 'corrigido por você' },
+  same: { en: '{record}, already recorded, same', fr: '{record}, déjà noté, identique', es: '{record}, ya registrado, igual', it: '{record}, già registrato, uguale', 'pt-BR': '{record}, já registrado, igual' },
+  differs: { en: 'recorded {record}, draft {draft}, not saved', fr: 'noté {record}, brouillon {draft}, non enregistré', es: 'registrado {record}, borrador {draft}, sin guardar', it: 'registrato {record}, bozza {draft}, non salvata', 'pt-BR': 'registrado {record}, rascunho {draft}, não salvo' },
+  nextOne: { en: 'Next to check (1 left)', fr: 'Suivant à vérifier (1 restant)', es: 'Siguiente por revisar (queda 1)', it: 'Prossimo da controllare (ne resta 1)', 'pt-BR': 'Próximo a conferir (falta 1)' },
+  nextMany: { en: 'Next to check ({n} left)', fr: 'Suivant à vérifier ({n} restants)', es: 'Siguiente por revisar (quedan {n})', it: 'Prossimo da controllare (ne restano {n})', 'pt-BR': 'Próximo a conferir (faltam {n})' },
+  skipTo: { en: 'Skip to {title}', fr: 'Aller à {title}', es: 'Ir a {title}', it: 'Vai a {title}', 'pt-BR': 'Ir para {title}' },
+  skipEnd: { en: 'Skip past the chart', fr: 'Aller après le tableau', es: 'Ir después del gráfico', it: 'Vai oltre il grafico', 'pt-BR': 'Ir para depois do gráfico' },
+  noteDraft: { en: 'Dashed, {mark}: read from the chart, not saved.', fr: 'En pointillé, {mark} : lu sur le tableau, non enregistré.', es: 'Con línea discontinua, {mark}: leído del gráfico, sin guardar.', it: 'Tratteggiato, {mark}: letto dal grafico, non salvato.', 'pt-BR': 'Tracejado, {mark}: lido do gráfico, não salvo.' },
+  noteUnread: { en: '{mark}: written on the chart, not read.', fr: '{mark} : écrit sur le tableau, non lu.', es: '{mark}: escrito en el gráfico, sin leer.', it: '{mark}: scritto sul grafico, non letto.', 'pt-BR': '{mark}: escrito no gráfico, não lido.' },
+  notePartNotRead: { en: '{mark}: part of it not read.', fr: '{mark} : une partie non lue.', es: '{mark}: una parte sin leer.', it: '{mark}: una parte non letta.', 'pt-BR': '{mark}: uma parte não lida.' },
+  noteCorrected: { en: '{mark}: corrected by you.', fr: '{mark} : corrigé par vous.', es: '{mark}: corregido por usted.', it: '{mark}: corretto da te.', 'pt-BR': '{mark}: corrigido por você.' },
+  noteSame: { en: '{mark}: already recorded, the same.', fr: '{mark} : déjà noté, identique.', es: '{mark}: ya registrado, igual.', it: '{mark}: già registrato, uguale.', 'pt-BR': '{mark}: já registrado, igual.' },
+  noteDiffers: { en: '{mark}: recorded otherwise; the draft is written under the record.', fr: '{mark} : noté autrement ; le brouillon est écrit sous la note.', es: '{mark}: registrado de otra forma; el borrador está escrito debajo del registro.', it: '{mark}: registrato diversamente; la bozza è scritta sotto la registrazione.', 'pt-BR': '{mark}: registrado de outra forma; o rascunho está escrito abaixo do registro.' }
 } satisfies Record<string, I18nText>;
 
 export type CycleChartStringKey = keyof typeof CYCLE_CHART_STRINGS;

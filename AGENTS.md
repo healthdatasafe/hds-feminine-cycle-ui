@@ -4,7 +4,7 @@ Operational notes for AI agents working in this repo. Update as development prog
 
 ## What this package is
 
-Custom UI representations for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, **Mira**, **Sensiplan**, **sympto-thermal**, **Justisse**, **Chart Neo**, **Marquette** or **Apple Health** charts. Display rules are sourced from model-cervical-fluid `references/rules/method-rules.json`; only sourced rules ship (`docs/methods/README.md`). Layout-agnostic: the same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it. One exception: `<CycleChart>`, the method's own paper chart.
+Custom UI representations for cervical-fluid / cycle-tracking events in the HDS ecosystem — render the same data as **FEMM**, **Billings**, **Creighton**, **Mira**, **Sensiplan**, **sympto-thermal**, **Justisse**, **Chart Neo**, **Marquette** or **Apple Health** charts. Display rules are sourced from model-cervical-fluid `references/rules/method-rules.json`; only sourced rules ship (`docs/methods/README.md`). Layout-agnostic: the same cell renderer is reused as a timeline marker, a form picker button, a diary-card glyph, or a calendar-grid cell. Hosts position it. One exception: `<CycleChart>`, the method's own paper chart, and a draft of one to check.
 
 Also ships `CervixPositionMarker` — a standalone glyph for `body-vulva-cervix-position` 3-D vector events (height / firmness / openness). Not part of the spec/registry; rendered by hosts directly.
 
@@ -38,7 +38,8 @@ import {
   chartedStampOf,            // pure: the stamp charted among a day's events (composeCellInput draws it)
   longestCode,               // pure: the widest code/letter a spec writes (hosts size day columns by it)
   buildCycleChart,           // pure: events → the model of a paper chart (rows, days, what was recorded); canChart(rep)
-  CycleChart,                // React component: that model as a table, read-only (needs cycle-chart.css)
+  CycleChart,                // React component: that model as a table (needs cycle-chart.css); a draft beside it, onActivateDay
+  daysToCheck, nextToCheck, isDayToCheck, // pure: the draft days to check, in the order drawn
   CYCLE_CHART_STRINGS,       // its words, { en, fr }, each replaceable by the host
   registry,                  // built-in + user-extensible registrations
   samplePreviewEvents,       // shared 7-day fixture for previews
@@ -117,7 +118,7 @@ Notes:
 ## Don't
 
 - **Don't import `react-dom`** — this package never renders to the DOM directly. It only emits JSX. Hosts mount it. (A dev dependency: the tests and `npm run docs:chart` render to a string.)
-- **Don't add layout containers here** — calendar grids, picker grids, timeline rows live in the *host* repos (`hds-react-timeline`, `hds-forms-js`, `hds-webapp`). `<CycleChart>` is the one exception: a method's paper chart needs its stamps, letters and count together, and any app can show it without hds-lib. It is read-only and takes no data itself; a host's control in a day goes through `renderDay`.
+- **Don't add layout containers here** — calendar grids, picker grids, timeline rows live in the *host* repos (`hds-react-timeline`, `hds-forms-js`, `hds-webapp`). `<CycleChart>` is the one exception: a method's paper chart needs its stamps, letters and count together, and any app can show it without hds-lib. It takes no data itself and writes nothing; a host's control in a day goes through `renderDay`, a tap on a day to check through `onActivateDay`.
 - **Don't import from `hds-lib-js` or `data-model`** at the package top level — once force-conversion is wired, those become *peer*-deps consumed by hosts. The package itself stays free of runtime HDS dependencies so it builds standalone.
 - **Don't commit `js/`** — it's built on install via `prepare`.
 - **Don't ship an unsourced rule** — a colour, category, code or peak candidate goes in a spec only when its rule in model-cervical-fluid `references/rules/method-rules.json` has status `hds`, `literature`, or `decision` with a source. Otherwise leave it out or write neutral notation, and list it as "to confirm" in `docs/methods/<id>.md`.
@@ -125,7 +126,7 @@ Notes:
 
 ## Status
 
-`v0.16.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
+`v0.18.0` (current) — FEMM, Billings, Creighton, Mira, Sensiplan, sympto-thermal, Justisse, Chart Neo, Marquette, Apple Health cycle-fluid reps; `peakNotation`; standalone CervixPositionMarker.
 
 | Slice | Status |
 |---|---|
@@ -152,6 +153,7 @@ Notes:
 | Creighton frequency on the stamp (`CellInput.frequency`), stamp text by contrast, long codes fit (`stampStyle.ts`) | ✅ shipped (v0.13) |
 | Charted stamps (`chartedStampOf`, `stampChoices`) | ✅ shipped (v0.14) |
 | `<CycleChart>` / `buildCycleChart`, read-only, Creighton | ✅ shipped (v0.15) |
+| `<CycleChart>` draft rows, states of a draft, interactive days | ✅ shipped (v0.18) |
 | `<CycleChart>` for methods that write the bleeding apart, or words per day | ⏳ later (`canChart` is false) |
 | Marquette Low / High / Peak levels, Chart Neo mucus fields | ⏳ to confirm with the experts |
 | `cycleGrid` row container | ⏳ deferred (lives in `hds-react-timeline`) |
@@ -185,7 +187,10 @@ The script uses no React/JSDOM — it emits SVG markup directly. If you change `
 - nothing is dropped in silence: other codes are written, what is off the chart is counted;
 - only a recorded peak is marked, unless the host asks for the computed one, drawn "(P)"; the stamp carries no peak mark;
 - what is heard says everything that is seen; a colour is never alone;
-- no word of it is a verdict.
+- no word of it is a verdict;
+- a draft (`draftRows`) never looks recorded, and a day written on the chart and not read is never an empty day
+  (`tests/cycleChartDraft.test.js`); a day she can act on is a real `<button>`, in a native table, never `role=grid`;
+  the chart writes nothing.
 
 `npm run build && npm run docs:chart` writes `docs/cycle-chart.html` (made-up records): look at it, and print it, after a change.
 

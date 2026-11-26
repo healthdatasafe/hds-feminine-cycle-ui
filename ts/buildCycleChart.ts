@@ -44,6 +44,31 @@ export interface CycleChartOptions<T extends ChartEvent = ChartEvent> {
   rows?: ChartRow[];
   /** Also mark the peak the observations show, where none is recorded (`ChartDay.peak: 'computed'`). Default: no. */
   computedPeak?: boolean;
+  /**
+   * The rows of a draft: what was read from a paper chart, not saved. Given, they are the chart's rows, in their order (`rows`
+   * is then not taken), and what she recorded on their days is drawn with them, to compare.
+   */
+  draftRows?: Array<ChartDraftRow<T>>;
+}
+
+/**
+ * A day of a draft, as the host has it: `draft` read and not saved; `edited` changed by her; `incomplete` part of it not
+ * read; `unread` written on the chart and not read (its events are not drawn: it is a cell, never an empty day).
+ */
+export type DraftState = 'draft' | 'edited' | 'incomplete' | 'unread';
+
+/** A row of a draft. Without `startDate` (its first day not answered) its days have no date, and nothing recorded is drawn in it. */
+export interface ChartDraftRow<T extends ChartEvent = ChartEvent> {
+  id: string;
+  title?: string;
+  /** Day 1, `YYYY-MM-DD`, when it is known. */
+  startDate?: string;
+  /** Its days, when more than its last day with a draft. */
+  length?: number;
+  /** The host's, given back on the cycle. */
+  ref?: unknown;
+  /** Its days with something read or seen, each once. Their events are shaped as records (`streamIds`, `type`, `content`). */
+  days: Array<{ day: number; events: T[]; state: DraftState; ref?: unknown }>;
 }
 
 /** A mucus code as recorded, in the chart's method. */
@@ -61,10 +86,8 @@ export interface ChartBleeding {
   none?: true;
 }
 
-export interface ChartDay<T extends ChartEvent = ChartEvent> {
-  /** Its place in the cycle, from 1. */
-  day: number;
-  date: string;
+/** What is written of a day from one source: what she recorded (the day itself), or a draft of it (`ChartDay.draft`). */
+export interface ChartLayer<T extends ChartEvent = ChartEvent> {
   /** The stamp drawn for it, without the peak mark or the count; missing when nothing recorded draws one. */
   input?: CellInput;
   /** The code the stamp shows. */
@@ -85,12 +108,33 @@ export interface ChartDay<T extends ChartEvent = ChartEvent> {
   events: T[];
 }
 
+/** A draft of a day. Its `peak` is the one the draft records, its `count` the count after it; never computed. */
+export interface ChartDraft<T extends ChartEvent = ChartEvent> extends ChartLayer<T> {
+  state: DraftState;
+  ref?: unknown;
+}
+
+export interface ChartDay<T extends ChartEvent = ChartEvent> extends ChartLayer<T> {
+  /** Its place in the cycle, from 1. */
+  day: number;
+  /** Missing in a draft row whose first day is not answered. */
+  date?: string;
+  draft?: ChartDraft<T>;
+  /** A draft (not `unread`) on a day with records: it says the same as them, or not (key, code, annotations, peak, stamp). */
+  relation?: 'same' | 'differs';
+}
+
 export interface ChartCycle<T extends ChartEvent = ChartEvent> {
   id: string;
   /** The host's heading for the row, when it gave one. */
   title?: string;
-  startDate: string;
-  endDate: string;
+  /** Missing in a draft row whose first day is not answered. */
+  startDate?: string;
+  endDate?: string;
+  /** A draft row: its place among `draftRows`, from 1. */
+  row?: number;
+  /** A draft row's `ref`. */
+  ref?: unknown;
   /** The cycle is not over: the days after `endDate` are not there yet. */
   open: boolean;
   days: Array<ChartDay<T>>;
@@ -104,6 +148,41 @@ export interface CycleChartModel<T extends ChartEvent = ChartEvent> {
   /** Oldest first. */
   cycles: Array<ChartCycle<T>>;
   unplaced: Array<{ reason: UnplacedReason; event: T }>;
+}
+
+/** A day she can act on, by default: a draft, unless it says the same as what she recorded. */
+export function isDayToCheck (day: ChartDay): boolean {
+  return day.draft != null && day.relation !== 'same';
+}
+
+export interface DaysToCheckOptions<T extends ChartEvent = ChartEvent> {
+  /** Default: `isDayToCheck`. */
+  actionable?: (day: ChartDay<T>, cycle: ChartCycle<T>) => boolean;
+  /** In the order the chart is drawn: the latest cycle first. */
+  newestFirst?: boolean;
+}
+
+/** The days she can act on, in the order the chart draws them. */
+export function daysToCheck<T extends ChartEvent> (model: CycleChartModel<T>, opts: DaysToCheckOptions<T> = {}): Array<{ cycle: ChartCycle<T>; day: ChartDay<T> }> {
+  const actionable = opts.actionable ?? isDayToCheck;
+  const cycles = opts.newestFirst ? [...model.cycles].reverse() : model.cycles;
+  return cycles.flatMap(cycle => cycle.days.filter(day => actionable(day, cycle)).map(day => ({ cycle, day })));
+}
+
+/**
+ * The day to check after the one shown, in the order drawn, round to the first; the first when none is shown. The one shown
+ * need not be one still to check (she has just confirmed it). Null when none is left.
+ */
+export function nextToCheck<T extends ChartEvent> (model: CycleChartModel<T>, selected: { cycleId: string; day: number } | null | undefined, opts: DaysToCheckOptions<T> = {}): { cycle: ChartCycle<T>; day: ChartDay<T> } | null {
+  const list = daysToCheck(model, opts);
+  if (selected == null) return list[0] ?? null;
+  const cycles = opts.newestFirst ? [...model.cycles].reverse() : model.cycles;
+  const at = cycles.findIndex(c => c.id === selected.cycleId);
+  const after = list.find(t => {
+    const c = cycles.indexOf(t.cycle);
+    return c > at || (c === at && t.day.day > selected.day);
+  });
+  return after ?? list[0] ?? null;
 }
 
 /** The letter the method writes on a peak day, for a chart that draws its own mark line ('P'). */
@@ -169,7 +248,11 @@ export function buildCycleChart<T extends ChartEvent> (events: T[], rep: Represe
 
   const cycles: Array<ChartCycle<T>> = [];
   const placed = new Set<number>();
-  for (const { id, title, start, end, open } of rowsOf(opts.rows, startDays, today)) {
+  if (opts.draftRows != null) {
+    if (opts.rows != null) throw new Error('buildCycleChart: rows and draftRows, give one');
+    opts.draftRows.forEach((row, i) => cycles.push(draftCycle(row, i + 1, byDay, placed, rep, opts.computedPeak === true)));
+  }
+  for (const { id, title, start, end, open } of opts.draftRows != null ? [] : rowsOf(opts.rows, startDays, today)) {
     const days: Array<ChartDay<T>> = [];
     for (let i = start; i <= end; i++) {
       placed.add(i);
@@ -212,8 +295,72 @@ function rowsOf (given: ChartRow[] | undefined, startDays: Set<number>, today: n
   });
 }
 
+/** A draft row: its days dated from its start when it has one, what she recorded on them beside the draft, and how they compare. */
+function draftCycle<T extends ChartEvent> (row: ChartDraftRow<T>, n: number, byDay: Map<number, T[]>, placed: Set<number>, rep: Representation, computed: boolean): ChartCycle<T> {
+  const start = row.startDate == null ? null : indexOfDay(row.startDate);
+  if (row.startDate != null && start == null) throw new Error(`buildCycleChart: a draft row's startDate must be YYYY-MM-DD, not "${row.startDate}"`);
+  const drafts = new Map<number, ChartDraftRow<T>['days'][number]>();
+  for (const d of row.days) {
+    if (!Number.isInteger(d.day) || d.day < 1) throw new Error(`buildCycleChart: draft row "${row.id}" has a day ${d.day}`);
+    if (drafts.has(d.day)) throw new Error(`buildCycleChart: draft row "${row.id}" has day ${d.day} twice`);
+    drafts.set(d.day, d);
+  }
+  const length = Math.max(row.length ?? 0, ...drafts.keys(), 1);
+  const days: Array<ChartDay<T>> = [];
+  for (let day = 1; day <= length; day++) {
+    const index = start == null ? null : start + day - 1;
+    if (index != null) placed.add(index);
+    const recorded = index == null ? [] : [...(byDay.get(index) ?? [])].sort((a, b) => (a.time ?? 0) - (b.time ?? 0));
+    const out: ChartDay<T> = { day, ...(index != null ? { date: dateOfIndex(index) } : {}), ...layerOf(recorded, rep) };
+    const given = drafts.get(day);
+    if (given) {
+      out.draft = { ...layerOf(given.state === 'unread' ? [] : given.events, rep), state: given.state, ...(given.ref !== undefined ? { ref: given.ref } : {}) };
+      if (given.state !== 'unread' && recorded.length > 0) out.relation = sameLayer(out, out.draft) ? 'same' : 'differs';
+    }
+    days.push(out);
+  }
+  markPeak(days, rep, computed);
+  // the draft's own peak and count: what the chart has written, never computed
+  const marks: PeakDay[] = days.map(d => ({ day: d.day, events: d.draft != null && d.draft.state !== 'unread' ? d.draft.events : [] }));
+  markPeak(marks, rep, false);
+  for (const day of days) {
+    if (day.draft == null || day.draft.state === 'unread') continue;
+    const { peak, count } = marks[day.day - 1];
+    if (peak) day.draft.peak = peak;
+    if (count != null) day.draft.count = count;
+  }
+  return {
+    id: row.id,
+    ...(row.title ? { title: row.title } : {}),
+    ...(start != null ? { startDate: dateOfIndex(start), endDate: dateOfIndex(start + length - 1) } : {}),
+    row: n,
+    ...(row.ref !== undefined ? { ref: row.ref } : {}),
+    open: false,
+    days
+  };
+}
+
+/** The same record: the codes with their frequency, the bleeding, a recorded peak, the stamps, the other methods. */
+function sameLayer (a: ChartLayer, b: ChartLayer): boolean {
+  const key = (l: ChartLayer): string => JSON.stringify([
+    l.code ? [l.code.code, l.code.frequency ?? ''] : null,
+    l.otherCodes.map(c => `${c.code} ${c.frequency ?? ''}`).sort(),
+    l.bleeding.map(b => b.none ? '-' : b.letter ?? '?').sort(),
+    l.events.some(e => e.streamIds?.includes(RECORDED_PEAK_ITEM)),
+    l.stamp?.id ?? null,
+    [...l.unlistedStamps].sort(),
+    [...l.otherMethods].sort()
+  ]);
+  return key(a) === key(b);
+}
+
 function dayOfEvents<T extends ChartEvent> (day: number, date: string, events: T[], rep: Representation): ChartDay<T> {
-  const out: ChartDay<T> = { day, date, otherCodes: [], bleeding: [], unlistedStamps: [], otherMethods: [], events };
+  return { day, date, ...layerOf(events, rep) };
+}
+
+/** What a day's events write: the stamp, the codes, the bleeding, the stamps charted, the other methods. */
+function layerOf<T extends ChartEvent> (events: T[], rep: Representation): ChartLayer<T> {
+  const out: ChartLayer<T> = { otherCodes: [], bleeding: [], unlistedStamps: [], otherMethods: [], events };
   if (events.length === 0) return out;
   const input = composeCellInput(events, rep);
   if (!input.empty) {
@@ -263,7 +410,7 @@ function recordedCode (event: ChartEvent, rep: Representation): ChartCode | null
 }
 
 /** Every code of the day is written: the drawn one with its frequency, the others beside it, each once. */
-function addCode (day: ChartDay, code: ChartCode, rep: Representation): void {
+function addCode (day: ChartLayer, code: ChartCode, rep: Representation): void {
   if (day.code == null && fragmentOf(rep, 'mucus', code.code) == null) { day.code = code; return; }
   if (day.code?.code === code.code && (code.frequency == null || code.frequency === day.code.frequency)) return;
   if (day.otherCodes.some(c => c.code === code.code && c.frequency === code.frequency)) return;
@@ -279,8 +426,10 @@ function bleedingOf (event: ChartEvent, rep: Representation): ChartBleeding {
   return entry ? { letter: entry.code, label: entry.label } : {};
 }
 
+interface PeakDay { day: number; events: ChartEvent[]; peak?: 'recorded' | 'computed'; count?: number }
+
 /** The recorded peak days, all of them, and the count after the last; else, on request, the one the observations show. */
-function markPeak (days: ChartDay[], rep: Representation, computed: boolean): void {
+function markPeak (days: PeakDay[], rep: Representation, computed: boolean): void {
   const recorded = days.filter(d => d.events.some(e => e.streamIds.includes(RECORDED_PEAK_ITEM)));
   for (const d of recorded) d.peak = 'recorded';
   if (recorded.length === 0 && !computed) return;
