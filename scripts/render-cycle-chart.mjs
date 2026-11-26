@@ -45,6 +45,33 @@ const dayOf = (e) => new Date(e.time * 1000).toISOString().slice(0, 10);
 const model = buildCycleChart(events, registry.get('creighton'), { dayOf, today: '2026-03-26', computedPeak: true });
 const chart = (props) => renderToStaticMarkup(h(CycleChart, { model, ...props }));
 
+// a draft read from a paper chart, beside what was recorded of its days: every state of a draft
+const proposal = (code, frequency) => ({ streamIds: ['body-vulva-mucus-inspect'], type: 'x', content: { source: { key: 'creighton', sourceData: code, annotations: { frequency } } } });
+const proposed = (item, content = null) => ({ streamIds: [item], type: 'x', content });
+const draftModel = buildCycleChart(events.filter(e => dayOf(e) >= '2026-03-15'), registry.get('creighton'), {
+  dayOf,
+  today: '2026-03-26',
+  draftRows: [
+    {
+      id: 'row-1',
+      startDate: '2026-03-15',
+      length: 12,
+      days: [
+        { day: 1, events: [proposed('body-vulva-bleeding', 0.75)], state: 'draft' },
+        { day: 4, events: [proposed('body-vulva-bleeding', 0.35), proposal('0', 'AD')], state: 'draft' },
+        { day: 7, events: [proposal('2', 'X2')], state: 'draft' },
+        { day: 8, events: [proposal('6C', 'X1')], state: 'edited' },
+        { day: 9, events: [proposal('10KL', 'X1'), proposed('fertility-cycles-peak-day')], state: 'draft' },
+        { day: 11, events: [proposal('0', 'AD')], state: 'draft' },
+        { day: 12, events: [proposal('6C')], state: 'incomplete' },
+        { day: 10, events: [], state: 'unread' }
+      ]
+    },
+    { id: 'row-2', length: 7, days: [{ day: 1, events: [proposed('body-vulva-bleeding', 0.55)], state: 'draft' }, { day: 3, events: [], state: 'unread' }] }
+  ]
+});
+const draft = (props) => renderToStaticMarkup(h(CycleChart, { model: draftModel, onActivateDay: () => {}, selected: { cycleId: 'row-1', day: 9 }, ...props }));
+
 writeFileSync(join(root, 'docs', 'cycle-chart.html'), `<!doctype html>
 <!-- Written by scripts/render-cycle-chart.mjs. Made-up records. -->
 <html lang="en">
@@ -67,6 +94,12 @@ ${chart({})}
 <h2>7 columns, in French, the latest first</h2>
 <div class="phone">
 ${chart({ columns: 7, lang: 'fr', newestFirst: true })}
+</div>
+<h2>A draft read from a paper chart, beside what was recorded</h2>
+${draft({})}
+<h2>The draft at 7 columns</h2>
+<div class="phone">
+${draft({ columns: 7 })}
 </div>
 </div>
 </main>

@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-11-26
+
+### Added
+- **A draft of a chart beside what she recorded** (`draftRows`): what was read from a paper chart, not saved, row by row.
+  Given, the draft rows are the chart's rows, in their order; a row with its first day dates its days and draws what she
+  recorded on them, one without has days by number only and says "first day not answered". A day of a draft is
+  `draft`, `edited` (corrected by her), `incomplete` (part not read) or `unread` (written on the chart, not read).
+  - A draft never looks recorded: a dashed cell, its stamp hatched, "?"; not read is "??", never an empty day; part not
+    read "…"; corrected "✎". Beside a record: "✓" when it says the same (key, code, annotations, bleeding, peak, stamp;
+    never the order of its keys), else the draft written under "≠". Each said in words, and explained under the chart.
+  - A draft's peak and the count after it are its own, never computed.
+  - `ChartDay.draft`, `ChartDay.relation`, `ChartCycle.row`, `ChartCycle.ref`; types `ChartLayer`, `ChartDraft`,
+    `ChartDraftRow`, `DraftState`.
+- **Interactive** (`onActivateDay`): each day to check is a real `<button>`, named by its day and what it holds; "Next to
+  check (n left)" and a skip per row; `selected`, `actionable` (default: a draft, unless the same as recorded), `rowNote`
+  (the host's line under a row). A native table, no `role=grid`. The chart writes nothing.
+- `daysToCheck`, `nextToCheck`, `isDayToCheck`: the days to check in the order drawn, and the next one after the day shown.
+- New strings in the five languages (es, it, pt-BR: machine drafts, as 0.17.0).
+
+### Changed
+- `ChartDay.date`, `ChartCycle.startDate` and `ChartCycle.endDate` are optional (types): missing only in a draft row
+  without its first day.
+
 ## [0.17.0] - 2026-11-25
 
 ### Added

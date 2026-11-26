@@ -67,6 +67,27 @@ const model = buildCycleChart(events, registry.get('creighton'), {
 
 It prints as it is seen; for 35 days a line, the page is the host's: `@page { size: A4 landscape; margin: 10mm; }`. Smaller text, or `columns={28}`, for US Letter. A sample: [`docs/cycle-chart.html`](./docs/cycle-chart.html).
 
+A draft of a chart (what was read from paper, not saved) beside what she recorded, to check day by day:
+
+```tsx
+const model = buildCycleChart(recordedEvents, registry.get('creighton'), {
+  dayOf, today,
+  draftRows: [{
+    id: 'row-1', startDate: '2026-10-29',         // no startDate: its first day is not answered, its days have no date
+    days: [{ day: 1, events: [proposal], state: 'draft', ref: candidateId }]   // 'draft' | 'edited' | 'incomplete' | 'unread'
+  }]
+});
+<CycleChart
+  model={model} columns={7}
+  onActivateDay={(cycle, day) => show(cycle, day)}  // each day to check is a <button>; "Next to check"; a skip per row
+  selected={shown} rowNote={(cycle) => <RowConfirm cycle={cycle} />}
+/>
+```
+
+A draft is drawn in a dashed cell, its stamp hatched, with "?" (never as a record); a day written on the chart and not
+read is "??", never an empty day; beside a record a draft is "✓" when it says the same, else written under "≠". The chart
+writes nothing: the host shows the day (`nextToCheck`, `daysToCheck`) and asks.
+
 ## What's in here
 
 - A **registry** of cycle-fluid representations.
@@ -75,7 +96,7 @@ It prints as it is seen; for 35 days a line, the page is the host's: `@page { si
 - A **peak/fertile detector** (`detectFertilityWindow`) — sliding-window display heuristic over option keys. **Not for patient-facing verdicts**: use `peakNotation` to chart the peak.
 - One **React component** (`RepresentationCell`) that draws a cell into a `size × size` SVG box; primitives `dot-circle` (FEMM/Mira) and `stamp-square` (Billings/Creighton) live inside it.
 - A second **React component** (`CervixPositionMarker`) that draws a stylised cervix glyph from a 3-D vector — fixed centred ring, horizontal "horizon" bar moves with `height`, ring stroke width with `firmness`, inner-hole radius with `openness`. Standalone (not part of the spec/registry).
-- A **cycle chart** (`buildCycleChart`, `<CycleChart>`): a table per cycle, a column per day, what was recorded. Every word can be replaced (`strings`, `localize`, `formatDate`), `renderDay` adds the host's control to a day.
+- A **cycle chart** (`buildCycleChart`, `<CycleChart>`): a table per cycle, a column per day, what was recorded, and a draft of a chart beside it to check (`draftRows`, `onActivateDay`). Every word can be replaced (`strings`, `localize`, `formatDate`), `renderDay` adds the host's control to a day.
 - A shared 7-day fixture (`samplePreviewEvents`) that any registered representation can render previews from.
 
 ## Built-in representations
