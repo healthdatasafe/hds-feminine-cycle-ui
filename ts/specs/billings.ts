@@ -21,7 +21,7 @@ export const billingsSpec: RepresentationSpec = {
   label: { en: 'Billings', fr: 'Billings', es: 'Billings', it: 'Billings', 'pt-BR': 'Billings' },
   description: {
     en: 'Square stamps — red, green, white, yellow. Peak day marked with X.',
-    fr: 'Tampons carrés en rouge, vert, blanc, jaune. Jour pic marqué d\'un X.',
+    fr: 'Timbres carrés en rouge, vert, blanc, jaune. Jour pic marqué d\'un X.',
     es: 'Sellos cuadrados: rojo, verde, blanco, amarillo. Día pico marcado con una X.',
     it: 'Timbri quadrati in rosso, verde, bianco, giallo. Giorno del picco indicato con una X.',
     'pt-BR': 'Selos quadrados — vermelho, verde, branco, amarelo. Dia do ápice marcado com X.'

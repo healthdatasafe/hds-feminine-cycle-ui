@@ -102,7 +102,7 @@ export const creightonSpec: RepresentationSpec = {
   label: { en: 'Creighton', fr: 'Creighton', es: 'Creighton', it: 'Creighton', 'pt-BR': 'Creighton' },
   description: {
     en: 'Square stamps with letter codes (8CK, 10WL, …): red for bleeding, green for dry, white with a baby for mucus. Peak day marked with P, then 1, 2, 3.',
-    fr: 'Tampons carrés avec codes (8CK, 10WL, …) : rouge pour le saignement, vert pour sec, blanc avec un bébé pour la glaire. Jour pic marqué d\'un P, puis 1, 2, 3.',
+    fr: 'Timbres carrés avec codes (8CK, 10WL, …) : rouge pour le saignement, vert pour sec, blanc avec un bébé pour la glaire. Jour pic marqué d\'un P, puis 1, 2, 3.',
     es: 'Sellos cuadrados con códigos de letras (8CK, 10WL, …): rojo para el sangrado, verde para seco, blanco con un bebé para el moco. Día pico marcado con P, luego 1, 2, 3.',
     it: 'Timbri quadrati con codici a lettere (8CK, 10WL, …): rosso per il sanguinamento, verde per il secco, bianco con un bambino per il muco. Giorno del picco indicato con P, poi 1, 2, 3.',
     'pt-BR': 'Selos quadrados com códigos de letras (8CK, 10WL, …): vermelho para sangramento, verde para seco, branco com um bebê para muco. Dia do ápice marcado com P, depois 1, 2, 3.'

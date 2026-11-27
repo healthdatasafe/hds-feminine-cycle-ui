@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-11-27
+
+### Changed
+- French: a stamp is a "timbre", never a "tampon" (Billings and Creighton descriptions), as the French Creighton
+  material and data-model say (perki, 2026-11-27).
+
 ## [0.19.0] - 2026-11-27
 
 ### Added
