@@ -22,6 +22,7 @@ Read-first:
 - **JSX** for React 19 (peer-dep). `tsconfig.json` uses `"jsx": "react-jsx"`.
 - **Tests** use the built-in `node --test` runner against the built `js/`. Tests live in `tests/*.test.js` and import from `../js/index.js` (so they exercise the published shape).
 - **Lint** is neostandard with semicolons (`eslint.config.cjs` mirrors `hds-lib-js`).
+- **Version bump**: `package.json` and `PACKAGE_VERSION` in `ts/version.ts` together (`tests/registryVersions.test.js` fails when they differ). The registry uses it to keep the newest copy's built-ins when a page loads several copies of the package.
 
 ## Public surface
 
@@ -112,7 +113,7 @@ const input = composeCellInput(eventsForDay, rep, {
 
 Notes:
 - `composeCellInput(events, rep, opts)` is pure aside from the `closestOption` callback; with no `closestOption`, only native (`source.key`-matching) mucus and presence-only events resolve — cross-method events fall through to empty (an event that names another method is never read by its own option, since 0.13.3; one that names no method still is).
-- `registry.get(id)` returns a `Representation` (`{ spec, resolveColor }`); the ten built-ins (`ts/specs/`) auto-register at import. `RepresentationCell` looks the rep up again by `representationId`, so pass the same id you composed with.
+- `registry.get(id)` returns a `Representation` (`{ spec, resolveColor }`); the ten built-ins (`ts/specs/`) auto-register at import. The registry is page-wide (`globalThis`), shared by every copy of the package; for an id registered twice, the spec of the newer package version is kept (a registration without a version, a host's or a copy older than 0.20.1, counts as oldest), with one `console.warn` when the contents differ. `RepresentationCell` looks the rep up again by `representationId`, so pass the same id you composed with.
 - Peak decoration comes from `opts.dayContext`, which the host sets from `peakNotation` over the cycle (`isPeak`, `peakCount`). `detectFertilityWindow` / `isFertile` remain for compatibility and are not for patient-facing verdicts (HDS charts notation, not fertile days).
 
 ## Don't

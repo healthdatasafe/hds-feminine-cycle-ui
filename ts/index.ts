@@ -4,6 +4,7 @@
  */
 
 import { registry } from './registry.ts';
+import { PACKAGE_VERSION } from './version.ts';
 import { femmSpec } from './specs/femm.ts';
 import { billingsSpec } from './specs/billings.ts';
 import { creightonSpec } from './specs/creighton.ts';
@@ -62,17 +63,14 @@ export type { CervixPositionMarkerProps } from './CervixPositionMarker.tsx';
 export { samplePreviewEvents } from './samplePreviewEvents.ts';
 export type { PreviewDay } from './samplePreviewEvents.ts';
 
-// Built-in registrations.
-registry.register(femmSpec);
-registry.register(billingsSpec);
-registry.register(creightonSpec);
-registry.register(miraSpec);
-registry.register(sensiplanSpec);
-registry.register(symptoThermalSpec);
-registry.register(justisseSpec);
-registry.register(chartneoSpec);
-registry.register(marquetteSpec);
-registry.register(appleHealthSpec);
+// Built-in registrations, with this copy's version: when several copies of the package share the page-wide
+// registry, the newest one's specs are kept (B-2026-11-20-15).
+for (const spec of [
+  femmSpec, billingsSpec, creightonSpec, miraSpec, sensiplanSpec,
+  symptoThermalSpec, justisseSpec, chartneoSpec, marquetteSpec, appleHealthSpec
+]) {
+  registry.register(spec, PACKAGE_VERSION);
+}
 
 export {
   femmSpec, billingsSpec, creightonSpec, miraSpec,
