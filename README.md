@@ -65,6 +65,8 @@ const model = buildCycleChart(events, registry.get('creighton'), {
 <CycleChart model={model} lang='en' />
 ```
 
+Its text is the host's colour (inherited), light or dark; muted text and lines are drawn from it. A host that draws the
+chart on a light card inside a dark page sets `--hdsfc-text` (also `--hdsfc-muted`, `--hdsfc-line`, `--hdsfc-paper`).
 It prints as it is seen; for 35 days a line, the page is the host's: `@page { size: A4 landscape; margin: 10mm; }`. Smaller text, or `columns={28}`, for US Letter. A sample: [`docs/cycle-chart.html`](./docs/cycle-chart.html).
 
 A draft of a chart (what was read from paper, not saved) beside what she recorded, to check day by day:
@@ -80,6 +82,8 @@ const model = buildCycleChart(recordedEvents, registry.get('creighton'), {
 <CycleChart
   model={model} columns={7}
   onActivateDay={(cycle, day) => show(cycle, day)}  // each day to check is a <button>; "Next to check"; a skip per row
+  actionable={(day) => day.draft != null}            // optional: the days that are buttons (default: isDayToCheck)
+  toCheck={(day) => !settled.has(day.day)}           // optional: of those, the ones "Next to check" counts (default: actionable)
   selected={shown} rowNote={(cycle) => <RowConfirm cycle={cycle} />}
 />
 ```

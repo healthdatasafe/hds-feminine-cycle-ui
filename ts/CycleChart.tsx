@@ -9,6 +9,9 @@ import type { I18nText } from './types.ts';
 /** Past it a day has its date and no cycle day number: a count that long says nothing. */
 export const NUMBERED_DAYS = 90;
 
+/** A test of a day of a cycle (`actionable`, `toCheck`). */
+export type CycleChartDayTest<T extends ChartEvent = ChartEvent> = (day: ChartDay<T>, cycle: ChartCycle<T>) => boolean;
+
 export interface CycleChartProps<T extends ChartEvent = ChartEvent> {
   /** `buildCycleChart`. */
   model: CycleChartModel<T>;
@@ -31,8 +34,14 @@ export interface CycleChartProps<T extends ChartEvent = ChartEvent> {
    * Nothing is written by the chart: the host shows the day and asks.
    */
   onActivateDay?: (cycle: ChartCycle<T>, day: ChartDay<T>) => void;
-  /** The days she can act on. Default: a draft, unless it is the same as what she recorded. */
-  actionable?: (day: ChartDay<T>, cycle: ChartCycle<T>) => boolean;
+  /** The days she can act on, each a button. Default: a draft, unless it is the same as what she recorded. */
+  actionable?: CycleChartDayTest<T>;
+  /**
+   * Of the days she can act on, those still to check: "Next to check (n left)" counts them and goes through them in the
+   * order drawn. A day she has settled stays a button (she can open it again) and is no longer counted. Default:
+   * `actionable`, else `isDayToCheck`.
+   */
+  toCheck?: CycleChartDayTest<T>;
   /** The day the host shows. */
   selected?: { cycleId: string; day: number } | null;
   /** The host's line under a row (its first-day question, a confirm of the row). */
@@ -93,8 +102,11 @@ export function CycleChart<T extends ChartEvent> (props: CycleChartProps<T>): Re
   const drafts = days.flatMap(d => d.draft ? [{ day: d, draft: d.draft }] : []);
 
   const interactive = onActivateDay != null;
-  const checkOptions = { actionable: props.actionable, newestFirst };
-  const isActionable = (day: ChartDay<T>, cycle: ChartCycle<T>): boolean => interactive && (props.actionable ?? isDayToCheck)(day, cycle);
+  const actionable: CycleChartDayTest<T> = props.actionable ?? isDayToCheck;
+  const stillToCheck: CycleChartDayTest<T> = props.toCheck ?? actionable;
+  // "Next to check" goes through the days that are buttons and still to check
+  const checkOptions = { actionable: (day: ChartDay<T>, cycle: ChartCycle<T>) => actionable(day, cycle) && stillToCheck(day, cycle), newestFirst };
+  const isActionable = (day: ChartDay<T>, cycle: ChartCycle<T>): boolean => interactive && actionable(day, cycle);
   const toCheck = interactive ? daysToCheck(model, checkOptions) : [];
   const activate = (cycle: ChartCycle<T>, day: ChartDay<T>): void => {
     onActivateDay?.(cycle, day);
@@ -222,8 +234,9 @@ function CycleTable<T extends ChartEvent> ({ cycle, chartId, representationId, c
               {line.map(day => {
                 const action = cell(day);
                 const seen = <DayCell day={day} representationId={representationId} words={words} />;
-                // a button is named by its own text, the day first: a name drawn from the header would read its hidden parts
-                const heard = <span className='hdsfc-sr'>{action ? words.say('dayButton', { day: dayHeader(day, words), text: dayText(day, words) }) : dayText(day, words)}</span>;
+                // every day is said with its day first, a button or not: a button is named by its own text (a name drawn from
+                // the header would read its hidden parts), and a settled day keeps its day when it is no longer a button
+                const heard = <span className='hdsfc-sr'>{words.say('dayButton', { day: dayHeader(day, words), text: dayText(day, words) })}</span>;
                 return (
                   <td
                     key={day.day} headers={`${id}d${day.day}`} className='hdsfc-cell' data-peak={draftAlone(day) ? day.draft?.peak : day.peak}
