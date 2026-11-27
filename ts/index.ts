@@ -53,7 +53,7 @@ export type {
   DraftState, ChartDraft, ChartDraftRow, DaysToCheckOptions
 } from './buildCycleChart.ts';
 export { CycleChart, NUMBERED_DAYS } from './CycleChart.tsx';
-export type { CycleChartProps } from './CycleChart.tsx';
+export type { CycleChartProps, CycleChartDayTest } from './CycleChart.tsx';
 export { CYCLE_CHART_STRINGS } from './cycleChartStrings.ts';
 export type { CycleChartStringKey, CycleChartStrings } from './cycleChartStrings.ts';
 export { RepresentationCell } from './RepresentationCell.tsx';

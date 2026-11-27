@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-11-27
+
+### Added
+- **`toCheck` on `<CycleChart>`** (`CycleChartDayTest`): of the days she can act on (`actionable`, each a button), those
+  still to check. "Next to check (n left)" counts and goes through the days that are both; a day she has settled stays a
+  button and is no longer counted. Default: `actionable`, else `isDayToCheck`, so a host that does not give it sees no
+  change.
+
+### Fixed
+- **Dark mode** (B-2026-11-27-7): the chart's text no longer has a colour of its own (it was `#1f2937`, near invisible on
+  a dark page). It inherits the host's; muted text (day headers, notes, the draft under a record) and lines are drawn
+  from it (`color-mix` of `currentColor`); "Next to check" is the host's text on a transparent background, with a line
+  border and a 2.75rem touch height. `--hdsfc-text`, `--hdsfc-muted` and `--hdsfc-line` still override. **A host that
+  draws the chart on a light card inside a dark page must set `--hdsfc-text`** (the inherited colour is the page's).
+  Stamp fills and print (black) are unchanged.
+- Every day is said with its day first ("Day 3, March 21, 2024: …"), a button or not: a settled day, no longer a button,
+  kept only its content (B-2026-11-27-11). The words are `dayButton`'s, now for every day.
+- Creighton's M is said "Moderate" (fr "Modéré", es "Moderado", it "Moderato"), the words of data-model's
+  `body-vulva-bleeding` option for the same value, no longer "Medium" (B-2026-11-27-11).
+
 ## [0.19.1] - 2026-11-27
 
 ### Changed

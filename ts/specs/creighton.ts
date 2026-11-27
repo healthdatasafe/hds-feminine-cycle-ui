@@ -91,7 +91,7 @@ const mucusSamples: Record<string, MappingRuleFragment> = Object.fromEntries(SAM
 
 const bleedingNotation: BleedingNotationEntry[] = [
   { code: 'H', label: { en: 'Heavy', fr: 'Abondant', es: 'Abundante', it: 'Abbondante', 'pt-BR': 'Intenso' }, band: 'heavy', itemKey: 'body-vulva-bleeding', value: 0.75, mucus: 'none' },
-  { code: 'M', label: { en: 'Medium', fr: 'Moyen', es: 'Medio', it: 'Medio', 'pt-BR': 'Moderado' }, band: 'medium', itemKey: 'body-vulva-bleeding', value: 0.55, mucus: 'none' },
+  { code: 'M', label: { en: 'Moderate', fr: 'Modéré', es: 'Moderado', it: 'Moderato', 'pt-BR': 'Moderado' }, band: 'medium', itemKey: 'body-vulva-bleeding', value: 0.55, mucus: 'none' },
   { code: 'L', label: { en: 'Light', fr: 'Léger', es: 'Leve', it: 'Leggero', 'pt-BR': 'Leve' }, band: 'light', itemKey: 'body-vulva-bleeding', value: 0.35, mucus: 'required' },
   { code: 'VL', label: { en: 'Very light', fr: 'Très léger', es: 'Muy leve', it: 'Molto leggero', 'pt-BR': 'Muito leve' }, band: 'spotting', itemKey: 'body-vulva-bleeding', value: 0.2, mucus: 'required' },
   { code: 'B', label: { en: 'Brown bleeding', fr: 'Saignement brun', es: 'Sangrado marrón', it: 'Sanguinamento marrone', 'pt-BR': 'Sangramento marrom' }, band: 'brown', itemKey: 'body-vulva-bleeding-browndark', mucus: 'required' }

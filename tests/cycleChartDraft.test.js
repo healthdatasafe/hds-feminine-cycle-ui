@@ -18,7 +18,9 @@ const dayOf = (e) => new Date(e.time * 1000).toISOString().slice(0, 10);
 const build = (events, draftRows, opts = {}) => buildCycleChart(events, rep, { dayOf, today: '2026-03-31', draftRows, ...opts });
 const html = (model, props = {}) => renderToStaticMarkup(createElement(CycleChart, { model, ...props }));
 const cells = (h) => [...h.matchAll(/<td([^>]*)>(.*?)<\/td>/gs)].map(m => ({ attrs: m[1], body: m[2] }));
-const heard = (h) => cells(h).map(c => /<span class="hdsfc-sr"[^>]*>(.*?)<\/span>/s.exec(c.body)[1]);
+/** what is heard of each day, its day first; the same without its day */
+const spoken = (h) => cells(h).map(c => /<span class="hdsfc-sr"[^>]*>(.*?)<\/span>/s.exec(c.body)[1]);
+const heard = (h) => spoken(h).map(t => t.replace(/^[^:]*?\s?:\s/, ''));
 const seen = (h) => cells(h).map(c => [...c.body.split('<span class="hdsfc-sr"')[0].matchAll(/<svg class="hdsfc-line[^>]*>(?:<text[^>]*>(.*?)<\/text>)?<\/svg>/g)].map(x => x[1] ?? '').filter(Boolean));
 
 /** a row of every state: what she recorded on its days, and what was read from her chart */
@@ -143,8 +145,10 @@ test('a real button in each cell she can act on (rule 17), named by its day and 
   assert.deepEqual(acting, [true, true, true, false, true, true, false, false, true]);
   for (const [, tag] of h.matchAll(/<td[^>]*>(<button[^>]*>)/g)) assert.match(tag, /type="button"/);
   // named by its own text, its day first: everything else in it is hidden from speech
-  assert.deepEqual(heard(h).filter((_, i) => acting[i]).slice(0, 2), ['Day 1, March 1, 2026: draft 8C X1, not saved', 'Day 2, March 2, 2026: written on the chart, not read']);
-  assert.equal(heard(h).at(-1), 'Day 1: draft 2, not saved');
+  assert.deepEqual(spoken(h).filter((_, i) => acting[i]).slice(0, 2), ['Day 1, March 1, 2026: draft 8C X1, not saved', 'Day 2, March 2, 2026: written on the chart, not read']);
+  assert.equal(spoken(h).at(-1), 'Day 1: draft 2, not saved');
+  // a day that is not a button (settled: the same as recorded) keeps its day
+  assert.equal(spoken(h)[3], 'Day 4, March 4, 2026: 10KL X1, already recorded, same, corrected by you');
   for (const c of cells(h).filter(c => c.body.startsWith('<button'))) assert.match(c.body, /^<button[^>]*><span aria-hidden="true"/);
   assert.doesNotMatch(h, /role="grid"/);
   assert.match(cells(h)[4].body, /^<button[^>]*aria-current="true"/);
@@ -156,6 +160,31 @@ test('a real button in each cell she can act on (rule 17), named by its day and 
   // the host chooses the days: here, also what she recorded
   const all = html(m, { onActivateDay: () => {}, actionable: (day) => day.draft != null || day.events.length > 0 });
   assert.equal(cells(all).filter(c => c.body.startsWith('<button')).length, 8);
+});
+
+test('the host says which of the days she can act on are still to check: they are counted, the others stay buttons', () => {
+  const m = build(recorded, [row, { id: 'u', days: [{ day: 1, events: [dCode('2')], state: 'draft' }] }]);
+  const buttons = (h) => cells(h).filter(c => c.body.startsWith('<button')).length;
+  const next = (h) => /class="hdsfc-next">(.*?)<\/button>/.exec(h)?.[1];
+  const actionable = (day) => day.draft != null;
+  const settled = new Set(['r1', 'r5', 'r8']);
+  const toCheck = (day, cycle) => !settled.has(`${cycle.id}${day.day}`);
+  // without toCheck, every day she can act on is to check (as before)
+  const before = html(m, { onActivateDay: () => {}, actionable });
+  assert.equal(buttons(before), 8);
+  assert.equal(next(before), 'Next to check (8 left)');
+  const h = html(m, { onActivateDay: () => {}, actionable, toCheck });
+  assert.equal(buttons(h), 8);
+  assert.equal(next(h), 'Next to check (5 left)');
+  // a day to check that is not a button is not counted
+  assert.equal(next(html(m, { onActivateDay: () => {}, toCheck: () => true })), 'Next to check (6 left)');
+  assert.equal(next(html(m, { onActivateDay: () => {}, toCheck: (day) => day.draft?.state === 'unread' })), 'Next to check (2 left)');
+  // none left: no "Next to check", the days are still buttons
+  const done = html(m, { onActivateDay: () => {}, actionable, toCheck: () => false });
+  assert.equal(next(done), undefined);
+  assert.equal(buttons(done), 8);
+  // read-only: no button, whatever is to check
+  assert.equal(buttons(html(m, { actionable, toCheck })), 0);
 });
 
 test('the next day to check, in the order drawn, after the one shown even when it is no longer one, round to the first', () => {

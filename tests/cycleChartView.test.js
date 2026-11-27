@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { registry, buildCycleChart, CycleChart, CYCLE_CHART_STRINGS } from '../js/index.js';
@@ -13,8 +14,9 @@ const code = (date, value, frequency, key = 'creighton') => ev('body-vulva-mucus
 const dayOf = (e) => new Date(e.time * 1000).toISOString().slice(0, 10);
 const build = (events, opts = {}) => buildCycleChart(events, rep, { dayOf, today: '2026-03-10', ...opts });
 const html = (events, opts, props = {}) => renderToStaticMarkup(createElement(CycleChart, { model: build(events, opts), ...props }));
-/** what is heard of each day, in order; what is seen of it */
-const heard = (h) => [...h.matchAll(/<td[^>]*>.*?<span class="hdsfc-sr">(.*?)<\/span>/gs)].map(m => m[1].replaceAll('&#x27;', "'"));
+/** what is heard of each day, in order, its day first; the same without its day; what is seen of it */
+const spoken = (h) => [...h.matchAll(/<td[^>]*>.*?<span class="hdsfc-sr">(.*?)<\/span>/gs)].map(m => m[1].replaceAll('&#x27;', "'"));
+const heard = (h) => spoken(h).map(t => t.replace(/^[^:]*?\s?:\s/, ''));
 const seen = (h) => [...h.matchAll(/<td[^>]*>(.*?)<\/td>/gs)].map(m => [...m[1].split('<span class="hdsfc-sr">')[0].matchAll(/<svg class="hdsfc-line[^>]*>(?:<text[^>]*>(.*?)<\/text>)?<\/svg>/g)].map(x => x[1] ?? '').filter(Boolean));
 const S = start('2026-03-01');
 
@@ -63,6 +65,50 @@ test('each day is heard as it is seen', () => {
     'bleeding, day 2 after the peak', 'no bleeding, day 3 after the peak', 'Nothing recorded'
   ]);
   assert.deepEqual(seen(h).slice(0, 8), [['H'], ['L', '0', 'AD'], [], ['P', '10KL', 'X2'], ['1', '0', 'AD'], ['2', '●'], ['3', '–'], []]);
+});
+
+test('every day is heard with its day first, a button or not (B-2026-11-27-11)', () => {
+  const h = html([S, flow('2026-03-01', 0.75), code('2026-03-03', '8C', 'X1')]);
+  const headers = [...h.matchAll(/<th[^>]*>.*?<span class="hdsfc-sr">(.*?)<\/span><\/th>/gs)].map(m => m[1]);
+  assert.equal(spoken(h).length, 10);
+  spoken(h).forEach((said, i) => assert.ok(said.startsWith(`${headers[i]}: `), said));
+  assert.deepEqual(spoken(h).slice(0, 3), ['Day 1, March 1, 2026: bleeding H, Heavy', 'Day 2, March 2, 2026: Nothing recorded', 'Day 3, March 3, 2026: 8C X1']);
+  assert.doesNotMatch(h, /<button/);
+  assert.equal(spoken(html([S, flow('2026-03-01', 0.75)], {}, { lang: 'fr' }))[0], 'Jour 1, 1 mars 2026 : saignement H, Abondant');
+  // past day 90, its date alone
+  assert.equal(spoken(html([code('2026-03-09', '8C', 'X1')], { rows: [{ startDate: '2025-12-01' }] }))[98], 'March 9, 2026: 8C X1');
+});
+
+test('a bleeding letter is said in the words of the bleeding item: M is Moderate, in every language (B-2026-11-27-11)', () => {
+  const h = (lang) => heard(html([S, flow('2026-03-01', 0.55)], {}, { lang }))[0];
+  assert.deepEqual(['en', 'fr', 'es', 'it', 'pt-BR'].map(h), ['bleeding M, Moderate', 'saignement M, Modéré', 'sangrado M, Moderado', 'sanguinamento M, Moderato', 'sangramento M, Moderado']);
+  // the option labels of data-model's body-vulva-bleeding, for the values the letters stand for
+  const labels = Object.fromEntries(rep.spec.bleedingNotation.filter(b => b.itemKey === 'body-vulva-bleeding').map(b => [b.code, b.label]));
+  assert.deepEqual(labels, {
+    H: { en: 'Heavy', fr: 'Abondant', es: 'Abundante', it: 'Abbondante', 'pt-BR': 'Intenso' },
+    M: { en: 'Moderate', fr: 'Modéré', es: 'Moderado', it: 'Moderato', 'pt-BR': 'Moderado' },
+    L: { en: 'Light', fr: 'Léger', es: 'Leve', it: 'Leggero', 'pt-BR': 'Leve' },
+    VL: { en: 'Very light', fr: 'Très léger', es: 'Muy leve', it: 'Molto leggero', 'pt-BR': 'Muito leve' }
+  });
+});
+
+test('the stylesheet writes in the host\'s colour: no literal text colour outside print (B-2026-11-27-7)', () => {
+  const css = readFileSync(new URL('../css/cycle-chart.css', import.meta.url), 'utf8').replace(/\/\*.*?\*\//gs, '');
+  const print = css.indexOf('@media print');
+  assert.ok(print > 0);
+  const screen = css.slice(0, print);
+  const colours = [...screen.matchAll(/(?<![-\w])color\s*:\s*([^;}]+)/g)].map(m => m[1].trim());
+  assert.ok(colours.length >= 5, colours.join(' | '));
+  for (const value of colours) {
+    assert.doesNotMatch(value, /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(|\b(black|white|gray|grey)\b/i, value);
+  }
+  assert.match(screen, /\.hdsfc-chart \{[^}]*color: var\(--hdsfc-text, inherit\)/);
+  // borders and lines are drawn from the text colour too
+  for (const [, value] of screen.matchAll(/border(?:-\w+)?\s*:\s*([^;}]+)/g)) assert.doesNotMatch(value, /#[0-9a-f]{3,8}\b|rgba?\(/i, value);
+  assert.match(screen, /\.hdsfc-next \{[^}]*color: inherit;[^}]*background: transparent;[^}]*border: 1px solid var\(--hdsfc-line/s);
+  assert.match(screen, /\.hdsfc-next \{[^}]*min-height: 2\.75rem/s);
+  // a print is black on white
+  assert.match(css.slice(print), /\.hdsfc-chart \{ color: #000; background: none; \}/);
 });
 
 test('an empty day draws no stamp; a recorded peak alone is marked without one', () => {
