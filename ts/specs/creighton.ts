@@ -27,7 +27,9 @@ import type { RepresentationSpec, MappingRuleFragment, BleedingNotationEntry } f
  *                                    yellow; a yellow stamp is drawn only where it was charted.
  *
  * Charted stamps (`stamps`, data-model 4.32.0): the six of the method. Yellow and yellow with a baby are used only on
- * the instructor's instruction (book ch. 6; plan 131 `08-practitioner-answers.md` Q9).
+ * the instructor's instruction (book ch. 6; plan 131 `08-practitioner-answers.md` Q9), and only on a day of mucus
+ * judged not fertile by that instruction, never a dry one (`over: ['discharge']`; practitioner, 2026-11-26, plan 136
+ * `seance-2026-11-26-questions-generales.md` Q4). The six are the whole list: no brown, no white without a baby (Q3).
  *
  * Peak-type (codeRules[2], hds, `peakMarker.isCandidate`): clear (K, so C/K too),
  * lubricative (L) or very stretchy (10) mucus, whatever the quantity, also when
@@ -129,8 +131,8 @@ export const creightonSpec: RepresentationSpec = {
     green: { fill: 'dryGreen', label: { en: 'Green', fr: 'Vert', es: 'Verde', it: 'Verde', 'pt-BR': 'Verde' } },
     'green-baby': { fill: 'dryGreen', baby: true, label: { en: 'Green with a baby', fr: 'Vert avec un bébé', es: 'Verde con un bebé', it: 'Verde con un bambino', 'pt-BR': 'Verde com um bebê' } },
     'white-baby': { fill: 'discharge', baby: true, label: { en: 'White with a baby', fr: 'Blanc avec un bébé', es: 'Blanco con un bebé', it: 'Bianco con un bambino', 'pt-BR': 'Branco com um bebê' } },
-    yellow: { fill: 'stampYellow', label: { en: 'Yellow', fr: 'Jaune', es: 'Amarillo', it: 'Giallo', 'pt-BR': 'Amarelo' }, onInstruction: true },
-    'yellow-baby': { fill: 'stampYellow', baby: true, label: { en: 'Yellow with a baby', fr: 'Jaune avec un bébé', es: 'Amarillo con un bebé', it: 'Giallo con un bambino', 'pt-BR': 'Amarelo com um bebê' }, onInstruction: true }
+    yellow: { fill: 'stampYellow', label: { en: 'Yellow', fr: 'Jaune', es: 'Amarillo', it: 'Giallo', 'pt-BR': 'Amarelo' }, onInstruction: true, over: ['discharge'] },
+    'yellow-baby': { fill: 'stampYellow', baby: true, label: { en: 'Yellow with a baby', fr: 'Jaune avec un bébé', es: 'Amarillo con un bebé', it: 'Giallo con un bambino', 'pt-BR': 'Amarelo com um bebê' }, onInstruction: true, over: ['discharge'] }
   },
   mappingRules: {
     mucus: mucusSamples,

@@ -37,7 +37,7 @@ export type {
 export { registry } from './registry.ts';
 export { longestCode } from './longestCode.ts';
 export { composeCellInput, stickerOf, bleedingBandOf } from './composeCellInput.ts';
-export { CHART_STAMP_ITEM, CHART_STAMP_TYPE, chartedStampOf, stampChoices } from './chartStamp.ts';
+export { CHART_STAMP_ITEM, CHART_STAMP_TYPE, chartedStampOf, stampChoices, stampFitsDay } from './chartStamp.ts';
 export type { ChartedStamp, StampChoice } from './chartStamp.ts';
 export { isPeakOption } from './mucusOption.ts';
 export { stampColours, stampTextLayout, luminanceOf, textOn } from './stampStyle.ts';

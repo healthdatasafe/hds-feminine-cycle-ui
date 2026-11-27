@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-11-27
+
+### Added
+- **Creighton's yellow goes over mucus only** (plan 141; practitioner, 2026-11-26): `StampSpec.over` names the drawn
+  fills a stamp may replace, `StampChoice.over` carries them resolved, and `stampFitsDay(choice, drawn)` says whether a
+  picker offers the stamp on a day, from the cell its observations draw without a charted stamp. Yellow and yellow with
+  a baby: only over white with a baby (6, 8, 10); never a dry day, a bleeding one or an empty one. A stamp already
+  charted is still drawn wherever it is. The six stamps are confirmed as the whole list.
+
 ## [0.18.0] - 2026-11-26
 
 ### Added
