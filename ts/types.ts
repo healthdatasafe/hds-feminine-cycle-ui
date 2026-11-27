@@ -54,6 +54,11 @@ export interface StampSpec {
   label: I18nText;
   /** Used on the instructor's instruction only: never drawn from a code, offered to a person who asked for it. */
   onInstruction?: boolean;
+  /**
+   * Offered only on a day whose observations draw one of these fills (palette keys), never on an empty day. Absent:
+   * on any day. Creighton's yellow: over mucus only (`discharge`).
+   */
+  over?: string[];
 }
 
 /** Per-role mapping table: option-value -> fragment. */

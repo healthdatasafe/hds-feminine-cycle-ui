@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { registry, composeCellInput, chartedStampOf, stampChoices, stickerOf, peakNotation, CHART_STAMP_ITEM, CHART_STAMP_TYPE } from '../js/index.js';
+import { registry, composeCellInput, chartedStampOf, stampChoices, stampFitsDay, stickerOf, peakNotation, CHART_STAMP_ITEM, CHART_STAMP_TYPE } from '../js/index.js';
 
 const creighton = registry.get('creighton');
 const YELLOW = '#F4C752';
@@ -72,6 +72,20 @@ test('[CST6] the choices: the six of Creighton, each its own sticker, yellow on 
     }
   }
   assert.deepEqual(stampChoices(registry.get('femm')), []);
+});
+
+test('[CST8] yellow goes over mucus only: never a dry day, a bleeding one or an empty one; the others on any day', () => {
+  const choices = stampChoices(creighton);
+  const fitting = (events) => choices.filter(c => stampFitsDay(c, composeCellInput(events, creighton))).map(c => c.id);
+  const all = ['red', 'green', 'green-baby', 'white-baby', 'yellow', 'yellow-baby'];
+  const noYellow = ['red', 'green', 'green-baby', 'white-baby'];
+  for (const code of ['6C', '6Y', '8CK', '10KL', 'PY']) assert.deepEqual(fitting([mucus(code)]), all, code);
+  for (const code of ['0', '2', '2W', '4', '6B', '6R']) assert.deepEqual(fitting([mucus(code)]), noYellow, code);
+  assert.deepEqual(fitting([bleeding(0.75)]), noYellow);
+  assert.deepEqual(fitting([]), noYellow);
+  // bleeding with mucus draws red: not a day of mucus alone
+  assert.deepEqual(fitting([bleeding(0.2), mucus('8C')]), noYellow);
+  assert.deepEqual(choices.filter(c => c.over).map(c => c.id), ['yellow', 'yellow-baby']);
 });
 
 test('[CST7] no code draws yellow, and a stamp never makes a peak', () => {

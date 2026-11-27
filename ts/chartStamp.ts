@@ -49,6 +49,8 @@ export interface StampChoice {
   input: CellInput;
   /** used on the instructor's instruction only: a picker offers it to a person who asked for such stamps */
   onInstruction: boolean;
+  /** the fills (resolved) of the drawn stamps it may go over (`StampSpec.over`); absent: any day */
+  over?: string[];
 }
 
 /** The stamps a method's chart uses, in its order, for a picker. Empty when its spec lists none. */
@@ -57,6 +59,16 @@ export function stampChoices (rep: Representation): StampChoice[] {
     id,
     label: stamp.label,
     input: withStamp({}, { id, stamp }, rep),
-    onInstruction: stamp.onInstruction === true
+    onInstruction: stamp.onInstruction === true,
+    ...(stamp.over ? { over: stamp.over.map(key => rep.resolveColor(key)) } : {})
   }));
+}
+
+/**
+ * Whether a picker offers a stamp on a day: `drawn` is the cell the day's observations draw, without a charted stamp
+ * (`composeCellInput` on its events less the stamp ones). A stamp with `over` goes only over one of those fills.
+ */
+export function stampFitsDay (choice: StampChoice, drawn: CellInput): boolean {
+  if (!choice.over) return true;
+  return drawn.empty !== true && drawn.fill != null && choice.over.includes(drawn.fill);
 }
