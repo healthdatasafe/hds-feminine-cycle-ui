@@ -116,7 +116,9 @@ test('signs beside the fluid, as method-rules.json shows.signs', () => {
   assert.deepEqual(signs('sensiplan'), { ...none, temperature: 'default', cervix: 'optional' });
   assert.deepEqual(signs('chartneo'), { ...none, temperature: 'default' });
   assert.deepEqual(signs('marquette'), { ...none, temperature: 'optional', monitor: 'default' });
-  assert.equal(registry.get('marquette').spec.chart.monitorItem, 'fertility-monitor-lh-marquette');
+  // data-model's monitor reading (low / high / peak, any monitor), never the overlay key it replaces
+  assert.equal(registry.get('marquette').spec.chart.monitorItem, 'fertility-monitor-reading');
+  assert.equal(registry.list().some(r => r.spec.chart?.monitorItem === 'fertility-monitor-lh-marquette'), false);
   // no shows.signs for these yet
   assert.equal(signs('mira'), undefined);
   assert.equal(signs('appleHealth'), undefined);

@@ -19,5 +19,6 @@ Rules: model-cervical-fluid `references/rules/method-rules.json`, `methods.marqu
   candidate until answered.
 - `fertileStart` (hds-draft).
 - The monitor's Peak as the peak day (`peak`: "the monitor's Peak (the LH surge)"): the monitor reading
-  (`fertility-monitor-lh-marquette`) is not consumed by this spec; hosts read it in its own row.
+  (`chart.monitorItem`: data-model `fertility-monitor-reading`, `low` | `high` | `peak`) is not consumed by this spec;
+  hosts read it in its own row, with the model's labels.
 - Colours (`colours`, decision without a source). The letter on the peak day (`P`; `peakMark` carries no status).

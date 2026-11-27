@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+- **Marquette's monitor item is `fertility-monitor-reading`** (`chart.monitorItem`), data-model's fertility monitor
+  reading: a string `low` | `high` | `peak` (`fertility/monitor-reading-v1`), any monitor, the device in
+  `clientData.hdsInstrument`; a missed test writes nothing. It replaces `fertility-monitor-lh-marquette`
+  (`ratio/generic` 0 / 1 / 2), which no data-model release ever shipped. Hosts name the readings with the model's
+  option labels (Low / High / Peak) and show no monitor row while their loaded model does not know the item.
+  **Release after the data-model release that ships the item.**
+
 ## [0.20.1] - 2026-11-27
 
 ### Fixed
