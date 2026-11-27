@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.20.1] - 2026-11-27
+
+### Fixed
+- **A stale copy of the package no longer replaces the built-in specs** (B-2026-11-20-15). Every copy loaded in a page
+  shares one registry (`globalThis`), and the last copy to load used to win: a transitive 0.11.1 loaded after the
+  current one put the old Creighton spec back. Now, for an id registered twice, the spec from the newer package version
+  is kept; a registration without a version (a copy older than 0.20.1, or a host's own spec) counts as the oldest; the
+  same version keeps the last. Different contents under one id give one `console.warn` naming the id and both versions;
+  the same content stays silent. The registry's key is unchanged, so older copies still share it.
+- `registry.register(spec, version?)`: the built-ins pass the package version (`ts/version.ts`, kept equal to
+  `package.json` by a test).
+
 ## [0.20.0] - 2026-11-27
 
 ### Added
